@@ -93,7 +93,7 @@ export function planTransplant(
     );
 
     if (candidates.length === 1) {
-      const target = candidates[0];
+      const target = candidates[0]!;
       mappings.push({ source: source.name, destination: target.name, kind: source.kind, reason: 'exact-contract' });
       claimedDestinations.add(target.name);
     } else {
