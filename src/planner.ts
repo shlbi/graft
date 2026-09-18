@@ -13,6 +13,7 @@ export interface MappingOverride {
 export interface PlannedMapping {
   source: string;
   destination: string;
+  destinationModule: string;
   kind: CapabilityKind;
   reason: 'explicit' | 'exact-contract';
 }
@@ -81,7 +82,7 @@ export function planTransplant(
         });
         continue;
       }
-      mappings.push({ source: source.name, destination: target.name, kind: source.kind, reason: 'explicit' });
+      mappings.push({ source: source.name, destination: target.name, destinationModule: target.module, kind: source.kind, reason: 'explicit' });
       claimedDestinations.add(target.name);
       continue;
     }
@@ -94,7 +95,7 @@ export function planTransplant(
 
     if (candidates.length === 1) {
       const target = candidates[0]!;
-      mappings.push({ source: source.name, destination: target.name, kind: source.kind, reason: 'exact-contract' });
+      mappings.push({ source: source.name, destination: target.name, destinationModule: target.module, kind: source.kind, reason: 'exact-contract' });
       claimedDestinations.add(target.name);
     } else {
       blockers.push({

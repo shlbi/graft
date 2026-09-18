@@ -16,17 +16,18 @@
     "deterministic destination capability planning with ambiguity blockers",
     "strict TypeScript build plus regression test harness",
     "normalized module-graph closure that stops at adapter boundaries",
-    "explicit destination capability inventory parsing with conservative contract matching"
+    "explicit destination capability inventory parsing with conservative contract matching",
+    "deterministic reviewable change-set generation with collision blockers and adapter binding targets"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0",
     "typescript": "5.8.3",
     "command": "npm test",
-    "result": "8 tests passed, 0 failed"
+    "result": "10 tests passed, 0 failed"
   },
   "next": [
     "parse supported TypeScript imports into normalized module records",
-    "materialize a reviewable transplant change set against synthetic demo apps",
+    "materialize change-set operations against synthetic file snapshots",
     "build the first runnable source and destination demo applications"
   ]
 }
