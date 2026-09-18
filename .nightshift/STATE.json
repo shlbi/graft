@@ -1,0 +1,31 @@
+{
+  "project": "Graft",
+  "cycle": { "start": "2026-09-18", "end": "2026-09-24" },
+  "phase": "core-analysis",
+  "acceptance": [
+    "source demo upload/background-processing/progress feature works",
+    "destination demonstrably lacks feature before transplant",
+    "Graft produces a reviewable dependency and capability mapping plan",
+    "approved transplant changes only documented feature/integration files",
+    "destination builds and automated integration tests execute",
+    "transplanted upload/job/progress flow works end-to-end",
+    "clean reset reproduces the demo"
+  ],
+  "completed": [
+    "versioned feature manifest validation with secret/path boundary checks",
+    "deterministic destination capability planning with ambiguity blockers",
+    "strict TypeScript build plus regression test harness",
+    "normalized module-graph closure that stops at adapter boundaries"
+  ],
+  "observedValidation": {
+    "runtime": "Node 22.16.0",
+    "typescript": "5.8.3",
+    "command": "npm test",
+    "result": "6 tests passed, 0 failed"
+  },
+  "next": [
+    "parse supported TypeScript imports into normalized module records",
+    "inventory destination capabilities from explicit configuration",
+    "materialize a reviewable transplant change set against synthetic demo apps"
+  ]
+}

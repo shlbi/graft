@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ManifestError, parseFeatureManifest, projectPath } from '../dist/manifest.js';
 import { PlanError, planTransplant } from '../dist/planner.js';
+import { AnalysisError, analyzeFeatureClosure } from '../dist/analyzer.js';
 
 const manifest = () => parseFeatureManifest({
   schemaVersion: 1,
@@ -57,4 +58,42 @@ test('explicit overrides must preserve kind and contract and destination names s
   ], [{ source: 'job-runner', destination: 'worker' }]);
   assert.equal(invalid.ready, false);
   assert.equal(invalid.blockers.find(b => b.source === 'job-runner')?.reason, 'invalid-override');
+});
+
+test('feature analysis stops at adapter boundaries and collects package roots', () => {
+  const result = analyzeFeatureClosure(manifest(), [
+    { path: 'features/upload/index.ts', imports: [
+      { kind: 'internal', path: 'features/upload/service.ts' },
+      { kind: 'package', package: '@tanstack/react-query/build/modern' },
+    ] },
+    { path: 'features/upload/service.ts', imports: [
+      { kind: 'internal', path: 'features/upload/storage.ts' },
+      { kind: 'internal', path: 'features/upload/jobs.ts' },
+      { kind: 'package', package: 'zod/v4' },
+    ] },
+    { path: 'features/upload/storage.ts', imports: [{ kind: 'internal', path: 'secrets/never-copy.ts' }] },
+    { path: 'features/upload/jobs.ts', imports: [] },
+    { path: 'secrets/never-copy.ts', imports: [] },
+  ]);
+  assert.deepEqual(result, {
+    files: ['features/upload/index.ts', 'features/upload/service.ts'],
+    boundaryModules: ['features/upload/jobs.ts', 'features/upload/storage.ts'],
+    packages: ['@tanstack/react-query', 'zod'],
+    blockers: [],
+    ready: true,
+  });
+});
+
+test('feature analysis reports missing internal modules and rejects duplicate snapshots', () => {
+  const missing = analyzeFeatureClosure(manifest(), [
+    { path: 'features/upload/index.ts', imports: [{ kind: 'internal', path: 'features/upload/missing.ts' }] },
+  ]);
+  assert.equal(missing.ready, false);
+  assert.deepEqual(missing.blockers, [
+    { from: 'features/upload/index.ts', path: 'features/upload/missing.ts', reason: 'missing-module' },
+  ]);
+  assert.throws(() => analyzeFeatureClosure(manifest(), [
+    { path: 'features/upload/index.ts', imports: [] },
+    { path: 'features/upload/index.ts', imports: [] },
+  ]), AnalysisError);
 });
