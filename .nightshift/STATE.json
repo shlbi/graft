@@ -15,17 +15,18 @@
     "versioned feature manifest validation with secret/path boundary checks",
     "deterministic destination capability planning with ambiguity blockers",
     "strict TypeScript build plus regression test harness",
-    "normalized module-graph closure that stops at adapter boundaries"
+    "normalized module-graph closure that stops at adapter boundaries",
+    "explicit destination capability inventory parsing with conservative contract matching"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0",
     "typescript": "5.8.3",
     "command": "npm test",
-    "result": "6 tests passed, 0 failed"
+    "result": "8 tests passed, 0 failed"
   },
   "next": [
     "parse supported TypeScript imports into normalized module records",
-    "inventory destination capabilities from explicit configuration",
-    "materialize a reviewable transplant change set against synthetic demo apps"
+    "materialize a reviewable transplant change set against synthetic demo apps",
+    "build the first runnable source and destination demo applications"
   ]
 }
