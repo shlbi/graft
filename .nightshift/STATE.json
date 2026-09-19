@@ -18,17 +18,18 @@
     "normalized module-graph closure that stops at adapter boundaries",
     "explicit destination capability inventory parsing with conservative contract matching",
     "deterministic reviewable change-set generation with collision blockers and adapter binding targets",
-    "AST-backed static TypeScript ESM import parsing with explicit dynamic/CommonJS blockers"
+    "AST-backed static TypeScript ESM import parsing with explicit dynamic/CommonJS blockers",
+    "immutable snapshot materialization that refuses hidden overwrites and missing source files"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0",
     "typescript": "5.8.3",
     "command": "npm test",
-    "result": "10 tests passed, 0 failed (previous full-suite baseline); new import parser validated separately with 2 tests passed, 0 failed"
+    "result": "10 tests passed, 0 failed (previous full-suite baseline); import parser and materializer each validated separately with 2 tests passed, 0 failed"
   },
   "next": [
+    "rewrite declared adapter imports to mapped destination capability modules",
     "connect parsed module graphs directly into feature closure analysis",
-    "materialize change-set operations against synthetic file snapshots",
     "build the first runnable source and destination demo applications"
   ]
 }
