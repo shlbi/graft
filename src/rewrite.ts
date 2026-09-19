@@ -36,9 +36,19 @@ function relativeSpecifier(from: string, to: string): string {
   return result.startsWith('.') ? result : `./${result}`;
 }
 
-/** Rewrite only static ESM edges that resolve to a declared adapter boundary. */
-export function rewriteAdapterImports(sourcePath: string, content: string, bindings: CapabilityBinding[]): RewriteResult {
+/**
+ * Rewrite only static ESM edges that resolve to a declared adapter boundary.
+ * Resolution uses the original source path; emitted specifiers are relative to
+ * outputPath so a reviewed relocation cannot accidentally preserve stale paths.
+ */
+export function rewriteAdapterImports(
+  sourcePath: string,
+  content: string,
+  bindings: CapabilityBinding[],
+  outputPath = sourcePath,
+): RewriteResult {
   sourcePath = projectPath(sourcePath, 'sourcePath');
+  outputPath = projectPath(outputPath, 'outputPath');
   const bySource = new Map<string, CapabilityBinding>();
   for (const binding of bindings) {
     const sourceModule = projectPath(binding.sourceModule, 'binding.sourceModule');
@@ -52,7 +62,7 @@ export function rewriteAdapterImports(sourcePath: string, content: string, bindi
     const matches = boundaryCandidates(sourcePath, literal.text).filter(candidate => bySource.has(candidate));
     if (matches.length > 1) throw new RewriteError(`ambiguous adapter import ${literal.text} from ${sourcePath}`);
     if (!matches.length) return;
-    const binding = bySource.get(matches[0]!)!; const to = relativeSpecifier(sourcePath, binding.destinationModule);
+    const binding = bySource.get(matches[0]!)!; const to = relativeSpecifier(outputPath, binding.destinationModule);
     edits.push({ start: literal.getStart(sourceFile) + 1, end: literal.getEnd() - 1, text: to, from: literal.text, to });
   }
   function visit(node: ts.Node): void {

@@ -1,5 +1,6 @@
 import type { ReviewableChangeSet } from './changeset.js';
 import { projectPath } from './manifest.js';
+import { rewriteAdapterImports } from './rewrite.js';
 
 export interface FileSnapshot {
   path: string;
@@ -9,6 +10,7 @@ export interface FileSnapshot {
 export interface MaterializedFile extends FileSnapshot {
   sourcePath: string;
   sourceKind: 'module' | 'asset';
+  rewrittenImports: { from: string; to: string }[];
 }
 
 export interface MaterializationResult {
@@ -38,7 +40,8 @@ function snapshotMap(snapshots: FileSnapshot[], label: string): Map<string, stri
 
 /**
  * Applies an already-reviewed change set to immutable synthetic snapshots.
- * It does not rewrite adapter imports yet; that is a separate, reviewable step.
+ * Copied TypeScript modules are rewritten only at declared adapter boundaries;
+ * assets are copied byte-for-byte (as UTF-8 text in this v0.1 snapshot model).
  */
 export function materializeChangeSet(
   changeSet: ReviewableChangeSet,
@@ -61,9 +64,19 @@ export function materializeChangeSet(
     if (targets.has(targetPath)) throw new MaterializationError(`duplicate target operation: ${targetPath}`);
     targets.add(targetPath);
     if (destination.has(targetPath)) throw new MaterializationError(`refusing to overwrite destination path: ${targetPath}`);
-    const content = source.get(sourcePath);
-    if (content === undefined) throw new MaterializationError(`missing source snapshot: ${sourcePath}`);
-    created.push({ path: targetPath, content, sourcePath, sourceKind: operation.sourceKind });
+    const originalContent = source.get(sourcePath);
+    if (originalContent === undefined) throw new MaterializationError(`missing source snapshot: ${sourcePath}`);
+
+    const rewritten = operation.sourceKind === 'module'
+      ? rewriteAdapterImports(sourcePath, originalContent, changeSet.bindings, targetPath)
+      : { content: originalContent, rewritten: [] };
+    created.push({
+      path: targetPath,
+      content: rewritten.content,
+      sourcePath,
+      sourceKind: operation.sourceKind,
+      rewrittenImports: rewritten.rewritten,
+    });
   }
 
   created.sort((a, b) => a.path.localeCompare(b.path));

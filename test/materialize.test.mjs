@@ -24,6 +24,31 @@ test('materializes reviewed copies without changing existing destination snapsho
   assert.equal(result.result.find(file => file.path === 'src/existing.ts')?.content, 'export const existing = true;');
 });
 
+test('materializer rewrites declared adapter imports while respecting reviewed relocation', () => {
+  const bound = {
+    feature: 'upload-jobs',
+    operations: [
+      { kind: 'copy', sourcePath: 'src/features/upload/service.ts', targetPath: 'src/upload/service.ts', sourceKind: 'module' },
+    ],
+    bindings: [{
+      sourceCapability: 'storage', sourceModule: 'src/adapters/storage.ts',
+      destinationCapability: 'blob-store', destinationModule: 'src/platform/blob-store.ts',
+    }],
+    blockers: [], touchedTargets: ['src/upload/service.ts'], ready: true,
+  };
+  const source = [{
+    path: 'src/features/upload/service.ts',
+    content: "import { put } from '../../adapters/storage.js';\nexport { put };",
+  }];
+  const destination = [{ path: 'src/platform/blob-store.ts', content: 'export const put = () => true;' }];
+  const result = materializeChangeSet(bound, source, destination);
+  assert.match(result.created[0].content, /from '\.\.\/platform\/blob-store\.js'/);
+  assert.deepEqual(result.created[0].rewrittenImports, [
+    { from: '../../adapters/storage.js', to: '../platform/blob-store.js' },
+  ]);
+  assert.equal(result.result.find(file => file.path === 'src/platform/blob-store.ts')?.content, 'export const put = () => true;');
+});
+
 test('materializer refuses missing sources, destination overwrites, and duplicate operations', () => {
   assert.throws(() => materializeChangeSet(changeSet, [], []), /missing source snapshot/);
   assert.throws(() => materializeChangeSet(changeSet,

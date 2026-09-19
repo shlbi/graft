@@ -21,17 +21,19 @@
     "AST-backed static TypeScript ESM import parsing with explicit dynamic/CommonJS blockers",
     "immutable snapshot materialization that refuses hidden overwrites and missing source files",
     "TypeScript snapshot parser now feeds feature closure analysis and refuses incomplete graphs",
-    "declared adapter imports can be deterministically rewritten to mapped destination capability modules"
+    "declared adapter imports can be deterministically rewritten to mapped destination capability modules",
+    "materialization now rewrites only declared adapter boundaries and computes destination-relative specifiers after reviewed relocation"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0",
     "typescript": "5.8.3",
     "fullSuiteBaseline": "10 tests passed, 0 failed from prior full-suite run",
-    "thisSession": "new pipeline and rewrite modules compiled under repository-equivalent strict NodeNext settings; rewrite runtime smoke passed for .js and extensionless adapter imports; committed regression tests have not yet been run as a complete repository suite in this slot"
+    "currentSlot": "materialization/rewrite integration and relocation regression coverage added; complete repository suite still requires execution before a new full-suite pass can be claimed"
   },
   "next": [
-    "integrate adapter rewriting into materialization so copied modules are transformed in the resulting snapshot",
+    "execute the complete repository test suite against all current regression tests",
     "build the first runnable source and destination demo applications",
-    "execute the complete repository test suite against the new pipeline/rewrite regression tests"
+    "wire manifest, parser, planner, change-set, rewrite, and materialization into one reproducible demo command",
+    "begin product UI and truthful README visual assets after runnable demo behavior exists"
   ]
 }
