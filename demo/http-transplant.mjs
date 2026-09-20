@@ -95,6 +95,12 @@ export async function runHttpTransplantDemo() {
     assert.equal(body.result.fileId, 'blob-1', 'destination blob-store adapter must receive the HTTP upload');
     assert.deepEqual(body.result.progress.map(item => item.progress), [0, 50, 90, 100],
       'destination task-runner adapter must produce the progress history');
+    const completed = body.result.progress.at(-1);
+    assert.equal(completed.metrics.bytes, Buffer.byteLength(payload),
+      'destination processor must inspect the uploaded request bytes');
+    assert.equal(completed.metrics.lines, 2);
+    assert.ok(completed.metrics.words >= 8);
+    assert.match(completed.metrics.checksum, /^[0-9a-f]{8}$/u);
     return {
       schemaVersion: 1,
       runtime: process.version,
@@ -104,7 +110,7 @@ export async function runHttpTransplantDemo() {
       observed: { status: response.status, uploadName: body.name, bytes: body.size, result: body.result },
       limitations: [
         'Storage is still in-memory in the authored destination demo.',
-        'The destination task-runner still returns simulated progress checkpoints; durable/background queueing is not claimed.',
+        'The destination adapter performs real bounded text metrics/checksum work, but progress checkpoints are returned synchronously and durable/background queueing is not claimed.',
         'The HTTP boundary is demo transport around the transplanted backend feature, not a framework-agnostic transplant target.',
       ],
     };

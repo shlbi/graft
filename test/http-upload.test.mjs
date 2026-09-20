@@ -34,5 +34,9 @@ test('real HTTP request reaches the compiled transplanted destination feature', 
   assert.equal(report.observed.status, 201);
   assert.equal(report.observed.result.fileId, 'blob-1');
   assert.deepEqual(report.observed.result.progress.map(item => item.progress), [0, 50, 90, 100]);
+  const completed = report.observed.result.progress.at(-1);
+  assert.equal(completed.metrics.bytes, report.observed.bytes);
+  assert.equal(completed.metrics.lines, 2);
+  assert.match(completed.metrics.checksum, /^[0-9a-f]{8}$/u);
   assert.equal(report.review.created.includes('features/upload/service.ts'), true);
 });

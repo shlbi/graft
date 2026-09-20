@@ -1,10 +1,7 @@
 {
   "project": "Graft",
-  "cycle": {
-    "start": "2026-09-18",
-    "end": "2026-09-24"
-  },
-  "phase": "local-review-ui",
+  "cycle": { "start": "2026-09-18", "end": "2026-09-24" },
+  "phase": "http-upload-demo",
   "acceptance": [
     "source demo upload/background-processing/progress feature works",
     "destination demonstrably lacks feature before transplant",
@@ -17,63 +14,53 @@
   "acceptanceStatus": {
     "sourceFeature": "observed working in runnable source demo",
     "destinationBaseline": "observed compiling/running with hasUploadFeature=false",
-    "reviewPlan": "observed in a localhost browser review model: real dependency edges, adapter mappings, copy targets and exact integration before/after are serialized from the trusted prepared transplant",
-    "changeIsolation": "observed combined apply preserves destination app and adapters; source/adapter/target preconditions and exact touched targets tested",
-    "destinationPostTransplantBuild": "executed strict NodeNext compilation of complete authored destination in two clean transplant cycles",
-    "endToEndDestinationFlow": "executed CLI feature using destination blob-1 storage and simulated progress 0/50/90/100; browser/HTTP/durable-processing acceptance remains pending",
-    "cleanReset": "executed two resets removing transplanted files and emitted JS, recompiling original baseline and repeating identical destination output"
+    "reviewPlan": "observed in localhost review console with real dependency edges, adapter mappings, copy targets and exact integration before/after",
+    "changeIsolation": "observed combined apply preserving unrelated destination files and rechecking reviewed source/adapter/target inputs",
+    "destinationPostTransplantBuild": "observed strict NodeNext compilation and execution in clean transplant cycles",
+    "endToEndDestinationFlow": "CLI path observed; bounded HTTP transport and compiled-transplant integration are now implemented. The destination adapter performs real text metrics/checksum work, while progress remains synchronous and storage in-memory.",
+    "cleanReset": "observed reset removing transplanted/emitted files, recompiling original baseline and repeating cleanly"
   },
   "completed": [
-    "versioned feature manifest validation with secret/path boundary checks",
-    "deterministic destination capability planning with ambiguity blockers",
-    "strict TypeScript build plus regression test harness",
-    "normalized module-graph closure that stops at adapter boundaries",
-    "explicit destination capability inventory parsing with conservative contract matching",
-    "deterministic reviewable change-set generation with collision blockers and adapter binding targets",
-    "AST-backed static TypeScript ESM import parsing with explicit dynamic/CommonJS blockers",
-    "immutable snapshot materialization that refuses hidden overwrites and missing source files",
-    "TypeScript snapshot parser now feeds feature closure analysis and refuses incomplete graphs",
-    "declared adapter imports can be deterministically rewritten to mapped destination capability modules",
-    "materialization rewrites only declared adapter boundaries and computes destination-relative specifiers after reviewed relocation",
-    "runnable source and destination TypeScript demo fixtures compile and expose source-feature versus destination-baseline behavior",
-    "one-call prepare/apply orchestration wires manifest, parser, closure, inventory, planner, change set, rewrite, and materialization",
-    "real demo fixture now exercises the planning/materialization pipeline against actual source and destination files",
-    "isolated filesystem workspace harness applies materialized snapshots and resets to a clean baseline",
-    "explicit destination integration mounts now prepare exact before/after patches, block missing or ambiguous markers, and reject stale post-review destinations",
-    "integration mounts are now part of prepare/apply with combined touched targets and correct preserved/updated reporting",
-    "reviewed source and required destination adapter contents are checked again before apply",
-    "literal integration replacements preserve JavaScript dollar metacharacters",
-    "complete current repository baseline reconstructed with Git blob verification and executed: 26 tests passed",
-    "temporary workspace validates all snapshots before writes, stages replacements and serializes apply/reset/read/close",
-    "explicit demo integration mount feeds the same prepare/apply API, preserving default copy-only behavior",
-    "complete authored source, baseline and transplanted destination compile/run verification executes and repeats twice",
-    "portable Node build/test entrypoints and npm run demo; Linux execution verified, Windows not yet tested",
-    "dated executable demo evidence and honest technical scope documented in docs/DEMO.md",
-    "serializable read-only demo review model exposes real dependency edges, adapter boundaries, destination mappings, copy targets, exact integration before/after and blockers",
-    "localhost review console serves the real plan, requires explicit one-time approval, applies only the server-owned prepared object, and runs bounded compile/runtime/reset verification"
+    "deterministic manifest/import/dependency analysis with explicit unsupported-edge blockers",
+    "destination capability inventory and explicit adapter contract mapping",
+    "reviewable copy/binding/integration change set with collision and stale-input guards",
+    "deterministic adapter import rewriting and immutable materialization",
+    "runnable source/destination fixtures and isolated apply/reset workspace",
+    "complete authored CLI transplant compile/run/reset verification",
+    "localhost review UI with one-time explicit server-owned approval and verification",
+    "bounded localhost HTTP upload transport around the compiled transplanted service",
+    "destination blob adapter can read stored payloads for its own processor",
+    "destination task adapter performs bounded byte/line/word/unique-word/checksum processing on actual uploaded content",
+    "HTTP integration test asserts request bytes reach destination storage/processing and source adapters are not copied"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0 on Linux",
     "typescript": "5.8.3",
-    "fullSuiteBaseline": "26 tests passed, 0 failed on exact upstream 4d92eca before edits",
-    "currentSlot": "npm test including strict build, executable transplant and localhost review approval flow: 39 tests passed, 0 failed",
-    "limitations": "Review UI is local-only and still demonstrates authored CLI fixtures with in-memory storage and simulated job progress. No HTTP file upload, durable queue, database, real processor, Windows or CI claim yet.",
-    "demoEvidence": "docs/verification/2026-09-20-cli-demo.json"
+    "lastCompleteSuite": "39 tests passed, 0 failed at commit 98051d2736e948fa2d2d49a7a2d1908d67c7e564 before HTTP additions",
+    "currentFinalSlot": [
+      "generic HTTP upload server smoke executed locally: POST returned 201 and traversal-style filename returned 400",
+      "updated destination blob/task adapters compiled with strict TypeScript 5.8.3 and executed locally; final metrics observed bytes=29, lines=2, words=4, uniqueWords=3, checksum=f7701ad7",
+      "full repository HTTP-transplant integration test is committed but was not executed against a complete local checkout in this runtime"
+    ]
   },
+  "limitations": [
+    "destination storage is in-memory in the authored demo",
+    "progress checkpoints are synchronous; no durable/background queue is claimed",
+    "HTTP proof uses a bounded raw request body rather than multipart/browser file-input plumbing",
+    "Windows and CI execution are not yet claimed",
+    "Graft supports the documented TypeScript subset only; it does not claim arbitrary cross-framework transplantation"
+  ],
   "next": [
-    "capture truthful screenshots of the working review console when browser capture tooling is available and build the distinctive README around them",
-    "replace the simulated demo with an actual local HTTP upload and real bounded processing task while keeping destination adapters explicit",
-    "add browser-level integration tests for review, explicit approval, verification failure display and reset",
-    "preserve narrow TypeScript support claims and keep all simulation/fixture limitations visible"
+    "first rerun npm test and npm run demo:http on a complete checkout; fix any regression before expanding scope",
+    "surface the real HTTP upload proof inside the review console after explicit approval",
+    "replace synchronous checkpoint reporting with true asynchronous job state and polling while keeping the adapter contract explicit",
+    "capture truthful screenshots/demo footage from the functioning UI and build the image-heavy README",
+    "research and cite primary sources for established component/code reuse approaches, then document Graft's narrower contribution"
   ],
   "session": {
     "date": "2026-09-20",
     "mode": "user-authorized-afternoon-exception",
     "cutoff": "2026-09-20T16:00:00-04:00",
-    "completedInLiveSession": [
-      "ef633bd08b114bc81b4ce616b153a8d36e46b4fc: integrated review and stale-input guards",
-      "this commit: reproducible compiled CLI transplant and safe reset workspace"
-    ],
-    "afternoonAutomation14": "review model and localhost one-time approval/verification console implemented and fully regression tested"
+    "handoff": "Do not claim a fresh full-suite pass for the HTTP additions until npm test and npm run demo:http execute together on a complete checkout."
   }
 }
