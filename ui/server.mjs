@@ -9,6 +9,8 @@ import { createCompiledTransplantFeature } from '../demo/http-transplant.mjs';
 import { serializeDemoReview } from '../demo/review-model.mjs';
 import { normalizeUploadName, readBoundedUploadBody } from '../demo/upload-server.mjs';
 import { verifyDemo } from '../demo/verify.mjs';
+import { createJobQueue } from '../demo/job-queue.mjs';
+import { assertLoopbackHost, decodeUploadText, isLocalRequest } from '../demo/http-boundary.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const MAX_BODY_BYTES = 4096;
@@ -25,6 +27,7 @@ const staticRoutes = new Map([
 ]);
 
 function sendJson(response, status, value) {
+  if (response.destroyed || response.writableEnded) return;
   const payload = JSON.stringify(value);
   response.writeHead(status, {
     'content-type': 'application/json; charset=utf-8',
@@ -39,24 +42,13 @@ function sendError(response, status, message) {
 }
 
 async function readJson(request) {
-  const chunks = [];
-  let size = 0;
-  for await (const chunk of request) {
-    size += chunk.length;
-    if (size > MAX_BODY_BYTES) throw Object.assign(new Error('request body too large'), { statusCode: 413 });
-    chunks.push(chunk);
-  }
-  if (!chunks.length) return {};
+  const bytes = await readBoundedUploadBody(request, MAX_BODY_BYTES, { allowEmpty: true });
+  if (!bytes.length) return {};
   try {
-    return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    return JSON.parse(decodeUploadText(bytes));
   } catch {
     throw Object.assign(new Error('request body must be valid JSON'), { statusCode: 400 });
   }
-}
-
-function sameOrigin(request) {
-  const origin = request.headers.origin;
-  return !origin || origin === `http://${request.headers.host}`;
 }
 
 function summarizeApply(applied) {
@@ -67,103 +59,50 @@ function summarizeApply(applied) {
   };
 }
 
-function publicDemoJob(job) {
-  const value = {
-    id: job.id,
-    name: job.name,
-    size: job.size,
-    state: job.state,
-    createdAt: job.createdAt,
-    updatedAt: job.updatedAt,
-  };
-  if (job.state === 'complete') return { ...value, result: job.result };
-  if (job.state === 'failed') return { ...value, error: job.error };
-  return value;
-}
-
 export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
+  assertLoopbackHost(host);
   const sessions = new Map();
-  const demoJobs = new Map();
-  const demoQueue = [];
+  let closing = false;
+  let closePromise;
   let busy = false;
-  let demoDrainPromise = null;
   let demoRuntime = null;
 
   function pruneSessions(now = Date.now()) {
     for (const [id, session] of sessions) if (session.expiresAt <= now || session.consumed) sessions.delete(id);
-    while (sessions.size >= MAX_SESSIONS) sessions.delete(sessions.keys().next().value);
   }
 
-  function pruneDemoJobs(now = Date.now()) {
-    for (const [id, job] of demoJobs) {
-      if ((job.state === 'complete' || job.state === 'failed') && now - job.updatedAt >= UPLOAD_DEMO_TTL_MS) demoJobs.delete(id);
-    }
-  }
-
-  async function drainDemoQueue() {
-    if (demoDrainPromise) return demoDrainPromise;
-    demoDrainPromise = (async () => {
-      while (demoQueue.length) {
-        const job = demoQueue.shift();
-        if (!job || !demoJobs.has(job.id)) continue;
-        if (!demoRuntime || demoRuntime.token !== job.runtimeToken || demoRuntime.expiresAt <= Date.now()) {
-          job.state = 'failed';
-          job.error = 'approved upload runtime expired before processing';
-          job.content = '';
-          job.updatedAt = Date.now();
-          continue;
-        }
-        job.state = 'running';
-        job.updatedAt = Date.now();
-        try {
-          job.result = await demoRuntime.runtime.uploadAndProcess(job.name, job.content);
-          job.state = 'complete';
-        } catch (error) {
-          job.state = 'failed';
-          job.error = error instanceof Error ? error.message : String(error);
-        } finally {
-          job.content = '';
-          job.updatedAt = Date.now();
-        }
-      }
-    })().finally(() => { demoDrainPromise = null; });
-    return demoDrainPromise;
-  }
-
-  function scheduleDemoDrain() {
-    setImmediate(() => void drainDemoQueue());
-  }
-
-  async function closeDemoRuntime() {
-    await demoDrainPromise;
-    const current = demoRuntime;
-    demoRuntime = null;
-    demoQueue.length = 0;
-    demoJobs.clear();
-    if (current) await current.runtime.close();
+  async function closeDemoRuntime(expected = demoRuntime) {
+    if (!expected || expected !== demoRuntime) return;
+    demoRuntime = null; // Revoke new uploads before awaiting accepted jobs.
+    clearTimeout(expected.expiryTimer);
+    await expected.queue.close();
+    await expected.runtime.close();
   }
 
   async function pruneDemoRuntime(now = Date.now()) {
-    pruneDemoJobs(now);
     if (demoRuntime && demoRuntime.expiresAt <= now) await closeDemoRuntime();
   }
 
   async function handle(request, response) {
-    const url = new URL(request.url ?? '/', 'http://localhost');
     try {
+      if (closing) { sendError(response, 503, 'server is closing'); return; }
+      if (!isLocalRequest(request)) { sendError(response, 403, 'non-local or cross-origin request rejected'); return; }
+      const url = new URL(request.url ?? '/', 'http://localhost');
       if (request.method === 'GET' && url.pathname === '/api/review') {
         pruneSessions();
         await pruneDemoRuntime();
         const fixture = await prepareDemoTransplant({ integrate: true });
         const review = serializeDemoReview(fixture);
         const reviewId = randomBytes(18).toString('base64url');
+        pruneSessions();
+        while (sessions.size >= MAX_SESSIONS) sessions.delete(sessions.keys().next().value);
         sessions.set(reviewId, { fixture, consumed: false, expiresAt: Date.now() + SESSION_TTL_MS });
         sendJson(response, 200, { reviewId, review, expiresInSeconds: SESSION_TTL_MS / 1000 });
         return;
       }
 
       if (request.method === 'POST' && url.pathname === '/api/approve') {
-        if (!sameOrigin(request)) {
+        if (!isLocalRequest(request)) {
           sendError(response, 403, 'cross-origin approval rejected');
           return;
         }
@@ -189,12 +128,19 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
         busy = true;
         session.consumed = true;
         try {
-          const applied = applyPreparedTransplant(session.fixture.prepared, session.fixture.sourceSnapshots, session.fixture.destinationSnapshots);
-          const verification = await verifyDemo({ cycles: 1 });
+          // Revalidate actual input bytes, but never apply the newly generated plan.
+          const actual = await prepareDemoTransplant({ integrate: true });
+          const approvedFixture = { ...actual, prepared: session.fixture.prepared };
+          const applied = applyPreparedTransplant(approvedFixture.prepared, actual.sourceSnapshots, actual.destinationSnapshots);
+          const verification = await verifyDemo({ cycles: 1, fixture: approvedFixture });
           await closeDemoRuntime();
-          const runtime = await createCompiledTransplantFeature();
+          const runtime = await createCompiledTransplantFeature({ fixture: approvedFixture });
           const token = randomBytes(18).toString('base64url');
-          demoRuntime = { token, runtime, expiresAt: Date.now() + UPLOAD_DEMO_TTL_MS };
+          demoRuntime = { token, runtime, expiresAt: Date.now() + UPLOAD_DEMO_TTL_MS,
+            queue: createJobQueue({ run: runtime.uploadAndProcess, maxJobs: MAX_DEMO_JOBS, ttlMs: UPLOAD_DEMO_TTL_MS }) };
+          const owned = demoRuntime;
+          owned.expiryTimer = setTimeout(() => { void closeDemoRuntime(owned).catch(console.error); }, UPLOAD_DEMO_TTL_MS);
+          owned.expiryTimer.unref();
           sendJson(response, 200, {
             applied: summarizeApply(applied),
             verification,
@@ -213,7 +159,7 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
       }
 
       if (request.method === 'GET' && url.pathname.startsWith('/api/demo-jobs/')) {
-        if (!sameOrigin(request)) {
+        if (!isLocalRequest(request)) {
           sendError(response, 403, 'cross-origin job polling rejected');
           return;
         }
@@ -224,17 +170,17 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
           return;
         }
         const id = decodeURIComponent(url.pathname.slice('/api/demo-jobs/'.length));
-        const job = demoJobs.get(id);
-        if (!job || job.runtimeToken !== token) {
+        const job = demoRuntime.queue.get(id);
+        if (!job) {
           sendError(response, 404, 'demo job not found or expired');
           return;
         }
-        sendJson(response, 200, publicDemoJob(job));
+        sendJson(response, 200, job);
         return;
       }
 
       if (request.method === 'POST' && url.pathname === '/api/demo-upload') {
-        if (!sameOrigin(request)) {
+        if (!isLocalRequest(request)) {
           sendError(response, 403, 'cross-origin upload rejected');
           return;
         }
@@ -244,29 +190,19 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
           sendError(response, 403, 'a current approved upload-demo token is required');
           return;
         }
-        pruneDemoJobs();
-        if (demoJobs.size >= MAX_DEMO_JOBS) {
-          sendError(response, 503, 'demo job queue is full; wait for retained jobs to expire');
-          return;
-        }
+        if (busy) { sendError(response, 409, 'runtime is being replaced; retry after verification'); return; }
+        const owned = demoRuntime;
         const name = normalizeUploadName(url.searchParams.get('name'));
-        const body = await readBoundedUploadBody(request, MAX_UPLOAD_BYTES);
-        const now = Date.now();
-        const id = randomBytes(12).toString('base64url');
-        const job = {
-          id,
-          name,
-          size: body.length,
-          state: 'queued',
-          createdAt: now,
-          updatedAt: now,
-          runtimeToken: token,
-          content: body.toString('utf8'),
-        };
-        demoJobs.set(id, job);
-        demoQueue.push(job);
-        sendJson(response, 202, { ...publicDemoJob(job), poll: `/api/demo-jobs/${encodeURIComponent(id)}` });
-        scheduleDemoDrain();
+        const reservation = owned.queue.reserve();
+        try {
+          const body = await readBoundedUploadBody(request, MAX_UPLOAD_BYTES);
+          if (closing || busy || owned !== demoRuntime || owned.expiresAt <= Date.now()) {
+            sendError(response, 409, 'approved runtime changed while receiving upload');
+            return;
+          }
+          const job = reservation.submit({ name, size: body.length, content: decodeUploadText(body) });
+          sendJson(response, 202, { ...job, poll: `/api/demo-jobs/${encodeURIComponent(job.id)}` });
+        } finally { reservation.release(); }
         return;
       }
 
@@ -293,6 +229,8 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
   }
 
   const server = createServer((request, response) => void handle(request, response));
+  server.requestTimeout = 60_000;
+  server.headersTimeout = 15_000;
   return {
     async listen() {
       await new Promise((resolveListen, reject) => {
@@ -305,15 +243,26 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
       return server.address();
     },
     async close() {
-      await closeDemoRuntime();
-      if (!server.listening) return;
-      await new Promise((resolveClose, reject) => server.close(error => error ? reject(error) : resolveClose()));
+      if (!closePromise) {
+        closing = true;
+        closePromise = (async () => {
+          if (server.listening) {
+            await new Promise((resolveClose, reject) => server.close(error => error ? reject(error) : resolveClose()));
+          }
+          await closeDemoRuntime();
+          sessions.clear();
+        })();
+      }
+      return closePromise;
     },
   };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const app = createReviewServer();
+  for (const signal of ['SIGINT', 'SIGTERM']) {
+    process.once(signal, () => { void app.close().catch(error => { console.error(error); process.exitCode = 1; }); });
+  }
   app.listen().then(address => {
     const host = typeof address === 'object' && address ? address.address : '127.0.0.1';
     const port = typeof address === 'object' && address ? address.port : 4173;

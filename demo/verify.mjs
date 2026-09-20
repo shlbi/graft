@@ -49,11 +49,11 @@ async function compileAndRun(root) {
  * -> clean reset. Every run uses a fresh process, so adapter module state cannot
  * accidentally leak between cycles. Only checked-in, authored fixture code runs.
  */
-export async function verifyDemo({ cycles = 2 } = {}) {
+export async function verifyDemo({ cycles = 2, fixture: reviewedFixture } = {}) {
   if (!Number.isInteger(cycles) || cycles < 1 || cycles > 3) {
     throw new Error('cycles must be an integer between 1 and 3');
   }
-  const fixture = await prepareDemoTransplant({ integrate: true });
+  const fixture = reviewedFixture ?? await prepareDemoTransplant({ integrate: true });
   assert.equal(fixture.prepared.ready, true, 'fixture must have a blocker-free review plan');
   const applied = applyPreparedTransplant(fixture.prepared, fixture.sourceSnapshots, fixture.destinationSnapshots);
   assert.deepEqual(applied.updated.map(patch => patch.targetPath), ['entry.ts']);
@@ -112,7 +112,7 @@ export async function verifyDemo({ cycles = 2 } = {}) {
       },
       source, before, runs,
       limitations: [
-        'No HTTP upload, browser interface, durable queue, database or real document processing in this fixture.',
+        'This CLI report does not exercise HTTP or the browser. Text metrics use in-memory adapters; no durable queue or database is provided.',
         'A contract label does not prove adapter compatibility; the compiler and runtime checks validate this fixture only.',
         'Temporary directories are not isolation for arbitrary third-party scripts.',
         'Windows behavior has not been verified in this Linux execution environment.',
