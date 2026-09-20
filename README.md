@@ -1,234 +1,193 @@
+<p align="center"><img src="docs/assets/graft-hero.svg" alt="Graft — feature transplantation blueprint" width="100%" /></p>
+
+<p align="center"><b>Move the feature. Keep the architecture.</b><br><sub>TypeScript ESM · Explicit contracts · Human review · Executable proof</sub></p>
+
 <p align="center">
-  <img src="docs/assets/graft-hero.svg" alt="Graft feature transplantation blueprint" width="100%" />
+  <a href="#run-it">Run it</a> · <a href="#the-transplant">The transplant</a> · <a href="#verified-evidence">Evidence</a> · <a href="#supported-not-magic">Supported scope</a>
 </p>
 
-<p align="center"><sub>Repository-owned concept diagram. Real application screenshots and a recorded demo will be added only after capture from the verified localhost flow.</sub></p>
+---
 
-# Graft
+Graft moves a **declared feature** between compatible TypeScript applications without copying the source application's infrastructure. It follows static imports, stops at adapter boundaries, maps destination capabilities, and presents the exact changes before approval. The authored demo then compiles, executes, uploads real text, and resets the destination to prove the workflow.
 
-**Transplant an application feature without pretending copy/paste is integration.**
+**v0.1 is a scoped engineering demonstrator—not a universal migration agent.** The core is deterministic and the demonstration requires no paid AI service.
 
-Graft v0.1 explores a narrow, testable workflow for moving a declared feature between compatible TypeScript applications with different internal structure. It discovers the supported static dependency slice, stops at declared infrastructure boundaries, maps those needs to capabilities the destination explicitly advertises, shows the exact change set for approval, applies only the reviewed plan, and verifies the resulting destination by compiling and executing it.
+## Inside the console
 
-> **Scope, not magic:** Graft does not claim arbitrary cross-framework migration, undeclared runtime-dependency discovery, or semantic correctness from model confidence. The core demo does not require a paid LLM.
+<img src="docs/assets/review-preview.webp" alt="Offline rendering of the shipped Graft review console: dependency boundaries and destination mappings from recorded fixture data" width="100%" />
+
+<sub>Offline preview of the shipped HTML, CSS, and rendering functions using recorded, successfully executed HTTP fixture data. This is not a live-browser screenshot. Live Chromium navigation was blocked by the execution environment; no policy bypass or live-browser pass is claimed. The opening blueprint is a concept illustration.</sub>
+
+## The transplant
 
 <table>
-<tr><td><b>Source</b></td><td>Upload + processing + progress feature</td></tr>
-<tr><td><b>Boundary</b></td><td>Declared storage and jobs adapters</td></tr>
-<tr><td><b>Destination</b></td><td>Different module layout with compatible explicit capabilities</td></tr>
-<tr><td><b>Review</b></td><td>Dependency graph, mappings, copies, rewritten imports, exact integration before/after</td></tr>
-<tr><td><b>Proof</b></td><td>Strict compile, executable destination flow, clean reset/repeat, bounded localhost upload transport</td></tr>
+<tr><td><b>01 / Discover</b><br>Follow the supported import graph.</td><td><b>02 / Bind</b><br>Replace source adapter references with declared destination capabilities.</td></tr>
+<tr><td><b>03 / Review</b><br>Inspect created files, mappings, and exact integration before/after.</td><td><b>04 / Prove</b><br>Approve, compile, execute, upload, poll, and reset.</td></tr>
 </table>
-
-## The demo in one picture
 
 ```mermaid
 flowchart LR
-  subgraph S[Source application]
-    F[upload feature]
-    SA[storage adapter]
-    JA[jobs adapter]
-    F --> SA
-    F --> JA
+  subgraph Source[Source application]
+    F[Upload feature] --> S[Storage boundary]
+    F --> J[Jobs boundary]
   end
-
-  subgraph G[Graft review boundary]
-    A[static dependency closure]
-    M[explicit capability mapping]
-    R[review exact changes]
-    P[explicit approval]
-    V[compile + execute + reset]
-    A --> M --> R --> P --> V
+  F --> R[Graft: analyze and review]
+  R --> A[Explicit approval]
+  A --> V[Compile, execute, reset]
+  subgraph Destination[Destination application]
+    T[Transplanted feature] --> B[platform/blob-store]
+    T --> W[platform/task-runner]
   end
-
-  subgraph D[Destination application]
-    DF[transplanted feature]
-    BS[platform/blob-store]
-    TR[platform/task-runner]
-    DF --> BS
-    DF --> TR
-  end
-
-  F --> A
-  V --> DF
+  V --> T
+  S -. map, do not copy .-> B
+  J -. map, do not copy .-> W
 ```
 
-The source adapters are **not** copied. They are the boundary. Graft rewrites the transplanted feature to use destination modules selected through the reviewed capability mapping.
+The demonstration creates `features/upload/service.ts` and `features/upload/types.ts`, updates one explicitly marked integration point in `entry.ts`, and preserves the destination's existing application and adapters. Source adapters never cross the copy boundary.
+
+## Use the result
+
+<img src="docs/assets/processing-preview.webp" alt="Offline preview displaying actual recorded destination processing results: 120 bytes, 4 lines, 15 words, checksum 4e1e3593" width="100%" />
+
+<sub>Offline rendering of an actual recorded HTTP result, not a staged live upload. The checked-in sample produced 120 bytes, 4 lines, 15 words, and checksum <code>4e1e3593</code>. Processing history is displayed after completion; it is not a live stream of worker progress.</sub>
+
+After approval, choose a UTF-8 text file or the included sample. The server accepts it with **`202 queued`**; polling returns the destination job's result. The demo uses the destination's own storage and text processor, not copied source infrastructure.
 
 ## Run it
 
-Requires a recent Node.js runtime. The observed Linux development runtime is Node `22.16.0`; TypeScript is pinned to `5.8.3` in this repository.
+Validated with **Node 22.16.0 on Linux** and the repository's pinned **TypeScript 5.8.3**. Access to this private repository is required.
 
 ```bash
+git clone https://github.com/shlbi/graft.git
+cd graft
 npm install
 npm test
-```
-
-Then choose the proof you want:
-
-```bash
-# deterministic CLI transplant → compile → execute → reset
-npm run demo
-
-# real bounded localhost HTTP upload around the compiled transplant
-npm run demo:http
-
-# localhost review + explicit approval console
 npm run ui
 ```
 
-The UI is read-only before approval. After the exact reviewed plan is approved, the server applies its server-owned prepared object, runs compile/runtime/reset verification, and provisions a short-lived upload demonstration.
+Open the localhost address printed in the terminal. Review the mappings and integration diff, select **Approve & verify transplant**, then **Use included sample text** and **Upload through destination**.
 
-## What is implemented
-
-| Layer | v0.1 behavior |
-| --- | --- |
-| Feature contract | Versioned manifest with path/secret boundary validation |
-| Dependency analysis | Static TypeScript ESM imports inside the supported subset |
-| Unsupported edges | Dynamic/CommonJS/unknown dependencies are reported as blockers rather than omitted |
-| Adapter boundary | Traversal stops at declared source capabilities |
-| Destination inventory | Explicit capability contracts and destination module paths |
-| Mapping | Deterministic compatible match; missing/ambiguous mappings block readiness |
-| Change set | Reviewable copy targets, adapter bindings, and explicit integration mounts |
-| Rewrite | Only declared adapter imports are rewritten, including relocation-safe relative specifiers |
-| Apply | Stale source/destination inputs and hidden overwrites are rejected |
-| Integration | Exact reviewed before/after patches at declared mount markers |
-| Verification | Destination strict-compiles, executes, resets, recompiles baseline, and repeats |
-| HTTP proof | Bounded raw text-like upload reaches the compiled transplanted service |
-| Queue boundary | HTTP demo transport accepts with `202`, exposes explicit queued/running/complete/failed job state, and supports polling |
-| Product UI | Local review console for graph, mappings, file changes, integration diff, approval, and post-approval upload proof |
-
-## Evidence — what has actually been observed
-
-The evidence is intentionally split between **complete-suite** and **newer focused** validation so the README never upgrades a result that was not run.
-
-**Complete repository baseline:** at commit `98051d2`, strict build + the then-current suite completed with **39 passed / 0 failed**.
-
-After that baseline, the project added real HTTP request handling, destination-owned content metrics/checksum processing, a token-gated browser upload path, and now an explicit in-memory async job/polling transport. Focused HTTP and review-server integration tests were observed passing before the latest queue refactor. For the queue refactor itself, a standalone localhost smoke test observed:
-
-```text
-POST /api/upload        -> 202 queued
-GET  /api/jobs/:id      -> complete
-feature invocation      -> received real request bytes
-GET  /api/health        -> 0 active, 0 queued
+```bash
+npm run demo       # two complete compile / execute / reset cycles
+npm run demo:http  # real HTTP upload -> queued job -> destination processing
 ```
 
-**The full repository suite has not yet been rerun after the latest queue refactor.** Until that happens, `39/39` remains the latest complete-suite baseline rather than a claim about the current head.
-
-See `.nightshift/STATE.json` for the exact handoff and `docs/verification/` for committed evidence snapshots.
-
-## Review model
-
-A prepared transplant exposes the things a reviewer actually needs to question:
-
-```text
-SOURCE
-features/upload/service.ts
-features/upload/types.ts
-       │
-       ├── storage  ──map──> platform/blob-store.ts
-       └── jobs     ──map──> platform/task-runner.ts
-
-DESTINATION CHANGE SET
-+ features/upload/service.ts
-+ features/upload/types.ts
-~ entry.ts                exact reviewed integration mount
-```
-
-Approval is not “trust the AI.” The current core is deterministic. A plan can be ready only when its declared requirements resolve without blockers, and apply rechecks reviewed inputs so a changed destination cannot silently receive a stale patch.
+**Download review** exports only the read-only model, without session authorization. **New review** starts another review after an error or expired runtime. Approval applies to the server-owned prepared object; the browser cannot submit arbitrary source code or a replacement transplant plan.
 
 <details>
-<summary><b>Supported v0.1 subset</b></summary>
+<summary><b>Reproduce the evidence and offline previews</b></summary>
 
-- TypeScript applications using supported static ESM imports.
-- Feature boundaries declared in a versioned manifest.
-- Explicit source adapter contracts.
-- Explicit destination capability inventory.
-- Deterministic import rewriting for declared adapter boundaries.
-- Explicit destination integration mount markers.
-- In-memory demo storage and transport queue for the runnable proof.
+```bash
+npm run build
+node scripts/capture-evidence.mjs
+```
 
-Not supported: arbitrary frameworks, hidden environment contracts, arbitrary dynamic imports, undeclared database/network dependencies, production deployment automation, or semantic equivalence claims across unrelated architectures.
+This starts a temporary loopback server, executes the actual review/approval/upload/poll/replay checks, closes the server, and saves `docs/verification/release-http-session.json`. The report intentionally excludes review IDs and upload authorization tokens.
+
+The optional offline preview script requires Python, Playwright, Pillow, and an installed Chromium browser. It does not navigate to or proxy the running application:
+
+```bash
+python scripts/render-previews.py --chromium /path/to/chromium
+```
+
+It renders the shipped UI against the recorded HTTP report, labels the images as offline previews, and checks desktop/mobile layout. Running it is **not** a substitute for testing the live browser workflow.
 
 </details>
 
-## Why not just use packages, codemods, generators, or Module Federation?
+## Verified evidence
 
-Those are real, established solutions to adjacent problems. Graft is deliberately narrower than “code reuse.”
+| Check | Observed result |
+| --- | --- |
+| Strict TypeScript build + complete Node suite | **53 passed · 0 failed · 0 skipped** at `7e30b34` |
+| Source and destination CLI | Source works; destination initially lacks the feature |
+| Transplanted destination | Strict compilation and execution use destination adapters |
+| Clean reset | Original baseline restored, recompiled, and repeated across two cycles |
+| Actual HTTP review and approval | `200` for both; approval replay rejected with `404` |
+| Actual upload | `202 queued`, token-gated polling, completed destination processing |
+| Invalid UTF-8 | Rejected with `415`; no successful job claimed |
+| Queue regression coverage | Receiving reservations, serial work, failure handling, accepted-job shutdown drain |
+| Client controller | Four DOM-stub regressions; **not live-browser tests** |
+| Offline visual checks | Seven dependency nodes; hidden pre-approval panels; no horizontal overflow at 1280px and 390px |
+| Live browser / Windows / hosted CI | **Not verified** in this environment |
 
-- **npm workspaces** manage and link local packages.
-- **jscodeshift** runs codemods/source transforms.
-- **Nx generators** create and update workspace files/configuration.
-- **Webpack Module Federation** composes separately built modules at runtime.
+The complete result includes all current HTTP and review-server tests; it supersedes the earlier 39-test baseline. A release evidence summary and image provenance live in [`docs/verification/release.json`](docs/verification/release.json).
 
-Graft's experiment is the **reviewable feature-level application change** when behavior is embedded in a source app, the destination has different infrastructure modules, and the transplant must prove exactly what it mapped, changed, built, and executed.
+The release was tested from an exact connector-restored repository snapshot. The locally available compiler matched the pinned version; a fresh network dependency installation was not verified here.
 
-Primary-source comparison and links: [`docs/REUSE-LANDSCAPE.md`](docs/REUSE-LANDSCAPE.md).
+## Supported, not magic
 
-## Architecture
+| Implemented | Deliberately not claimed |
+| --- | --- |
+| Versioned manifest and destination inventory | Automatic discovery of every hidden runtime requirement |
+| Supported static TypeScript ESM import graph | Arbitrary frameworks, dynamic imports, or CommonJS migration |
+| Explicit contract mapping and adapter import rewriting | Semantic compatibility based only on a matching contract label |
+| Exact copy operations and marker-based integration patches | Heuristic edits to unknown production applications |
+| Immutable preparation/apply with stale-input and overwrite guards | A security sandbox for executing untrusted repository code |
+| Authored fixture console with real localhost text uploads | A general-purpose repository picker or production deployment tool |
+| Bounded, serial, in-memory demo job queue | Durable storage, external workers, or crash recovery |
+
+Bare package dependencies can be reported by analysis, but Graft does **not** resolve or install them. Database migrations, environment provisioning, arbitrary UI-framework transplantation, and production authentication are outside this release. The full upload demonstration covers the authored backend feature and its explicit integration point; it does not prove every part of the broader product vision.
+
+## How it is built
 
 ```mermaid
-flowchart TB
-  Manifest[Feature manifest] --> Parser[TypeScript import parser]
-  Parser --> Closure[Dependency closure]
-  Closure --> Inventory[Destination capability inventory]
-  Inventory --> Planner[Deterministic planner]
-  Planner --> Review[Serializable review model]
-  Review --> Approval[Explicit approval gate]
-  Approval --> Rewrite[Adapter import rewrite]
-  Rewrite --> Materialize[Immutable materialization]
-  Materialize --> Integrate[Reviewed integration mounts]
-  Integrate --> Verify[Build + runtime + reset verification]
+flowchart TD
+  M[Feature manifest and snapshots] --> P[Static import parser]
+  P --> C[Dependency closure]
+  I[Destination inventory] --> B[Capability mappings]
+  C --> B
+  B --> R[Copies, bindings, integration patches]
+  R --> H[Server-owned review and explicit approval]
+  H --> G[Recheck reviewed inputs]
+  G --> A[Apply integration and rewrite adapter imports]
+  A --> V[Compile, execute, reset verification]
+  V --> U[Ephemeral localhost upload runtime]
 ```
 
-The localhost browser console renders the same prepared transplant used by apply; it does not submit a client-authored plan back to the server.
+<details>
+<summary><b>Engineering decisions worth inspecting</b></summary>
 
-## Current limitations
+**Explicit contracts over guessing.** Missing or ambiguous capabilities block a plan. Contract labels select candidate adapters; the compiler and runtime verify the authored fixture's compatibility.
 
-- Destination storage in the authored demo is in-memory.
-- The HTTP job queue is explicit and asynchronous but remains in-memory and non-durable.
-- The destination task adapter computes its internal progress history in one process; a durable external worker is not claimed.
-- Browser upload accepts bounded text-like content as a raw body; multipart/authentication are outside v0.1.
-- Windows and CI execution are not yet claimed.
-- Current support is the documented TypeScript subset only.
+**Review includes content preconditions.** Changes to reviewed source, destination adapters, or integration targets invalidate the prepared operation. Unrelated destination edits remain preserved.
 
-These are scope boundaries, not hidden TODOs. Unsupported imports, mappings, routes, schemas, and framework conventions should become visible blockers rather than silently disappearing.
+**Separate copy boundaries from infrastructure.** The source service moves; destination storage and processing remain destination-owned. The tests distinguish these using different file IDs and progress histories.
+
+**Bound receiving requests, not only completed uploads.** Queue reservations count bodies still arriving. Shutdown waits for accepted work, including jobs submitted in the same tick.
+
+**Keep browser authority small.** The browser sends a one-time review ID and approval flag. Exported review JSON contains no upload token; local host/origin checks and an ephemeral token protect the demonstration boundary. This is not production authentication.
+
+**Evidence has a scope.** Node HTTP integration, controller tests, offline rendering, and live-browser execution are separate checks. One cannot silently stand in for another.
+
+</details>
 
 ## Repository map
 
 ```text
-src/                    deterministic analysis / plan / apply core
-demo/source-app/        source fixture with upload feature
-demo/destination-app/   structurally different destination fixture
-demo/                    compile/run/reset + HTTP proof harnesses
-ui/                      localhost review/approval console
-test/                    regression and integration tests
-docs/verification/      recorded evidence snapshots
-docs/REUSE-LANDSCAPE.md primary-source positioning
-.nightshift/STATE.json  sprint handoff and evidence ledger
+src/                   analysis, mappings, reviewed changes, rewrite and apply
+demo/source-app/       authored source with upload feature
+demo/destination-app/  distinct destination-owned storage and job adapters
+demo/                  compile/run/reset, HTTP transport, bounded queue
+ui/                    review, approval and upload console
+test/                  regression, HTTP integration and controller tests
+scripts/               build, tests, evidence capture and offline rendering
+docs/assets/           repository-owned illustration and labeled previews
+docs/verification/     release evidence and provenance
 ```
 
 ## Interview walkthrough
 
-If you have five minutes to explain Graft:
+Start with the two different adapter implementations. Show that the source uses `upload-1` while the transplanted destination uses `blob-1`. Inspect the exact reviewed import replacements and integration patch. Run `npm test`, then demonstrate approval, a text upload, the destination metrics, and a clean reset. Explain why an explicit contract is helpful but insufficient without compilation and execution.
 
-1. **Show the problem:** moving a feature is more than copying the visible component; it drags backend logic, imports, infrastructure contracts, schemas/config, and integration points.
-2. **Show the boundary:** Graft follows supported static dependencies but deliberately stops at declared infrastructure adapters.
-3. **Show the mapping:** the destination advertises capabilities; Graft maps contracts or blocks on ambiguity/missing support.
-4. **Show the review:** exact created files, rewritten adapter imports, destination integration before/after, and blockers are visible before approval.
-5. **Show the proof:** approve, compile the resulting destination, send an upload through the transplanted feature, inspect processing/progress, reset, and repeat.
-6. **Say what it is not:** not arbitrary framework translation and not AI confidence masquerading as correctness.
+See [`docs/DEMO.md`](docs/DEMO.md) for the executable demo and [`docs/REUSE-LANDSCAPE.md`](docs/REUSE-LANDSCAPE.md) for primary-source context on packages, codemods, generators, and runtime composition. Graft does not claim to have invented code reuse.
 
-## Sprint direction
+## Release boundary
 
-Next proof-oriented milestones:
+**Delivered:** the tested v0.1 engineering demonstrator, review console, reproducible proof, and visual documentation.
 
-- rerun the **entire** suite and `npm run demo:http` from a normal full checkout after the async queue refactor;
-- move the browser upload onto the same visible queued-job/polling contract;
-- capture real review → approval → upload screenshots and a short recording from that verified behavior;
-- add those real assets to this README rather than fabricating product screenshots;
-- continue hardening the supported contracts before broadening framework scope.
+**Still outside the completed scope:** live-browser verification in an unrestricted development environment, broader application/framework support, durable storage/workers, and a production security review. Further expansion requires a separate development scope, not a claim that this demonstration already provides it.
+
+AI-assisted implementation with explicit evidence and limitations. This private repository does not declare an open-source license.
 
 ---
-
-<p align="center"><b>Graft v0.1</b> · deterministic where it can be · blocked where it cannot prove support</p>
+<p align="center"><b>Behavior crosses the boundary. Infrastructure stays home.</b></p>

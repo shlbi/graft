@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "release": "0.1.0 engineering demonstrator",
+  "sourceCommit": "7e30b3436ed55625a8d6c3ea38bfdde740200406",
+  "recordedAt": "2026-09-20T23:05:51.242Z",
+  "runtime": "Node 22.16.0 on Linux",
+  "typescript": "5.8.3",
+  "completeSuite": {
+    "command": "npm test",
+    "passed": 53,
+    "failed": 0,
+    "skipped": 0,
+    "includesStrictTypeScriptBuild": true
+  },
+  "cliDemo": {
+    "command": "npm run demo",
+    "cycles": 2,
+    "sourceFileId": "upload-1",
+    "destinationFileId": "blob-1",
+    "destinationProgress": [
+      0,
+      50,
+      90,
+      100
+    ],
+    "cleanReset": true
+  },
+  "httpSession": {
+    "command": "node scripts/capture-evidence.mjs",
+    "scope": "Actual loopback HTTP requests; not a live-browser test",
+    "statuses": {
+      "review": 200,
+      "approval": 200,
+      "invalidUtf8": 415,
+      "upload": 202,
+      "completed": "complete",
+      "replay": 404
+    },
+    "applied": {
+      "created": [
+        "features/upload/service.ts",
+        "features/upload/types.ts"
+      ],
+      "updated": [
+        "entry.ts"
+      ],
+      "preserved": [
+        "app.ts",
+        "platform/blob-store.ts",
+        "platform/task-runner.ts"
+      ]
+    },
+    "sample": "Graft moves behavior, not infrastructure.\nThe destination owns storage and processing.\nReview. Approve. Verify. Repeat.\n",
+    "metrics": {
+      "bytes": 120,
+      "lines": 4,
+      "words": 15,
+      "uniqueWords": 15,
+      "checksum": "4e1e3593"
+    }
+  },
+  "offlineRendering": {
+    "scope": "Shipped HTML/CSS and pure DOM rendering functions populated with actual recorded HTTP fixture output. No browser requests are proxied. Not live-browser E2E.",
+    "desktop": [
+      1280,
+      980
+    ],
+    "mobile": [
+      390,
+      844
+    ],
+    "checks": [
+      "7 dependency nodes",
+      "proof and upload hidden before approval",
+      "actual recorded completion data rendered",
+      "no horizontal overflow at desktop and mobile widths"
+    ]
+  },
+  "assets": [
+    {
+      "path": "docs/assets/review-preview.webp",
+      "kind": "offline UI preview, not a live-browser screenshot",
+      "sha256": "8664035d6d9888297236e33d727ee04f75e66680fa8efb48099e8b36fad7762c"
+    },
+    {
+      "path": "docs/assets/processing-preview.webp",
+      "kind": "offline UI preview, not a live-browser screenshot",
+      "sha256": "9dc5e15acb3d7902815e361f92fda0b1dfdda478e38d7399f0719e66140ce7dd"
+    }
+  ],
+  "unverified": [
+    "Live browser workflow: navigation was blocked by environment policy (ERR_BLOCKED_BY_ADMINISTRATOR); no workaround attempted.",
+    "Windows execution",
+    "Hosted CI",
+    "Fresh dependency installation from the network",
+    "Production deployment, authentication and durable workers/storage"
+  ],
+  "provenance": {
+    "repositorySnapshot": "Restored with supported authenticated connector reads; tested code bytes reconciled against Git blob/tree hashes.",
+    "compiler": "Exact pinned version from locally available installation.",
+    "authorizationData": "Session review IDs and ephemeral upload authorization tokens are excluded from saved evidence.",
+    "recordedHttpReportSha256": "ebfab114783fe146bf49df5dea878fb13f929a63543e36ad59761310fdf193bf"
+  }
+}

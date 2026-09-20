@@ -4,7 +4,7 @@
     "start": "2026-09-18",
     "end": "2026-09-20"
   },
-  "phase": "v0.1-release-consolidation",
+  "phase": "v0.1-engineering-demo-delivered",
   "authorization": "User requested finishing Graft now and starting the next project September 21 at 02:00 Eastern. This supersedes the earlier afternoon cutoff and September 24 cycle end.",
   "acceptanceStatus": {
     "sourceFeature": "Executed in the complete CLI verification.",
@@ -37,7 +37,9 @@
     "Bounded receiving reservations, serial queue and accepted-job shutdown drain",
     "Exact reviewed snapshot compiled by approval path",
     "Refined responsive UI with review export, sample text, retry and expiry gating",
-    "Four focused client-controller regressions"
+    "Four focused client-controller regressions",
+    "Published visual README with two explicitly labeled offline previews and reproducible evidence scripts",
+    "Release evidence separates HTTP execution, DOM-stub controllers, offline rendering and blocked live-browser verification"
   ],
   "limitations": [
     "Only the documented TypeScript subset and authored browser demo are supported; no universal framework transplant.",
@@ -47,7 +49,14 @@
     "Windows, hosted CI and production use remain unverified."
   ],
   "next": [
-    "Publish the revised README, clearly labeled offline preview assets and release evidence.",
-    "Do not continue Graft automatically in the next project slot; Kinetic is scheduled separately."
-  ]
+    "Next scheduled project is Kinetic on September 21 at 02:00 America/New_York; do not resume Graft automatically.",
+    "Kinetic repository access must be verified separately; last check returned 404.",
+    "Live-browser validation and broader framework/durable-runtime work remain explicit future scope, not completed claims."
+  ],
+  "release": {
+    "codeCommit": "7e30b3436ed55625a8d6c3ea38bfdde740200406",
+    "scope": "Tested authored TypeScript feature-transplant engineering demonstrator; not the entire universal-transplant product vision",
+    "evidence": "docs/verification/release.json",
+    "visuals": "Repository-owned concept hero and two offline UI previews from actual recorded HTTP results"
+  }
 }
