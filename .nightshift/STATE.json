@@ -1,7 +1,7 @@
 {
   "project": "Graft",
   "cycle": { "start": "2026-09-18", "end": "2026-09-24" },
-  "phase": "core-transform",
+  "phase": "demo-integration",
   "acceptance": [
     "source demo upload/background-processing/progress feature works",
     "destination demonstrably lacks feature before transplant",
@@ -22,18 +22,20 @@
     "immutable snapshot materialization that refuses hidden overwrites and missing source files",
     "TypeScript snapshot parser now feeds feature closure analysis and refuses incomplete graphs",
     "declared adapter imports can be deterministically rewritten to mapped destination capability modules",
-    "materialization now rewrites only declared adapter boundaries and computes destination-relative specifiers after reviewed relocation"
+    "materialization rewrites only declared adapter boundaries and computes destination-relative specifiers after reviewed relocation",
+    "runnable source and destination TypeScript demo fixtures compile and expose source-feature versus destination-baseline behavior",
+    "one-call prepare/apply orchestration now wires manifest, parser, closure, inventory, planner, change set, rewrite, and materialization"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0",
     "typescript": "5.8.3",
     "fullSuiteBaseline": "10 tests passed, 0 failed from prior full-suite run",
-    "currentSlot": "materialization/rewrite integration and relocation regression coverage added; complete repository suite still requires execution before a new full-suite pass can be claimed"
+    "currentSlot": "demo fixtures compiled under demo/tsconfig.json; source entry produced upload progress 0/35/75/100 and destination baseline reported hasUploadFeature=false; new orchestration regression tests are committed but full repository suite still requires execution"
   },
   "next": [
-    "execute the complete repository test suite against all current regression tests",
-    "build the first runnable source and destination demo applications",
-    "wire manifest, parser, planner, change-set, rewrite, and materialization into one reproducible demo command",
-    "begin product UI and truthful README visual assets after runnable demo behavior exists"
+    "execute the complete repository suite including orchestration regression tests",
+    "feed the real demo fixture files into prepareTransplant and produce the first reproducible review plan",
+    "add an isolated filesystem apply/reset harness so the post-transplant destination can compile and execute",
+    "begin product UI and truthful README visual assets after the end-to-end demo path is repeatable"
   ]
 }
