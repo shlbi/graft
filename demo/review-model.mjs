@@ -67,7 +67,7 @@ export function serializeDemoReview(fixture) {
     schemaVersion: 1,
     feature: prepared.feature.name,
     ready: prepared.ready,
-    scope: 'authored TypeScript demo; read-only review; in-memory adapters and simulated progress',
+    scope: 'authored TypeScript demo; read-only review before approval; in-memory destination storage; bounded text processing',
     graph: { nodes, edges },
     dependencies: {
       files: closure?.files ?? [],
@@ -97,8 +97,8 @@ export function serializeDemoReview(fixture) {
       dependencies: prepared.dependencyBlockers,
     },
     limitations: [
-      'Review approval is required before any apply operation.',
-      'The current fixture has no browser upload, durable queue, database or real document processor.',
+      'Review approval is required before any apply operation or live upload runtime is provisioned.',
+      'Browser upload becomes available only after approval; destination storage remains in-memory and progress checkpoints are synchronous, with no durable queue, database, or authentication claimed.',
       'Capability contract labels are narrow demo contracts, not proof of arbitrary framework compatibility.',
     ],
   };

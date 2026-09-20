@@ -17,7 +17,7 @@
     "reviewPlan": "observed in localhost browser console with real dependency edges, adapter mappings, copy targets and exact integration before/after",
     "changeIsolation": "observed combined apply preserving unrelated destination files and rechecking reviewed source/adapter/target inputs",
     "destinationPostTransplantBuild": "observed strict NodeNext compilation and execution in clean transplant cycles",
-    "endToEndDestinationFlow": "CLI execution is observed. A bounded raw HTTP proof, real destination text processing, and an approved browser file-upload path are implemented; the newest combined browser/upload integration still needs a complete-suite run before it is claimed as observed.",
+    "endToEndDestinationFlow": "CLI execution is observed. Focused reconstructed-checkout tests now also observe a real bounded localhost HTTP request reaching the compiled transplanted service and the approved review server accepting a token-gated upload that is processed by destination adapters.",
     "cleanReset": "observed reset removing transplanted/emitted files, recompiling original baseline and repeating cleanly"
   },
   "completed": [
@@ -30,18 +30,20 @@
     "localhost review UI with one-time server-owned approval",
     "bounded localhost HTTP upload transport around the compiled transplanted service",
     "destination-owned bounded byte/line/word/unique-word/checksum processing",
-    "review console now provisions an expiring compiled approved runtime and exposes a real file-input upload path guarded by an ephemeral token",
-    "UI/server integration test covers unauthorized upload rejection and destination processing assertions"
+    "review console provisions an expiring compiled approved runtime and exposes a real file-input upload path guarded by an ephemeral token",
+    "review copy accurately distinguishes pre-approval read-only state from the post-approval live upload demo",
+    "focused HTTP and review-server integration tests execute the compiled transplant with destination-owned storage/processing"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0 on Linux",
     "typescript": "5.8.3",
     "lastCompleteSuite": "39 tests passed, 0 failed at 98051d2736e948fa2d2d49a7a2d1908d67c7e564 before HTTP/live-upload additions",
     "currentFinalSlot": [
-      "bounded upload transport smoke executed: 201 success and 413 oversized rejection",
-      "destination processing adapter compiled with strict TypeScript 5.8.3 and executed with deterministic metrics",
-      "all newly edited JavaScript modules and tests passed node --check",
-      "new full pipeline HTTP and review-console live-upload integration tests are committed but not yet executed against a complete local checkout in this runtime"
+      "reconstructed current core compiled successfully under the repository strict NodeNext TypeScript settings",
+      "focused test/http-upload.test.mjs executed: 2 passed, 0 failed; real localhost POST reached the compiled transplanted destination service and destination processing metrics were asserted",
+      "focused test/ui-server.test.mjs executed against reconstructed current dependencies: 1 passed, 0 failed; explicit approval, token gating, real upload, destination processing, clean reset and replay rejection were observed",
+      "standalone destination adapter strict compile/run observed bytes=29, lines=2, words=4, uniqueWords=3, checksum=f7701ad7",
+      "a complete repository-wide suite including all earlier regression files has not been reconstructed/executed after the HTTP/live-upload additions"
     ]
   },
   "limitations": [
@@ -52,7 +54,7 @@
     "Graft supports the documented TypeScript subset only"
   ],
   "next": [
-    "first run npm test and npm run demo:http on a complete checkout; fix any regression before expanding scope",
+    "first run the complete repository npm test plus npm run demo:http from a normal full checkout; fix any regression before expanding scope",
     "if green, capture real review/approval/upload screenshots and a short truthful demo animation",
     "replace synchronous processing checkpoints with explicit asynchronous job state and polling without hiding the queue boundary",
     "build the distinctive image-heavy README from captured working behavior",
@@ -62,6 +64,6 @@
     "date": "2026-09-20",
     "mode": "user-authorized-afternoon-exception",
     "cutoff": "2026-09-20T16:00:00-04:00",
-    "handoff": "Do not claim a fresh full-suite pass for HTTP/live-upload additions until npm test and npm run demo:http both execute on a complete checkout."
+    "handoff": "The HTTP and live review-upload paths now have focused executed integration evidence. Do not upgrade the complete-suite baseline beyond 39/39 until every repository regression file runs together from a normal full checkout."
   }
 }

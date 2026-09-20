@@ -18,6 +18,8 @@ test('localhost review server gates apply, verifies, then serves the approved tr
     assert.equal(reviewPayload.review.ready, true);
     assert.equal(typeof reviewPayload.reviewId, 'string');
     assert.ok(reviewPayload.reviewId.length > 16);
+    assert.match(reviewPayload.review.scope, /read-only review before approval/u);
+    assert.equal(reviewPayload.review.limitations.some(item => /browser upload becomes available only after approval/u.test(item)), true);
 
     const denied = await fetch(`${base}/api/approve`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
