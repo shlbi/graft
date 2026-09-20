@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Graft feature transplantation blueprint</title>
+  <desc id="desc">A blueprint-style concept diagram showing a source feature, reviewed Graft boundary, and destination application adapters.</desc>
+  <defs>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#c8c2b4" stroke-width="1" opacity="0.28"/>
+    </pattern>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,6 L0,12 z" fill="#9a5d3a"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="520" rx="24" fill="#f2efe6"/>
+  <rect x="1" y="1" width="1198" height="518" rx="23" fill="url(#grid)" stroke="#2b3136" stroke-width="2"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#22292e">
+    <text x="58" y="70" font-size="20" letter-spacing="4">GRAFT / FEATURE TRANSPLANT BLUEPRINT</text>
+    <text x="58" y="102" font-size="13" fill="#667078">DECLARED BOUNDARIES · EXPLICIT MAPPINGS · REVIEWED CHANGES · EXECUTED PROOF</text>
+
+    <rect x="58" y="150" width="290" height="270" rx="16" fill="#fbfaf6" stroke="#53616a" stroke-width="2"/>
+    <text x="82" y="184" font-size="13" letter-spacing="2" fill="#667078">SOURCE FEATURE</text>
+    <rect x="82" y="208" width="242" height="56" rx="9" fill="#eef0ec" stroke="#53616a"/>
+    <text x="100" y="241" font-size="15">features/upload/service.ts</text>
+    <rect x="82" y="280" width="242" height="50" rx="9" fill="#eef0ec" stroke="#53616a"/>
+    <text x="100" y="310" font-size="14">features/upload/types.ts</text>
+    <line x1="203" y1="264" x2="203" y2="280" stroke="#53616a" stroke-width="2"/>
+    <rect x="82" y="348" width="108" height="42" rx="8" fill="#f3e5d8" stroke="#9a5d3a"/>
+    <text x="100" y="374" font-size="12">storage</text>
+    <rect x="216" y="348" width="108" height="42" rx="8" fill="#f3e5d8" stroke="#9a5d3a"/>
+    <text x="241" y="374" font-size="12">jobs</text>
+
+    <rect x="455" y="150" width="290" height="270" rx="16" fill="#20272c" stroke="#20272c" stroke-width="2"/>
+    <text x="479" y="184" font-size="13" letter-spacing="2" fill="#d8d2c5">GRAFT REVIEW</text>
+    <text x="479" y="224" font-size="26" fill="#f2efe6">STOP → MAP → REVIEW</text>
+    <line x1="479" y1="248" x2="721" y2="248" stroke="#4f5c64"/>
+    <text x="479" y="281" font-size="13" fill="#d8d2c5">01 dependency closure</text>
+    <text x="479" y="310" font-size="13" fill="#d8d2c5">02 capability match</text>
+    <text x="479" y="339" font-size="13" fill="#d8d2c5">03 exact before / after</text>
+    <text x="479" y="368" font-size="13" fill="#d8d2c5">04 explicit approval</text>
+    <text x="479" y="397" font-size="13" fill="#d8d2c5">05 compile + execute + reset</text>
+
+    <rect x="852" y="150" width="290" height="270" rx="16" fill="#fbfaf6" stroke="#53616a" stroke-width="2"/>
+    <text x="876" y="184" font-size="13" letter-spacing="2" fill="#667078">DESTINATION APP</text>
+    <rect x="876" y="208" width="242" height="56" rx="9" fill="#eef0ec" stroke="#53616a"/>
+    <text x="894" y="241" font-size="14">features/upload/service.ts</text>
+    <rect x="876" y="282" width="242" height="48" rx="9" fill="#f3e5d8" stroke="#9a5d3a"/>
+    <text x="894" y="311" font-size="13">platform/blob-store.ts</text>
+    <rect x="876" y="346" width="242" height="48" rx="9" fill="#f3e5d8" stroke="#9a5d3a"/>
+    <text x="894" y="375" font-size="13">platform/task-runner.ts</text>
+
+    <line x1="348" y1="285" x2="440" y2="285" stroke="#9a5d3a" stroke-width="3" marker-end="url(#arrow)"/>
+    <line x1="745" y1="285" x2="837" y2="285" stroke="#9a5d3a" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <text x="58" y="468" font-size="13" fill="#667078">v0.1 · documented TypeScript subset · deterministic core · no paid LLM required for the demo</text>
+  </g>
+</svg>
