@@ -13,7 +13,7 @@ function sendJson(response, status, value) {
   response.end(payload);
 }
 
-function safeUploadName(raw) {
+export function normalizeUploadName(raw) {
   const name = String(raw ?? '').trim();
   if (!name || name.length > 160) throw Object.assign(new Error('upload name must be 1-160 characters'), { statusCode: 400 });
   if (name === '.' || name === '..' || /[\\/\0\r\n]/.test(name)) {
@@ -22,7 +22,7 @@ function safeUploadName(raw) {
   return name;
 }
 
-async function readBody(request, maxBytes) {
+export async function readBoundedUploadBody(request, maxBytes) {
   const chunks = [];
   let size = 0;
   for await (const chunk of request) {
@@ -59,8 +59,8 @@ export function createUploadHttpServer({ uploadAndProcess, host = '127.0.0.1', p
           sendJson(response, 403, { error: 'cross-origin upload rejected' });
           return;
         }
-        const name = safeUploadName(url.searchParams.get('name'));
-        const body = await readBody(request, maxUploadBytes);
+        const name = normalizeUploadName(url.searchParams.get('name'));
+        const body = await readBoundedUploadBody(request, maxUploadBytes);
         active++;
         try {
           const result = await uploadAndProcess(name, body.toString('utf8'));

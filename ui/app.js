@@ -8,6 +8,8 @@ const el = (tag, className, text) => {
 
 let reviewId = null;
 let currentReview = null;
+let uploadToken = null;
+let uploadMaxBytes = 0;
 
 function metric(value, label) {
   const box = el('div', 'metric');
@@ -73,7 +75,6 @@ function renderChanges(review) {
     card.append(el('span', 'tag', 'integrate'), el('strong', '', patch.targetPath), el('code', '', `exact marker · ${patch.id}`));
     root.append(card);
   }
-
   const diff = $('#diff');
   diff.replaceChildren();
   for (const patch of review.integrations) {
@@ -96,8 +97,7 @@ function renderReview(review) {
   renderGraph(review);
   renderMappings(review);
   renderChanges(review);
-  const limitations = $('#limitations');
-  limitations.replaceChildren(...review.limitations.map(item => el('li', '', item)));
+  $('#limitations').replaceChildren(...review.limitations.map(item => el('li', '', item)));
   const pill = $('#statusPill');
   pill.className = `pill ${review.ready ? 'ready' : ''}`;
   pill.textContent = review.ready ? 'READY FOR REVIEW' : 'BLOCKED';
@@ -125,10 +125,43 @@ function renderResult(payload) {
   grid.append(source, baseline, destination);
   result.append(grid);
   $('#resultPanel').classList.remove('hidden');
+
+  uploadToken = payload.uploadDemo?.token ?? null;
+  uploadMaxBytes = payload.uploadDemo?.maxUploadBytes ?? 0;
+  if (uploadToken) {
+    $('#uploadPanel').classList.remove('hidden');
+    $('#uploadButton').disabled = !$('#uploadInput').files?.length;
+    $('#uploadResult').className = 'upload-result muted';
+    $('#uploadResult').textContent = `Approved runtime ready for ${payload.uploadDemo.expiresInSeconds}s. Choose a text-like file up to ${Math.floor(uploadMaxBytes / 1024)} KB.`;
+  }
+
   const pill = $('#statusPill');
   pill.className = 'pill verified';
   pill.textContent = 'TRANSPLANT VERIFIED';
   $('#approvalCopy').textContent = `Created ${payload.applied.created.length}, updated ${payload.applied.updated.length}, preserved ${payload.applied.preserved.length}. Clean reset passed.`;
+}
+
+function renderUploadResult(payload) {
+  const root = $('#uploadResult');
+  root.className = 'upload-result';
+  root.replaceChildren();
+  const completed = payload.result.progress.at(-1);
+  root.append(el('span', 'tag', 'destination upload'), el('strong', '', `${payload.name} · ${payload.result.fileId}`));
+  const progress = el('div', 'upload-progress');
+  payload.result.progress.forEach(item => progress.append(el('span', '', `${item.stage} ${item.progress}%`)));
+  root.append(progress);
+  if (completed?.metrics) {
+    const metrics = el('div', 'upload-metrics');
+    for (const [label, value] of [
+      ['bytes', completed.metrics.bytes], ['lines', completed.metrics.lines], ['words', completed.metrics.words],
+      ['unique', completed.metrics.uniqueWords], ['checksum', completed.metrics.checksum],
+    ]) {
+      const item = el('div', 'upload-metric');
+      item.append(el('b', '', String(value)), el('span', '', label));
+      metrics.append(item);
+    }
+    root.append(metrics);
+  }
 }
 
 async function loadReview() {
@@ -164,6 +197,40 @@ $('#approveButton').addEventListener('click', async () => {
     $('#approvalCopy').className = 'error';
     $('#approvalCopy').textContent = error.message;
     button.textContent = 'Approval failed';
+  }
+});
+
+$('#uploadInput').addEventListener('change', () => {
+  const file = $('#uploadInput').files?.[0];
+  $('#uploadButton').disabled = !uploadToken || !file;
+  if (file && uploadMaxBytes && file.size > uploadMaxBytes) {
+    $('#uploadResult').className = 'upload-result upload-error';
+    $('#uploadResult').textContent = `File is ${file.size} bytes; this demo is capped at ${uploadMaxBytes} bytes.`;
+    $('#uploadButton').disabled = true;
+  }
+});
+
+$('#uploadButton').addEventListener('click', async () => {
+  const file = $('#uploadInput').files?.[0];
+  if (!file || !uploadToken) return;
+  const button = $('#uploadButton');
+  button.disabled = true;
+  button.textContent = 'Sending through transplanted service…';
+  try {
+    const response = await fetch(`/api/demo-upload?name=${encodeURIComponent(file.name)}`, {
+      method: 'POST',
+      headers: { 'x-graft-upload-token': uploadToken, 'content-type': file.type || 'application/octet-stream' },
+      body: file,
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error ?? `upload failed (${response.status})`);
+    renderUploadResult(payload);
+    button.textContent = 'Upload another file →';
+    button.disabled = false;
+  } catch (error) {
+    $('#uploadResult').className = 'upload-result upload-error';
+    $('#uploadResult').textContent = error.message;
+    button.textContent = 'Upload failed';
   }
 });
 

@@ -1,66 +1,67 @@
 {
   "project": "Graft",
   "cycle": { "start": "2026-09-18", "end": "2026-09-24" },
-  "phase": "http-upload-demo",
+  "phase": "approved-review-with-live-upload",
   "acceptance": [
     "source demo upload/background-processing/progress feature works",
     "destination demonstrably lacks feature before transplant",
     "Graft produces a reviewable dependency and capability mapping plan",
     "approved transplant changes only documented feature/integration files",
     "destination builds and automated integration tests execute",
-    "transplanted upload/job/progress flow works end-to-end",
-    "clean reset reproduces the demo"
+    "transplanted upload/job/progress works end-to-end afterward",
+    "clean reset reproduces the demonstration"
   ],
   "acceptanceStatus": {
     "sourceFeature": "observed working in runnable source demo",
     "destinationBaseline": "observed compiling/running with hasUploadFeature=false",
-    "reviewPlan": "observed in localhost review console with real dependency edges, adapter mappings, copy targets and exact integration before/after",
+    "reviewPlan": "observed in localhost browser console with real dependency edges, adapter mappings, copy targets and exact integration before/after",
     "changeIsolation": "observed combined apply preserving unrelated destination files and rechecking reviewed source/adapter/target inputs",
     "destinationPostTransplantBuild": "observed strict NodeNext compilation and execution in clean transplant cycles",
-    "endToEndDestinationFlow": "CLI path observed; bounded HTTP transport and compiled-transplant integration are now implemented. The destination adapter performs real text metrics/checksum work, while progress remains synchronous and storage in-memory.",
+    "endToEndDestinationFlow": "CLI execution is observed. A bounded raw HTTP proof, real destination text processing, and an approved browser file-upload path are implemented; the newest combined browser/upload integration still needs a complete-suite run before it is claimed as observed.",
     "cleanReset": "observed reset removing transplanted/emitted files, recompiling original baseline and repeating cleanly"
   },
   "completed": [
-    "deterministic manifest/import/dependency analysis with explicit unsupported-edge blockers",
-    "destination capability inventory and explicit adapter contract mapping",
-    "reviewable copy/binding/integration change set with collision and stale-input guards",
-    "deterministic adapter import rewriting and immutable materialization",
+    "deterministic manifest/import/dependency analysis with unsupported-edge blockers",
+    "explicit destination inventory and adapter contract mapping",
+    "reviewable copy/binding/integration plans with collision and stale-input guards",
+    "deterministic adapter rewrite and immutable materialization",
     "runnable source/destination fixtures and isolated apply/reset workspace",
     "complete authored CLI transplant compile/run/reset verification",
-    "localhost review UI with one-time explicit server-owned approval and verification",
+    "localhost review UI with one-time server-owned approval",
     "bounded localhost HTTP upload transport around the compiled transplanted service",
-    "destination blob adapter can read stored payloads for its own processor",
-    "destination task adapter performs bounded byte/line/word/unique-word/checksum processing on actual uploaded content",
-    "HTTP integration test asserts request bytes reach destination storage/processing and source adapters are not copied"
+    "destination-owned bounded byte/line/word/unique-word/checksum processing",
+    "review console now provisions an expiring compiled approved runtime and exposes a real file-input upload path guarded by an ephemeral token",
+    "UI/server integration test covers unauthorized upload rejection and destination processing assertions"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0 on Linux",
     "typescript": "5.8.3",
-    "lastCompleteSuite": "39 tests passed, 0 failed at commit 98051d2736e948fa2d2d49a7a2d1908d67c7e564 before HTTP additions",
+    "lastCompleteSuite": "39 tests passed, 0 failed at 98051d2736e948fa2d2d49a7a2d1908d67c7e564 before HTTP/live-upload additions",
     "currentFinalSlot": [
-      "generic HTTP upload server smoke executed locally: POST returned 201 and traversal-style filename returned 400",
-      "updated destination blob/task adapters compiled with strict TypeScript 5.8.3 and executed locally; final metrics observed bytes=29, lines=2, words=4, uniqueWords=3, checksum=f7701ad7",
-      "full repository HTTP-transplant integration test is committed but was not executed against a complete local checkout in this runtime"
+      "bounded upload transport smoke executed: 201 success and 413 oversized rejection",
+      "destination processing adapter compiled with strict TypeScript 5.8.3 and executed with deterministic metrics",
+      "all newly edited JavaScript modules and tests passed node --check",
+      "new full pipeline HTTP and review-console live-upload integration tests are committed but not yet executed against a complete local checkout in this runtime"
     ]
   },
   "limitations": [
-    "destination storage is in-memory in the authored demo",
-    "progress checkpoints are synchronous; no durable/background queue is claimed",
-    "HTTP proof uses a bounded raw request body rather than multipart/browser file-input plumbing",
+    "destination storage remains in-memory in the authored demo",
+    "processing progress is synchronous rather than a durable asynchronous queue",
+    "browser upload accepts text-like files and forwards a bounded raw body; multipart/authentication are out of scope",
     "Windows and CI execution are not yet claimed",
-    "Graft supports the documented TypeScript subset only; it does not claim arbitrary cross-framework transplantation"
+    "Graft supports the documented TypeScript subset only"
   ],
   "next": [
-    "first rerun npm test and npm run demo:http on a complete checkout; fix any regression before expanding scope",
-    "surface the real HTTP upload proof inside the review console after explicit approval",
-    "replace synchronous checkpoint reporting with true asynchronous job state and polling while keeping the adapter contract explicit",
-    "capture truthful screenshots/demo footage from the functioning UI and build the image-heavy README",
-    "research and cite primary sources for established component/code reuse approaches, then document Graft's narrower contribution"
+    "first run npm test and npm run demo:http on a complete checkout; fix any regression before expanding scope",
+    "if green, capture real review/approval/upload screenshots and a short truthful demo animation",
+    "replace synchronous processing checkpoints with explicit asynchronous job state and polling without hiding the queue boundary",
+    "build the distinctive image-heavy README from captured working behavior",
+    "research primary sources for established component/code reuse and document Graft's narrower contribution"
   ],
   "session": {
     "date": "2026-09-20",
     "mode": "user-authorized-afternoon-exception",
     "cutoff": "2026-09-20T16:00:00-04:00",
-    "handoff": "Do not claim a fresh full-suite pass for the HTTP additions until npm test and npm run demo:http execute together on a complete checkout."
+    "handoff": "Do not claim a fresh full-suite pass for HTTP/live-upload additions until npm test and npm run demo:http both execute on a complete checkout."
   }
 }

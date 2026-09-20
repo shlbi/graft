@@ -41,39 +41,54 @@ async function compile(root) {
   }
 }
 
-/** Build a fresh reviewed transplant, compile it, and expose the transplanted
- * feature through a local HTTP upload boundary. Only checked-in demo code runs. */
-export async function createTransplantedUploadRuntime({ host = '127.0.0.1', port = 0 } = {}) {
+/** Build and compile a fresh reviewed transplant and return its backend feature.
+ * The caller owns the returned runtime and must close it. */
+export async function createCompiledTransplantFeature() {
   const fixture = await prepareDemoTransplant({ integrate: false });
   assert.equal(fixture.prepared.ready, true, 'HTTP demo requires a blocker-free review plan');
   const applied = applyPreparedTransplant(fixture.prepared, fixture.sourceSnapshots, fixture.destinationSnapshots);
   assert.equal(applied.result.some(file => file.path.startsWith('adapters/')), false, 'source adapters must not be copied');
 
   const workspace = await createDemoWorkspace([...applied.result, ...compileMetadata]);
-  let server;
   try {
     await compile(workspace.root);
     const serviceUrl = pathToFileURL(join(workspace.root, '.compiled', 'features/upload/service.js'));
     serviceUrl.searchParams.set('runtime', String(Date.now()));
     const service = await import(serviceUrl.href);
     if (typeof service.uploadAndProcess !== 'function') throw new Error('transplanted service did not export uploadAndProcess');
-    server = createUploadHttpServer({ uploadAndProcess: service.uploadAndProcess, host, port });
     return {
-      async listen() { return server.listen(); },
+      uploadAndProcess: service.uploadAndProcess,
       review: {
         feature: fixture.prepared.feature.name,
         bindings: fixture.prepared.changeSet.bindings,
         created: applied.created.map(file => file.path),
         preserved: applied.preserved,
       },
+      async close() { await workspace.close(); },
+    };
+  } catch (error) {
+    await workspace.close();
+    throw error;
+  }
+}
+
+/** Expose the compiled transplanted feature through a bounded localhost server. */
+export async function createTransplantedUploadRuntime({ host = '127.0.0.1', port = 0 } = {}) {
+  const compiled = await createCompiledTransplantFeature();
+  let server;
+  try {
+    server = createUploadHttpServer({ uploadAndProcess: compiled.uploadAndProcess, host, port });
+    return {
+      async listen() { return server.listen(); },
+      review: compiled.review,
       async close() {
         await server.close();
-        await workspace.close();
+        await compiled.close();
       },
     };
   } catch (error) {
     await server?.close().catch(() => {});
-    await workspace.close();
+    await compiled.close();
     throw error;
   }
 }
