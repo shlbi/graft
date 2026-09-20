@@ -1,7 +1,8 @@
 {
   "project": "Graft",
   "cycle": { "start": "2026-09-18", "end": "2026-09-24" },
-  "phase": "demo-integration",
+  "phase": "integration-orchestrated",
+  "session": { "date": "2026-09-20", "mode": "user-authorized-afternoon-exception", "cutoff": "2026-09-20T16:00:00-04:00" },
   "acceptance": [
     "source demo upload/background-processing/progress feature works",
     "destination demonstrably lacks feature before transplant",
@@ -14,8 +15,8 @@
   "acceptanceStatus": {
     "sourceFeature": "observed working in runnable source demo",
     "destinationBaseline": "observed compiling/running with hasUploadFeature=false",
-    "reviewPlan": "observed on real fixtures with dependency closure, capability mappings, and copy targets",
-    "changeIsolation": "copy materialization preserves unrelated destination snapshots; explicit integration mounts now require exact reviewed before/after content",
+    "reviewPlan": "single prepared object covers feature copies, adapter bindings and exact integration before/after patches",
+    "changeIsolation": "observed 32-test full suite: no mutation, stale-source/adapter/target rejection, overwrite prevention and unrelated-edit preservation",
     "destinationPostTransplantBuild": "not yet executed as one complete transplanted workspace",
     "endToEndDestinationFlow": "not yet executed",
     "cleanReset": "isolated workspace reset harness observed passing focused tests"
@@ -36,19 +37,23 @@
     "one-call prepare/apply orchestration wires manifest, parser, closure, inventory, planner, change set, rewrite, and materialization",
     "real demo fixture now exercises the planning/materialization pipeline against actual source and destination files",
     "isolated filesystem workspace harness applies materialized snapshots and resets to a clean baseline",
-    "explicit destination integration mounts now prepare exact before/after patches, block missing or ambiguous markers, and reject stale post-review destinations"
+    "explicit destination integration mounts now prepare exact before/after patches, block missing or ambiguous markers, and reject stale post-review destinations",
+    "integration mounts are now part of prepare/apply with combined touched targets and correct preserved/updated reporting",
+    "reviewed source and required destination adapter contents are checked again before apply",
+    "literal integration replacements preserve JavaScript dollar metacharacters",
+    "complete current repository baseline reconstructed with Git blob verification and executed: 26 tests passed"
   ],
   "observedValidation": {
-    "runtime": "Node 22.16.0",
+    "runtime": "Node 22.16.0 on Linux",
     "typescript": "5.8.3",
-    "fullSuiteBaseline": "10 tests passed, 0 failed from the most recent complete repository-wide run before newer demo/integration tests were added",
-    "currentSlot": "focused integration-mount compile succeeded; 2 integration tests passed, 0 failed; revised destination baseline entry compiled and executed with hasUploadFeature=false",
-    "limitations": "complete repository suite and one-process post-transplant destination compile/run were not executed in this slot"
+    "fullSuiteBaseline": "26 tests passed, 0 failed on exact upstream 4d92eca before edits",
+    "currentSlot": "npm test including strict build: 32 tests passed, 0 failed",
+    "limitations": "CLI demo adapters simulate job progress; no browser UI, persistent processing or complete transplanted compile/run in this commit"
   },
   "next": [
-    "wire the reviewed integration-mount plan into prepareTransplant/applyPreparedTransplant so integration edits are part of the same reviewed change set",
-    "execute the complete repository suite including orchestration, real-fixture, workspace-reset, and integration-mount tests",
-    "apply the real fixture into an isolated workspace, compile the destination, execute its transplanted upload/job/progress flow, then reset and repeat",
-    "begin the product UI and truthful README screenshots/animation only after the end-to-end demo path is repeatable"
+    "compile and execute the actual transplanted destination using explicit mount through prepare/apply",
+    "verify destination-specific blob ids and progress, reset and repeat",
+    "harden workspace invalid-apply behavior before using it in an interactive runner",
+    "build real review UI and truthful visual README from the proven fixture"
   ]
 }

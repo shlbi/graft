@@ -140,7 +140,7 @@ export function prepareIntegrationPlan(
       marker,
       content,
       before,
-      after: before.replace(marker, content.trimEnd()),
+      after: before.replace(marker, () => content.trimEnd()),
     });
   }
 
