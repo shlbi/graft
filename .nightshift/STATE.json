@@ -2,79 +2,52 @@
   "project": "Graft",
   "cycle": {
     "start": "2026-09-18",
-    "end": "2026-09-24"
+    "end": "2026-09-20"
   },
-  "phase": "approved-review-with-browser-queued-job-polling",
-  "acceptance": [
-    "source demo upload/background-processing/progress feature works",
-    "destination demonstrably lacks feature before transplant",
-    "Graft produces a reviewable dependency and capability mapping plan",
-    "approved transplant changes only documented feature/integration files",
-    "destination builds and automated integration tests execute",
-    "transplanted upload/job/progress works end-to-end afterward",
-    "clean reset reproduces the demonstration"
-  ],
+  "phase": "v0.1-release-consolidation",
+  "authorization": "User requested finishing Graft now and starting the next project September 21 at 02:00 Eastern. This supersedes the earlier afternoon cutoff and September 24 cycle end.",
   "acceptanceStatus": {
-    "sourceFeature": "observed working in runnable source demo",
-    "destinationBaseline": "observed compiling/running with hasUploadFeature=false",
-    "reviewPlan": "observed in localhost browser console with real dependency edges, adapter mappings, copy targets and exact integration before/after",
-    "changeIsolation": "observed combined apply preserving unrelated destination files and rechecking reviewed source/adapter/target inputs",
-    "destinationPostTransplantBuild": "observed strict NodeNext compilation and execution in clean transplant cycles",
-    "endToEndDestinationFlow": "CLI execution is observed. Focused reconstructed-checkout tests before the queue refactor observed real localhost HTTP request bytes reaching the compiled transplanted service and the approved review server accepting a token-gated upload processed by destination adapters. The standalone transport queue smoke test observes 202 acceptance followed by pollable completion. The browser review path has now been wired to the same queued/polling shape but has only been syntax-checked since that wiring and still needs its integration test rerun.",
-    "cleanReset": "observed reset removing transplanted/emitted files, recompiling original baseline and repeating cleanly"
+    "sourceFeature": "Executed in the complete CLI verification.",
+    "destinationBaseline": "Compiled and executed without the feature.",
+    "reviewPlan": "Dependency graph, adapter bindings, exact copy/integration edits produced from real fixtures.",
+    "changeIsolation": "Stale-input and overwrite guards tested; unrelated destination files preserved.",
+    "destinationPostTransplantBuild": "Strict NodeNext compile and runtime execution passed.",
+    "endToEndDestinationFlow": "Real localhost HTTP 202 upload, token-gated polling and destination text processing passed.",
+    "cleanReset": "Two complete CLI cycles restore and recompile the original baseline.",
+    "browserUI": "HTTP integration plus DOM-stub controller tests passed; offline rendering checked desktop and mobile. Live Chromium navigation blocked by administrator policy; no live-browser pass claimed."
   },
-  "completed": [
-    "deterministic manifest/import/dependency analysis with unsupported-edge blockers",
-    "explicit destination inventory and adapter contract mapping",
-    "reviewable copy/binding/integration plans with collision and stale-input guards",
-    "deterministic adapter rewrite and immutable materialization",
-    "runnable source/destination fixtures and isolated apply/reset workspace",
-    "complete authored CLI transplant compile/run/reset verification",
-    "localhost review UI with one-time server-owned approval",
-    "bounded localhost HTTP upload transport around the compiled transplanted service",
-    "destination-owned bounded byte/line/word/unique-word/checksum processing",
-    "review console provisions an expiring compiled approved runtime and exposes a real file-input upload path guarded by an ephemeral token",
-    "review copy accurately distinguishes pre-approval read-only state from the post-approval live upload demo",
-    "focused HTTP and review-server integration tests execute the compiled transplant with destination-owned storage/processing",
-    "HTTP demo transport now accepts uploads into an explicit bounded in-memory job queue and exposes GET polling for queued/running/complete/failed state instead of holding the request open through processing",
-    "localhost review UI upload path now uses an explicit queued job and token-gated polling contract rather than waiting directly on the processing call",
-    "initial visual README and repository-owned blueprint hero document the actual v0.1 scope and keep real screenshots/recording pending verified capture",
-    "primary-source reuse landscape documents adjacent package, codemod, generator and runtime-composition approaches without claiming Graft invented code reuse"
-  ],
   "observedValidation": {
     "runtime": "Node 22.16.0 on Linux",
     "typescript": "5.8.3",
-    "lastCompleteSuite": "39 tests passed, 0 failed at 98051d2736e948fa2d2d49a7a2d1908d67c7e564 before HTTP/live-upload additions",
-    "currentFinalSlot": [
-      "reconstructed current core compiled successfully under the repository strict NodeNext TypeScript settings",
-      "focused test/http-upload.test.mjs previously executed: 2 passed, 0 failed before the queue refactor; real localhost POST reached the compiled transplanted destination service and destination processing metrics were asserted",
-      "focused test/ui-server.test.mjs previously executed against reconstructed current dependencies: 1 passed, 0 failed; explicit approval, token gating, real upload, destination processing, clean reset and replay rejection were observed",
-      "standalone destination adapter strict compile/run observed bytes=29, lines=2, words=4, uniqueWords=3, checksum=f7701ad7",
-      "new explicit job-queue transport passed a standalone localhost smoke test: POST returned 202 queued, GET polling reached complete, request bytes reached the injected feature, and health returned zero active/queued jobs",
-      "the complete repository-wide suite and compiled transplant integration test have not yet been rerun after the queue refactor; do not upgrade the complete-suite baseline until they do",
-      "review-server, browser-client and updated UI integration-test queue/polling changes passed node --check; the UI integration test itself has not been executed after this wiring",
-      "README/blueprint hero and primary-source reuse-positioning docs were added; no product screenshot or recorded footage is claimed yet"
-    ]
+    "fullSuite": {
+      "command": "npm test",
+      "passed": 53,
+      "failed": 0,
+      "skipped": 0
+    },
+    "cliDemo": "Two cycles passed",
+    "httpDemo": "Passed; invalid UTF-8 415, accepted upload 202, completed destination processing, approval replay 404",
+    "offlineRender": "Real shipped HTML/CSS/render functions with recorded HTTP results; 7 dependency nodes, hidden pre-approval panels and no horizontal overflow at 1280px or 390px."
   },
+  "completed": [
+    "Explicit manifest and inventory validation",
+    "Static TypeScript dependency closure and adapter-boundary rewriting",
+    "Reviewed immutable copy/integration plan with stale-input guards",
+    "Executable source and destination fixtures with reproducible reset",
+    "Bounded receiving reservations, serial queue and accepted-job shutdown drain",
+    "Exact reviewed snapshot compiled by approval path",
+    "Refined responsive UI with review export, sample text, retry and expiry gating",
+    "Four focused client-controller regressions"
+  ],
   "limitations": [
-    "destination storage remains in-memory in the authored demo",
-    "the HTTP and browser demo queues are explicit and asynchronous but remain in-memory and non-durable",
-    "the destination task adapter still calculates its internal progress history in one process; durable worker execution is not claimed",
-    "browser upload accepts text-like files and forwards a bounded raw body; multipart/authentication are out of scope",
-    "the browser queue/polling integration is syntax-checked but has not yet had its full integration test rerun after the latest wiring",
-    "Windows and CI execution are not yet claimed",
-    "Graft supports the documented TypeScript subset only"
+    "Only the documented TypeScript subset and authored browser demo are supported; no universal framework transplant.",
+    "Storage and queue remain in-memory; processing checkpoints are not durable worker progress.",
+    "No automatic package installation, database migration or arbitrary project execution.",
+    "Chromium localhost navigation is policy-blocked here; offline preview images are not live browser screenshots.",
+    "Windows, hosted CI and production use remain unverified."
   ],
   "next": [
-    "first run the complete repository npm test plus npm run demo:http from a normal full checkout; this must include the updated browser queue/polling integration and fix any regression before expanding scope",
-    "if green, run the localhost UI and capture real review, approval, queued/running/complete upload screenshots plus a short truthful recording",
-    "add only those captured real application assets to the README and keep the evidence ledger tied to observed results",
-    "after the demonstration is fully green, decide whether durable worker/storage adapters belong in the remaining v0.1 sprint or should stay an explicit roadmap boundary"
-  ],
-  "session": {
-    "date": "2026-09-20",
-    "mode": "user-authorized-afternoon-exception",
-    "cutoff": "2026-09-20T16:00:00-04:00",
-    "handoff": "Afternoon exception stopped with the queue boundary visible in both the standalone HTTP demo and browser code path. Standalone queue smoke and syntax checks passed, but the browser queue integration and complete repository suite have not been executed together after the latest wiring. Next overnight session must run npm test and npm run demo:http from a normal full checkout before capturing real screenshots or raising the 39/39 complete-suite baseline."
-  }
+    "Publish the revised README, clearly labeled offline preview assets and release evidence.",
+    "Do not continue Graft automatically in the next project slot; Kinetic is scheduled separately."
+  ]
 }

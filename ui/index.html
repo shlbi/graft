@@ -9,66 +9,52 @@
   <link rel="stylesheet" href="/upload.css">
 </head>
 <body>
+  <a class="skip-link" href="#blueprint">Skip to transplant review</a>
   <main class="shell">
     <header class="hero">
-      <div class="brand"><span class="brand-mark">G</span><span>GRAFT</span><small>feature transplant console</small></div>
-      <div id="statusPill" class="pill loading">PREPARING REVIEW</div>
-      <h1>Move the feature.<br><em>Keep the architecture.</em></h1>
-      <p class="lede">Inspect exactly what crosses the boundary, which destination capabilities replace source infrastructure, and what Graft will touch before anything is applied.</p>
-      <div class="scope-note">DEMO SCOPE · authored TypeScript fixtures · in-memory destination storage · bounded text processing</div>
+      <div class="topbar">
+        <div class="brand"><span class="brand-mark" aria-hidden="true">G</span><span>GRAFT</span><small>engineering console / v0.1</small></div>
+        <div id="statusPill" class="pill loading" role="status">PREPARING REVIEW</div>
+      </div>
+      <div class="hero-body">
+        <div><div class="eyebrow">SOURCE → REVIEW → DESTINATION</div><h1>Move the feature.<br><em>Keep the architecture.</em></h1></div>
+        <div class="intro"><p>Transplant behavior, not infrastructure. Inspect the dependency boundary, approve the exact changes, then run the result.</p><div class="scope-note">LOCAL DEMO · TYPESCRIPT ESM<br>EXPLICIT CONTRACTS · NO PAID AI API</div></div>
+      </div>
+      <div class="toolbar"><span>upload-processing-progress</span><div><button id="exportButton" class="secondary" disabled>Download review ↓</button><button id="refreshButton" class="secondary">New review ↻</button></div></div>
     </header>
-
     <section class="metrics" id="metrics" aria-label="Review summary"></section>
-
-    <section class="panel blueprint">
-      <div class="panel-head"><span>01</span><div><h2>Dependency blueprint</h2><p>Feature code stops at declared infrastructure boundaries.</p></div></div>
+    <section class="panel blueprint" id="blueprint">
+      <div class="panel-head"><span>01</span><div><h2>Dependency blueprint</h2><p>Copy the behavior. Stop at adapters. Bind to what the destination already owns.</p></div><span class="section-label">DISCOVERED FROM SOURCE</span></div>
       <div id="graph" class="graph-grid"></div>
     </section>
-
     <section class="panel">
-      <div class="panel-head"><span>02</span><div><h2>Adapter grafts</h2><p>Contract-matched destination modules replace the source application's infrastructure.</p></div></div>
+      <div class="panel-head"><span>02</span><div><h2>Adapter grafts</h2><p>Exact declared contracts, explicit destination bindings.</p></div></div>
       <div id="mappings" class="mapping-grid"></div>
     </section>
-
     <section class="panel">
-      <div class="panel-head"><span>03</span><div><h2>Exact change review</h2><p>New files and integration edits are explicit. Existing destination files are never silently overwritten.</p></div></div>
+      <div class="panel-head"><span>03</span><div><h2>Exact change review</h2><p>Every new file and integration edit is shown before approval.</p></div></div>
       <div id="changes" class="change-grid"></div>
-      <details class="diff-wrap">
-        <summary>Inspect integration before / after</summary>
-        <div id="diff" class="diff-grid"></div>
-      </details>
+      <details class="diff-wrap"><summary>Inspect integration before / after</summary><div id="diff" class="diff-grid"></div></details>
+      <div id="blockers" class="error" role="alert" hidden></div>
     </section>
-
     <section class="approval-panel">
-      <div>
-        <div class="eyebrow">HUMAN GATE</div>
-        <h2>Nothing applies until you approve this exact review.</h2>
-        <p id="approvalCopy">The server owns the prepared plan. The browser only sends a one-time review ID and explicit approval.</p>
-      </div>
-      <button id="approveButton" disabled>Approve &amp; verify transplant <span>→</span></button>
+      <div><div class="eyebrow">HUMAN GATE</div><h2>Your review. Your decision.</h2><p id="approvalCopy" role="status">The server owns the plan. Approval compiles and tests this authored fixture in a temporary workspace—not your real apps.</p></div>
+      <button id="approveButton" disabled>Approve &amp; verify transplant →</button>
     </section>
-
-    <section id="resultPanel" class="panel result-panel hidden" aria-live="polite">
-      <div class="panel-head"><span>04</span><div><h2>Executable proof</h2><p>Compile, run, reset. The destination must use its own adapters.</p></div></div>
-      <div id="result"></div>
+    <section id="resultPanel" class="panel result-panel" aria-live="polite" hidden>
+      <div class="panel-head"><span>04</span><div><h2>Executable proof</h2><p>Source works → destination gains the feature → clean reset reproduces the baseline.</p></div></div><div id="result"></div>
     </section>
-
-    <section id="uploadPanel" class="panel hidden" aria-live="polite">
-      <div class="panel-head"><span>05</span><div><h2>Use the transplanted feature</h2><p>After approval, send a real local file through the compiled destination service and inspect its destination-owned processing result.</p></div></div>
-      <div class="upload-console">
-        <div class="upload-control">
-          <label for="uploadInput">TEXT-LIKE FILE · MAX 1 MB</label>
-          <input id="uploadInput" type="file" accept=".txt,.md,.csv,.json,text/plain,application/json,text/csv">
-          <button id="uploadButton" disabled>Upload through destination <span>→</span></button>
-        </div>
-        <div id="uploadResult" class="upload-result muted">Choose a file after the transplant is verified.</div>
-      </div>
+    <section id="uploadPanel" class="panel" aria-live="polite" hidden>
+      <div class="panel-head"><span>05</span><div><h2>Use the transplanted feature</h2><p>Real request bytes. A queued job. The destination's own text processor.</p></div></div>
+      <div class="upload-console"><div class="upload-control">
+        <label for="uploadInput">UTF-8 TEXT FILE · MAX 1 MB</label>
+        <input id="uploadInput" type="file" accept=".txt,.md,.csv,.json,text/plain,application/json,text/csv">
+        <button id="sampleButton" class="secondary" disabled>Use included sample text</button>
+        <button id="uploadButton" disabled>Upload through destination →</button>
+        <small id="fileLabel">Choose a local file or use the original sample.</small>
+      </div><div id="uploadResult" class="upload-result muted">Awaiting an approved runtime.</div></div>
     </section>
-
-    <section class="limitations">
-      <div class="eyebrow">CURRENT BOUNDARY</div>
-      <ul id="limitations"></ul>
-    </section>
+    <footer class="limitations"><div class="eyebrow">SUPPORTED, NOT MAGIC</div><ul id="limitations"></ul><p>Graft v0.1 · local engineering demonstrator · no production-readiness claim</p></footer>
   </main>
   <script type="module" src="/app.js"></script>
 </body>
