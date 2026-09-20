@@ -7,13 +7,16 @@ the feature at a reviewed marker, compiles the resulting destination, executes
 it, and resets the temporary workspace. A localhost review console exposes the
 real graph, mappings and exact before/after integration patch before approval.
 
-The repository also includes a bounded HTTP proof: a real POST body is delivered
-to the **compiled transplanted service**, which stores the payload through the
-destination blob adapter and processes the stored content through the
-destination task adapter. The current processor computes actual byte/line/word,
-unique-word and deterministic checksum metrics. Storage remains in-memory and
-job checkpoints are still returned synchronously; no durable/background queue
-is claimed yet.
+The repository also includes a bounded HTTP proof: a real POST body is accepted
+with `202` into an explicit in-memory demo job queue, then delivered to the
+**compiled transplanted service**. The destination blob adapter stores the
+payload and the destination task adapter computes actual byte/line/word,
+unique-word and deterministic checksum metrics. Job state is pollable as
+`queued`, `running`, `complete`, or `failed`.
+
+This makes the queue boundary visible instead of holding the upload request open
+through processing. It is still a demo queue: storage and job state are
+in-memory, and no durable/background worker system is claimed.
 
 ## Run it
 
@@ -44,7 +47,8 @@ All transplant execution uses owned temporary directories and removes them in
 | Review console | Real dependency edges, adapter mappings, copy targets and exact integration before/after |
 | Combined apply | Two feature files created; explicit entry point update when mounted; source adapters not copied |
 | Destination after transplant | `blob-1`, destination progress `0 → 50 → 90 → 100` |
-| HTTP transport | Bounded localhost POST forwards actual request bytes to the compiled transplanted service |
+| HTTP acceptance | Bounded localhost POST accepts real request bytes with `202 queued` |
+| HTTP job state | `GET /api/jobs/:id` exposes queued/running/complete/failed state |
 | Destination processor | Reads stored content and computes byte/line/word/unique-word/checksum metrics |
 | Preservation | Unrelated destination modules remain byte-for-byte unchanged by transplant application |
 | Reset | Transplanted and emitted files disappear; original destination recompiles and reports feature absent |
@@ -56,10 +60,11 @@ are **not** measured production job progress or performance benchmarks.
 
 The most recent complete repository-wide execution before the HTTP additions
 passed **39 tests with zero failures**, including strict TypeScript compilation,
-the executable transplant and the localhost approval flow. The HTTP transport
-has separate focused validation and is included in the repository test suite;
-future runs should execute `npm test` and `npm run demo:http` together before
-claiming a new complete baseline.
+the executable transplant and the localhost approval flow. Focused HTTP and
+review-server integration tests were observed after those additions but before
+the latest queue refactor. The queue refactor itself has a standalone localhost
+smoke pass. A new complete baseline must wait until `npm test` and
+`npm run demo:http` are rerun together from a normal full checkout.
 
 ## Review and application flow
 
@@ -74,7 +79,8 @@ flowchart LR
     G --> O[Apply immutable snapshot changes]
     O --> C[Compile authored destination]
     C --> H[Exercise feature in CLI / bounded localhost HTTP]
-    H --> Z[Reset baseline]
+    H --> Q[202 queued + poll job state]
+    Q --> Z[Reset baseline]
 ```
 
 `prepareDemoTransplant({ integrate: true })` opts into the entry-point mount.
@@ -106,13 +112,20 @@ timeouts.
 
 The HTTP demo deliberately keeps transport separate from transplant semantics.
 It accepts a raw bounded body and a plain filename, rejects traversal-style
-names and cross-origin browser writes, and invokes the compiled transplanted
-feature. Multipart parsing, authentication, durable object storage and a real
-queue are outside this checkpoint.
+names and cross-origin browser writes, then places accepted work into a bounded
+in-memory queue. Polling exposes queue state until the injected compiled feature
+returns. Multipart parsing, authentication, durable object storage and a durable
+worker queue remain outside this checkpoint.
+
+The browser review console already exposes a post-approval token-gated upload
+path, but that route still waits directly for the compiled feature result. The
+next UI step is to put that browser path on the same explicit queued-job/polling
+contract as `npm run demo:http` so the product visibly demonstrates the boundary.
 
 ## Next product milestone
 
-Put the real HTTP upload proof directly into the review console after approval,
-then replace synchronous progress checkpoints with a genuinely asynchronous job
-state/polling adapter. Capture product screenshots and README demo footage only
-from that functioning path; no invented screenshots or synthetic success state.
+First rerun the complete suite and `npm run demo:http` from a normal full
+checkout after the queue refactor. If green, move the review-console upload onto
+the same queue/polling contract, then capture real review → approval → upload
+screenshots and a short demo recording. README media must come from that working
+path; no invented screenshots or synthetic success state.
