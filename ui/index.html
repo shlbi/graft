@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Graft — Feature Transplant Review</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="brand"><span class="brand-mark">G</span><span>GRAFT</span><small>feature transplant console</small></div>
+      <div id="statusPill" class="pill loading">PREPARING REVIEW</div>
+      <h1>Move the feature.<br><em>Keep the architecture.</em></h1>
+      <p class="lede">Inspect exactly what crosses the boundary, which destination capabilities replace source infrastructure, and what Graft will touch before anything is applied.</p>
+      <div class="scope-note">DEMO SCOPE · authored TypeScript fixtures · in-memory adapters · simulated progress</div>
+    </header>
+
+    <section class="metrics" id="metrics" aria-label="Review summary"></section>
+
+    <section class="panel blueprint">
+      <div class="panel-head"><span>01</span><div><h2>Dependency blueprint</h2><p>Feature code stops at declared infrastructure boundaries.</p></div></div>
+      <div id="graph" class="graph-grid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span>02</span><div><h2>Adapter grafts</h2><p>Contract-matched destination modules replace the source application's infrastructure.</p></div></div>
+      <div id="mappings" class="mapping-grid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span>03</span><div><h2>Exact change review</h2><p>New files and integration edits are explicit. Existing destination files are never silently overwritten.</p></div></div>
+      <div id="changes" class="change-grid"></div>
+      <details class="diff-wrap">
+        <summary>Inspect integration before / after</summary>
+        <div id="diff" class="diff-grid"></div>
+      </details>
+    </section>
+
+    <section class="approval-panel">
+      <div>
+        <div class="eyebrow">HUMAN GATE</div>
+        <h2>Nothing applies until you approve this exact review.</h2>
+        <p id="approvalCopy">The server owns the prepared plan. The browser only sends a one-time review ID and explicit approval.</p>
+      </div>
+      <button id="approveButton" disabled>Approve &amp; verify transplant <span>→</span></button>
+    </section>
+
+    <section id="resultPanel" class="panel result-panel hidden" aria-live="polite">
+      <div class="panel-head"><span>04</span><div><h2>Executable proof</h2><p>Compile, run, reset. The destination must use its own adapters.</p></div></div>
+      <div id="result"></div>
+    </section>
+
+    <section class="limitations">
+      <div class="eyebrow">CURRENT BOUNDARY</div>
+      <ul id="limitations"></ul>
+    </section>
+  </main>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

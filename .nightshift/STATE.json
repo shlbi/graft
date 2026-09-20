@@ -4,7 +4,7 @@
     "start": "2026-09-18",
     "end": "2026-09-24"
   },
-  "phase": "verified-cli-transplant",
+  "phase": "local-review-ui",
   "acceptance": [
     "source demo upload/background-processing/progress feature works",
     "destination demonstrably lacks feature before transplant",
@@ -17,7 +17,7 @@
   "acceptanceStatus": {
     "sourceFeature": "observed working in runnable source demo",
     "destinationBaseline": "observed compiling/running with hasUploadFeature=false",
-    "reviewPlan": "single prepared object covers feature copies, adapter bindings and exact integration before/after patches",
+    "reviewPlan": "observed in a localhost browser review model: real dependency edges, adapter mappings, copy targets and exact integration before/after are serialized from the trusted prepared transplant",
     "changeIsolation": "observed combined apply preserves destination app and adapters; source/adapter/target preconditions and exact touched targets tested",
     "destinationPostTransplantBuild": "executed strict NodeNext compilation of complete authored destination in two clean transplant cycles",
     "endToEndDestinationFlow": "executed CLI feature using destination blob-1 storage and simulated progress 0/50/90/100; browser/HTTP/durable-processing acceptance remains pending",
@@ -48,22 +48,23 @@
     "explicit demo integration mount feeds the same prepare/apply API, preserving default copy-only behavior",
     "complete authored source, baseline and transplanted destination compile/run verification executes and repeats twice",
     "portable Node build/test entrypoints and npm run demo; Linux execution verified, Windows not yet tested",
-    "dated executable demo evidence and honest technical scope documented in docs/DEMO.md"
+    "dated executable demo evidence and honest technical scope documented in docs/DEMO.md",
+    "serializable read-only demo review model exposes real dependency edges, adapter boundaries, destination mappings, copy targets, exact integration before/after and blockers",
+    "localhost review console serves the real plan, requires explicit one-time approval, applies only the server-owned prepared object, and runs bounded compile/runtime/reset verification"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0 on Linux",
     "typescript": "5.8.3",
     "fullSuiteBaseline": "26 tests passed, 0 failed on exact upstream 4d92eca before edits",
-    "currentSlot": "npm test including strict build and complete compile/run/reset/repeat acceptance: 37 tests passed, 0 failed; npm run demo passed separately",
-    "limitations": "CLI adapters use in-memory storage and simulated progress. No browser UI, HTTP upload, durable queue, database or real content processing yet. No Windows/CI claim.",
+    "currentSlot": "npm test including strict build, executable transplant and localhost review approval flow: 39 tests passed, 0 failed",
+    "limitations": "Review UI is local-only and still demonstrates authored CLI fixtures with in-memory storage and simulated job progress. No HTTP file upload, durable queue, database, real processor, Windows or CI claim yet.",
     "demoEvidence": "docs/verification/2026-09-20-cli-demo.json"
   },
   "next": [
-    "build a local review UI that displays actual prepared dependencies, adapter bindings, created/updated files and exact integration before/after",
-    "keep prepare read-only; require explicit approval before apply; do not trust arbitrary serialized client plans",
-    "connect the UI to this verified demo runner with bounded jobs; show real compiler/runtime errors rather than fake success",
-    "implement actual upload/processing behavior instead of simulated progress, then add browser integration tests",
-    "capture real UI visuals and create the distinctive image-heavy README; keep simulation limitations visible"
+    "capture truthful screenshots of the working review console when browser capture tooling is available and build the distinctive README around them",
+    "replace the simulated demo with an actual local HTTP upload and real bounded processing task while keeping destination adapters explicit",
+    "add browser-level integration tests for review, explicit approval, verification failure display and reset",
+    "preserve narrow TypeScript support claims and keep all simulation/fixture limitations visible"
   ],
   "session": {
     "date": "2026-09-20",
@@ -72,6 +73,7 @@
     "completedInLiveSession": [
       "ef633bd08b114bc81b4ce616b153a8d36e46b4fc: integrated review and stale-input guards",
       "this commit: reproducible compiled CLI transplant and safe reset workspace"
-    ]
+    ],
+    "afternoonAutomation14": "review model and localhost one-time approval/verification console implemented and fully regression tested"
   }
 }

@@ -9,6 +9,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "npm run build && node scripts/test.mjs",
-    "demo": "npm run build && node demo/verify.mjs"
+    "demo": "npm run build && node demo/verify.mjs",
+    "ui": "npm run build && node ui/server.mjs"
   }
 }

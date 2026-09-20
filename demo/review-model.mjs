@@ -9,8 +9,7 @@ function edgeKey(edge) {
  * Build a serializable, read-only review from the same trusted prepared object
  * used by the executable demo. This intentionally contains no apply authority.
  */
-export async function buildDemoReview() {
-  const fixture = await prepareDemoTransplant({ integrate: true });
+export function serializeDemoReview(fixture) {
   const { prepared } = fixture;
   const graph = parseTypeScriptModules(fixture.sourceSnapshots);
   const closure = prepared.analysis.closure;
@@ -103,4 +102,8 @@ export async function buildDemoReview() {
       'Capability contract labels are narrow demo contracts, not proof of arbitrary framework compatibility.',
     ],
   };
+}
+
+export async function buildDemoReview() {
+  return serializeDemoReview(await prepareDemoTransplant({ integrate: true }));
 }
