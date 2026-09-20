@@ -42,15 +42,34 @@ async function snapshots(root, paths) {
   return Promise.all(paths.map(async path => ({ path, content: await readFile(join(root, path), 'utf8') })));
 }
 
-export async function prepareDemoTransplant() {
+/** Explicit integration patch included in the review when requested. */
+export const uploadMount = {
+  id: 'upload-progress',
+  targetPath: 'entry.ts',
+  marker: '// graft:mount:upload-processing-progress',
+  content: [
+    "import { uploadAndProcess } from './features/upload/service.js';",
+    "output = { ...baseline, status: 'upload-complete', hasUploadFeature: true,",
+    "  result: await uploadAndProcess('quarterly-notes.txt', 'Graft destination demo payload') };",
+  ].join('\n'),
+};
+
+export async function readSourceDemoSnapshots() {
+  return snapshots(join(here, 'source-app'), [...sourcePaths, 'app.ts', 'entry.ts']);
+}
+
+export async function prepareDemoTransplant({ integrate = false } = {}) {
   const sourceSnapshots = await snapshots(join(here, 'source-app'), sourcePaths);
   const destinationSnapshots = await snapshots(join(here, 'destination-app'), destinationPaths);
-  const prepared = prepareTransplant(uploadFeature, destinationInventory, sourceSnapshots, destinationSnapshots);
+  const prepared = prepareTransplant(
+    uploadFeature, destinationInventory, sourceSnapshots, destinationSnapshots,
+    [], integrate ? [uploadMount] : [],
+  );
   return { prepared, sourceSnapshots, destinationSnapshots };
 }
 
-export async function runDemoTransplant() {
-  const fixture = await prepareDemoTransplant();
+export async function runDemoTransplant(options) {
+  const fixture = await prepareDemoTransplant(options);
   const applied = applyPreparedTransplant(fixture.prepared, fixture.sourceSnapshots, fixture.destinationSnapshots);
   return { ...fixture, applied };
 }

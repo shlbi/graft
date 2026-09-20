@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "feature": "upload-processing-progress",
+  "runtime": "v22.16.0",
+  "typescript": "5.8.3",
+  "scope": "authored TypeScript CLI fixtures; in-memory storage and simulated job progress",
+  "review": {
+    "touchedTargets": [
+      "entry.ts",
+      "features/upload/service.ts",
+      "features/upload/types.ts"
+    ],
+    "bindings": [
+      {
+        "sourceCapability": "jobs",
+        "sourceModule": "adapters/jobs.ts",
+        "destinationCapability": "task-runner",
+        "destinationModule": "platform/task-runner.ts"
+      },
+      {
+        "sourceCapability": "storage",
+        "sourceModule": "adapters/storage.ts",
+        "destinationCapability": "blob-store",
+        "destinationModule": "platform/blob-store.ts"
+      }
+    ],
+    "created": [
+      "features/upload/service.ts",
+      "features/upload/types.ts"
+    ],
+    "updated": [
+      "entry.ts"
+    ],
+    "preserved": [
+      "app.ts",
+      "platform/blob-store.ts",
+      "platform/task-runner.ts"
+    ]
+  },
+  "source": {
+    "app": "source",
+    "feature": "upload-processing-progress",
+    "result": {
+      "fileId": "upload-1",
+      "name": "quarterly-notes.txt",
+      "progress": [
+        {
+          "progress": 0,
+          "stage": "queued"
+        },
+        {
+          "progress": 35,
+          "stage": "extracting"
+        },
+        {
+          "progress": 75,
+          "stage": "indexing"
+        },
+        {
+          "progress": 100,
+          "stage": "complete"
+        }
+      ]
+    }
+  },
+  "before": {
+    "app": "destination",
+    "status": "dashboard-ready",
+    "hasUploadFeature": false
+  },
+  "runs": [
+    {
+      "cycle": 1,
+      "after": {
+        "app": "destination",
+        "status": "upload-complete",
+        "hasUploadFeature": true,
+        "result": {
+          "fileId": "blob-1",
+          "name": "quarterly-notes.txt",
+          "progress": [
+            {
+              "progress": 0,
+              "stage": "queued"
+            },
+            {
+              "progress": 50,
+              "stage": "extracting"
+            },
+            {
+              "progress": 90,
+              "stage": "indexing"
+            },
+            {
+              "progress": 100,
+              "stage": "complete"
+            }
+          ]
+        }
+      },
+      "reset": {
+        "app": "destination",
+        "status": "dashboard-ready",
+        "hasUploadFeature": false
+      },
+      "compiled": true,
+      "cleanReset": true
+    },
+    {
+      "cycle": 2,
+      "after": {
+        "app": "destination",
+        "status": "upload-complete",
+        "hasUploadFeature": true,
+        "result": {
+          "fileId": "blob-1",
+          "name": "quarterly-notes.txt",
+          "progress": [
+            {
+              "progress": 0,
+              "stage": "queued"
+            },
+            {
+              "progress": 50,
+              "stage": "extracting"
+            },
+            {
+              "progress": 90,
+              "stage": "indexing"
+            },
+            {
+              "progress": 100,
+              "stage": "complete"
+            }
+          ]
+        }
+      },
+      "reset": {
+        "app": "destination",
+        "status": "dashboard-ready",
+        "hasUploadFeature": false
+      },
+      "compiled": true,
+      "cleanReset": true
+    }
+  ],
+  "limitations": [
+    "No HTTP upload, browser interface, durable queue, database or real document processing in this fixture.",
+    "A contract label does not prove adapter compatibility; the compiler and runtime checks validate this fixture only.",
+    "Temporary directories are not isolation for arbitrary third-party scripts.",
+    "Windows behavior has not been verified in this Linux execution environment."
+  ]
+}

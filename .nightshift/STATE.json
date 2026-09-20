@@ -1,8 +1,10 @@
 {
   "project": "Graft",
-  "cycle": { "start": "2026-09-18", "end": "2026-09-24" },
-  "phase": "integration-orchestrated",
-  "session": { "date": "2026-09-20", "mode": "user-authorized-afternoon-exception", "cutoff": "2026-09-20T16:00:00-04:00" },
+  "cycle": {
+    "start": "2026-09-18",
+    "end": "2026-09-24"
+  },
+  "phase": "verified-cli-transplant",
   "acceptance": [
     "source demo upload/background-processing/progress feature works",
     "destination demonstrably lacks feature before transplant",
@@ -16,10 +18,10 @@
     "sourceFeature": "observed working in runnable source demo",
     "destinationBaseline": "observed compiling/running with hasUploadFeature=false",
     "reviewPlan": "single prepared object covers feature copies, adapter bindings and exact integration before/after patches",
-    "changeIsolation": "observed 32-test full suite: no mutation, stale-source/adapter/target rejection, overwrite prevention and unrelated-edit preservation",
-    "destinationPostTransplantBuild": "not yet executed as one complete transplanted workspace",
-    "endToEndDestinationFlow": "not yet executed",
-    "cleanReset": "isolated workspace reset harness observed passing focused tests"
+    "changeIsolation": "observed combined apply preserves destination app and adapters; source/adapter/target preconditions and exact touched targets tested",
+    "destinationPostTransplantBuild": "executed strict NodeNext compilation of complete authored destination in two clean transplant cycles",
+    "endToEndDestinationFlow": "executed CLI feature using destination blob-1 storage and simulated progress 0/50/90/100; browser/HTTP/durable-processing acceptance remains pending",
+    "cleanReset": "executed two resets removing transplanted files and emitted JS, recompiling original baseline and repeating identical destination output"
   },
   "completed": [
     "versioned feature manifest validation with secret/path boundary checks",
@@ -41,19 +43,35 @@
     "integration mounts are now part of prepare/apply with combined touched targets and correct preserved/updated reporting",
     "reviewed source and required destination adapter contents are checked again before apply",
     "literal integration replacements preserve JavaScript dollar metacharacters",
-    "complete current repository baseline reconstructed with Git blob verification and executed: 26 tests passed"
+    "complete current repository baseline reconstructed with Git blob verification and executed: 26 tests passed",
+    "temporary workspace validates all snapshots before writes, stages replacements and serializes apply/reset/read/close",
+    "explicit demo integration mount feeds the same prepare/apply API, preserving default copy-only behavior",
+    "complete authored source, baseline and transplanted destination compile/run verification executes and repeats twice",
+    "portable Node build/test entrypoints and npm run demo; Linux execution verified, Windows not yet tested",
+    "dated executable demo evidence and honest technical scope documented in docs/DEMO.md"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0 on Linux",
     "typescript": "5.8.3",
     "fullSuiteBaseline": "26 tests passed, 0 failed on exact upstream 4d92eca before edits",
-    "currentSlot": "npm test including strict build: 32 tests passed, 0 failed",
-    "limitations": "CLI demo adapters simulate job progress; no browser UI, persistent processing or complete transplanted compile/run in this commit"
+    "currentSlot": "npm test including strict build and complete compile/run/reset/repeat acceptance: 37 tests passed, 0 failed; npm run demo passed separately",
+    "limitations": "CLI adapters use in-memory storage and simulated progress. No browser UI, HTTP upload, durable queue, database or real content processing yet. No Windows/CI claim.",
+    "demoEvidence": "docs/verification/2026-09-20-cli-demo.json"
   },
   "next": [
-    "compile and execute the actual transplanted destination using explicit mount through prepare/apply",
-    "verify destination-specific blob ids and progress, reset and repeat",
-    "harden workspace invalid-apply behavior before using it in an interactive runner",
-    "build real review UI and truthful visual README from the proven fixture"
-  ]
+    "build a local review UI that displays actual prepared dependencies, adapter bindings, created/updated files and exact integration before/after",
+    "keep prepare read-only; require explicit approval before apply; do not trust arbitrary serialized client plans",
+    "connect the UI to this verified demo runner with bounded jobs; show real compiler/runtime errors rather than fake success",
+    "implement actual upload/processing behavior instead of simulated progress, then add browser integration tests",
+    "capture real UI visuals and create the distinctive image-heavy README; keep simulation limitations visible"
+  ],
+  "session": {
+    "date": "2026-09-20",
+    "mode": "user-authorized-afternoon-exception",
+    "cutoff": "2026-09-20T16:00:00-04:00",
+    "completedInLiveSession": [
+      "ef633bd08b114bc81b4ce616b153a8d36e46b4fc: integrated review and stale-input guards",
+      "this commit: reproducible compiled CLI transplant and safe reset workspace"
+    ]
+  }
 }

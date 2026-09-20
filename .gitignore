@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.demo-dist/
+.compiled/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
