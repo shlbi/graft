@@ -11,6 +11,15 @@
     "transplanted upload/job/progress flow works end-to-end",
     "clean reset reproduces the demo"
   ],
+  "acceptanceStatus": {
+    "sourceFeature": "observed working in runnable source demo",
+    "destinationBaseline": "observed compiling/running with hasUploadFeature=false",
+    "reviewPlan": "observed on real fixtures with dependency closure, capability mappings, and copy targets",
+    "changeIsolation": "copy materialization preserves unrelated destination snapshots; explicit integration mounts now require exact reviewed before/after content",
+    "destinationPostTransplantBuild": "not yet executed as one complete transplanted workspace",
+    "endToEndDestinationFlow": "not yet executed",
+    "cleanReset": "isolated workspace reset harness observed passing focused tests"
+  },
   "completed": [
     "versioned feature manifest validation with secret/path boundary checks",
     "deterministic destination capability planning with ambiguity blockers",
@@ -24,18 +33,22 @@
     "declared adapter imports can be deterministically rewritten to mapped destination capability modules",
     "materialization rewrites only declared adapter boundaries and computes destination-relative specifiers after reviewed relocation",
     "runnable source and destination TypeScript demo fixtures compile and expose source-feature versus destination-baseline behavior",
-    "one-call prepare/apply orchestration now wires manifest, parser, closure, inventory, planner, change set, rewrite, and materialization"
+    "one-call prepare/apply orchestration wires manifest, parser, closure, inventory, planner, change set, rewrite, and materialization",
+    "real demo fixture now exercises the planning/materialization pipeline against actual source and destination files",
+    "isolated filesystem workspace harness applies materialized snapshots and resets to a clean baseline",
+    "explicit destination integration mounts now prepare exact before/after patches, block missing or ambiguous markers, and reject stale post-review destinations"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0",
     "typescript": "5.8.3",
-    "fullSuiteBaseline": "10 tests passed, 0 failed from prior full-suite run",
-    "currentSlot": "demo fixtures compiled under demo/tsconfig.json; source entry produced upload progress 0/35/75/100 and destination baseline reported hasUploadFeature=false; new orchestration regression tests are committed but full repository suite still requires execution"
+    "fullSuiteBaseline": "10 tests passed, 0 failed from the most recent complete repository-wide run before newer demo/integration tests were added",
+    "currentSlot": "focused integration-mount compile succeeded; 2 integration tests passed, 0 failed; revised destination baseline entry compiled and executed with hasUploadFeature=false",
+    "limitations": "complete repository suite and one-process post-transplant destination compile/run were not executed in this slot"
   },
   "next": [
-    "execute the complete repository suite including orchestration regression tests",
-    "feed the real demo fixture files into prepareTransplant and produce the first reproducible review plan",
-    "add an isolated filesystem apply/reset harness so the post-transplant destination can compile and execute",
-    "begin product UI and truthful README visual assets after the end-to-end demo path is repeatable"
+    "wire the reviewed integration-mount plan into prepareTransplant/applyPreparedTransplant so integration edits are part of the same reviewed change set",
+    "execute the complete repository suite including orchestration, real-fixture, workspace-reset, and integration-mount tests",
+    "apply the real fixture into an isolated workspace, compile the destination, execute its transplanted upload/job/progress flow, then reset and repeat",
+    "begin the product UI and truthful README screenshots/animation only after the end-to-end demo path is repeatable"
   ]
 }
