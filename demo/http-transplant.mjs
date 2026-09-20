@@ -41,6 +41,19 @@ async function compile(root) {
   }
 }
 
+async function pollJob(base, pollPath, { timeoutMs = 5_000, intervalMs = 10 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  let last;
+  while (Date.now() < deadline) {
+    const response = await fetch(`${base}${pollPath}`);
+    assert.equal(response.status, 200, 'job polling endpoint must remain available');
+    last = await response.json();
+    if (last.state === 'complete' || last.state === 'failed') return last;
+    await new Promise(resolveDelay => setTimeout(resolveDelay, intervalMs));
+  }
+  throw new Error(`timed out waiting for upload job; last state=${last?.state ?? 'unknown'}`);
+}
+
 /** Build and compile a fresh reviewed transplant and return its backend feature.
  * The caller owns the returned runtime and must close it. */
 export async function createCompiledTransplantFeature() {
@@ -103,29 +116,40 @@ export async function runHttpTransplantDemo() {
     const response = await fetch(`${base}/api/upload?name=${encodeURIComponent('proof.txt')}`, {
       method: 'POST', headers: { 'content-type': 'text/plain; charset=utf-8' }, body: payload,
     });
-    const body = await response.json();
-    assert.equal(response.status, 201);
-    assert.equal(body.name, 'proof.txt');
-    assert.equal(body.size, Buffer.byteLength(payload));
-    assert.equal(body.result.fileId, 'blob-1', 'destination blob-store adapter must receive the HTTP upload');
-    assert.deepEqual(body.result.progress.map(item => item.progress), [0, 50, 90, 100],
+    const accepted = await response.json();
+    assert.equal(response.status, 202);
+    assert.equal(accepted.name, 'proof.txt');
+    assert.equal(accepted.size, Buffer.byteLength(payload));
+    assert.equal(accepted.state, 'queued');
+    assert.match(accepted.poll, /^\/api\/jobs\//u);
+
+    const job = await pollJob(base, accepted.poll);
+    assert.equal(job.state, 'complete', job.error ?? 'queued upload must complete');
+    assert.equal(job.result.fileId, 'blob-1', 'destination blob-store adapter must receive the HTTP upload');
+    assert.deepEqual(job.result.progress.map(item => item.progress), [0, 50, 90, 100],
       'destination task-runner adapter must produce the progress history');
-    const completed = body.result.progress.at(-1);
+    const completed = job.result.progress.at(-1);
     assert.equal(completed.metrics.bytes, Buffer.byteLength(payload),
       'destination processor must inspect the uploaded request bytes');
     assert.equal(completed.metrics.lines, 2);
     assert.ok(completed.metrics.words >= 8);
     assert.match(completed.metrics.checksum, /^[0-9a-f]{8}$/u);
     return {
-      schemaVersion: 1,
+      schemaVersion: 2,
       runtime: process.version,
       typescript: compilerVersion,
-      transport: 'real localhost HTTP POST with bounded raw upload body',
+      transport: 'real localhost HTTP POST accepted into an explicit in-memory job queue with polling',
       review: runtime.review,
-      observed: { status: response.status, uploadName: body.name, bytes: body.size, result: body.result },
+      observed: {
+        status: response.status,
+        uploadName: accepted.name,
+        bytes: accepted.size,
+        job: { id: job.id, state: job.state },
+        result: job.result,
+      },
       limitations: [
-        'Storage is still in-memory in the authored destination demo.',
-        'The destination adapter performs real bounded text metrics/checksum work, but progress checkpoints are returned synchronously and durable/background queueing is not claimed.',
+        'Storage and the HTTP job queue are in-memory in the authored destination/demo transport.',
+        'Upload processing now has explicit asynchronous job state and polling, but the destination task adapter still computes its internal progress history in one process and durable/background worker execution is not claimed.',
         'The HTTP boundary is demo transport around the transplanted backend feature, not a framework-agnostic transplant target.',
       ],
     };
