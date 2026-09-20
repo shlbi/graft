@@ -132,7 +132,7 @@ function renderResult(payload) {
     $('#uploadPanel').classList.remove('hidden');
     $('#uploadButton').disabled = !$('#uploadInput').files?.length;
     $('#uploadResult').className = 'upload-result muted';
-    $('#uploadResult').textContent = `Approved runtime ready for ${payload.uploadDemo.expiresInSeconds}s. Choose a text-like file up to ${Math.floor(uploadMaxBytes / 1024)} KB.`;
+    $('#uploadResult').textContent = `Approved runtime ready for ${payload.uploadDemo.expiresInSeconds}s. Uploads enter an explicit queued job and are polled to completion. Choose a text-like file up to ${Math.floor(uploadMaxBytes / 1024)} KB.`;
   }
 
   const pill = $('#statusPill');
@@ -146,7 +146,7 @@ function renderUploadResult(payload) {
   root.className = 'upload-result';
   root.replaceChildren();
   const completed = payload.result.progress.at(-1);
-  root.append(el('span', 'tag', 'destination upload'), el('strong', '', `${payload.name} · ${payload.result.fileId}`));
+  root.append(el('span', 'tag', 'destination job · complete'), el('strong', '', `${payload.name} · ${payload.result.fileId}`));
   const progress = el('div', 'upload-progress');
   payload.result.progress.forEach(item => progress.append(el('span', '', `${item.stage} ${item.progress}%`)));
   root.append(progress);
@@ -162,6 +162,23 @@ function renderUploadResult(payload) {
     }
     root.append(metrics);
   }
+}
+
+async function pollUploadJob(pollPath) {
+  const deadline = Date.now() + 10_000;
+  while (Date.now() < deadline) {
+    const response = await fetch(pollPath, {
+      headers: { 'x-graft-upload-token': uploadToken, accept: 'application/json' },
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error ?? `job poll failed (${response.status})`);
+    $('#uploadResult').className = 'upload-result muted';
+    $('#uploadResult').textContent = `Destination job ${payload.id.slice(0, 8)}… · ${payload.state}`;
+    if (payload.state === 'complete') return payload;
+    if (payload.state === 'failed') throw new Error(payload.error ?? 'destination job failed');
+    await new Promise(resolve => setTimeout(resolve, 75));
+  }
+  throw new Error('destination job did not complete before the demo polling timeout');
 }
 
 async function loadReview() {
@@ -215,16 +232,23 @@ $('#uploadButton').addEventListener('click', async () => {
   if (!file || !uploadToken) return;
   const button = $('#uploadButton');
   button.disabled = true;
-  button.textContent = 'Sending through transplanted service…';
+  button.textContent = 'Queueing destination job…';
   try {
     const response = await fetch(`/api/demo-upload?name=${encodeURIComponent(file.name)}`, {
       method: 'POST',
       headers: { 'x-graft-upload-token': uploadToken, 'content-type': file.type || 'application/octet-stream' },
       body: file,
     });
-    const payload = await response.json();
-    if (!response.ok) throw new Error(payload.error ?? `upload failed (${response.status})`);
-    renderUploadResult(payload);
+    const accepted = await response.json();
+    if (!response.ok) throw new Error(accepted.error ?? `upload failed (${response.status})`);
+    if (response.status !== 202 || accepted.state !== 'queued' || typeof accepted.poll !== 'string') {
+      throw new Error('approved runtime did not return the expected queued job contract');
+    }
+    $('#uploadResult').className = 'upload-result muted';
+    $('#uploadResult').textContent = `Queued ${accepted.name} · waiting for destination job ${accepted.id.slice(0, 8)}…`;
+    button.textContent = 'Polling destination job…';
+    const completed = await pollUploadJob(accepted.poll);
+    renderUploadResult(completed);
     button.textContent = 'Upload another file →';
     button.disabled = false;
   } catch (error) {

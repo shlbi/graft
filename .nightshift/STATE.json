@@ -1,7 +1,10 @@
 {
   "project": "Graft",
-  "cycle": { "start": "2026-09-18", "end": "2026-09-24" },
-  "phase": "approved-review-with-live-upload-and-explicit-job-queue",
+  "cycle": {
+    "start": "2026-09-18",
+    "end": "2026-09-24"
+  },
+  "phase": "approved-review-with-browser-queued-job-polling",
   "acceptance": [
     "source demo upload/background-processing/progress feature works",
     "destination demonstrably lacks feature before transplant",
@@ -17,7 +20,7 @@
     "reviewPlan": "observed in localhost browser console with real dependency edges, adapter mappings, copy targets and exact integration before/after",
     "changeIsolation": "observed combined apply preserving unrelated destination files and rechecking reviewed source/adapter/target inputs",
     "destinationPostTransplantBuild": "observed strict NodeNext compilation and execution in clean transplant cycles",
-    "endToEndDestinationFlow": "CLI execution is observed. Focused reconstructed-checkout tests observe real localhost HTTP request bytes reaching the compiled transplanted service and the approved review server accepting a token-gated upload processed by destination adapters. The standalone transport queue smoke test now also observes 202 acceptance followed by pollable completion.",
+    "endToEndDestinationFlow": "CLI execution is observed. Focused reconstructed-checkout tests before the queue refactor observed real localhost HTTP request bytes reaching the compiled transplanted service and the approved review server accepting a token-gated upload processed by destination adapters. The standalone transport queue smoke test observes 202 acceptance followed by pollable completion. The browser review path has now been wired to the same queued/polling shape but has only been syntax-checked since that wiring and still needs its integration test rerun.",
     "cleanReset": "observed reset removing transplanted/emitted files, recompiling original baseline and repeating cleanly"
   },
   "completed": [
@@ -33,7 +36,10 @@
     "review console provisions an expiring compiled approved runtime and exposes a real file-input upload path guarded by an ephemeral token",
     "review copy accurately distinguishes pre-approval read-only state from the post-approval live upload demo",
     "focused HTTP and review-server integration tests execute the compiled transplant with destination-owned storage/processing",
-    "HTTP demo transport now accepts uploads into an explicit bounded in-memory job queue and exposes GET polling for queued/running/complete/failed state instead of holding the request open through processing"
+    "HTTP demo transport now accepts uploads into an explicit bounded in-memory job queue and exposes GET polling for queued/running/complete/failed state instead of holding the request open through processing",
+    "localhost review UI upload path now uses an explicit queued job and token-gated polling contract rather than waiting directly on the processing call",
+    "initial visual README and repository-owned blueprint hero document the actual v0.1 scope and keep real screenshots/recording pending verified capture",
+    "primary-source reuse landscape documents adjacent package, codemod, generator and runtime-composition approaches without claiming Graft invented code reuse"
   ],
   "observedValidation": {
     "runtime": "Node 22.16.0 on Linux",
@@ -45,28 +51,30 @@
       "focused test/ui-server.test.mjs previously executed against reconstructed current dependencies: 1 passed, 0 failed; explicit approval, token gating, real upload, destination processing, clean reset and replay rejection were observed",
       "standalone destination adapter strict compile/run observed bytes=29, lines=2, words=4, uniqueWords=3, checksum=f7701ad7",
       "new explicit job-queue transport passed a standalone localhost smoke test: POST returned 202 queued, GET polling reached complete, request bytes reached the injected feature, and health returned zero active/queued jobs",
-      "the complete repository-wide suite and compiled transplant integration test have not yet been rerun after the queue refactor; do not upgrade the complete-suite baseline until they do"
+      "the complete repository-wide suite and compiled transplant integration test have not yet been rerun after the queue refactor; do not upgrade the complete-suite baseline until they do",
+      "review-server, browser-client and updated UI integration-test queue/polling changes passed node --check; the UI integration test itself has not been executed after this wiring",
+      "README/blueprint hero and primary-source reuse-positioning docs were added; no product screenshot or recorded footage is claimed yet"
     ]
   },
   "limitations": [
     "destination storage remains in-memory in the authored demo",
-    "the HTTP transport queue is explicit and asynchronous but remains in-memory and non-durable",
+    "the HTTP and browser demo queues are explicit and asynchronous but remain in-memory and non-durable",
     "the destination task adapter still calculates its internal progress history in one process; durable worker execution is not claimed",
     "browser upload accepts text-like files and forwards a bounded raw body; multipart/authentication are out of scope",
+    "the browser queue/polling integration is syntax-checked but has not yet had its full integration test rerun after the latest wiring",
     "Windows and CI execution are not yet claimed",
     "Graft supports the documented TypeScript subset only"
   ],
   "next": [
-    "first run the complete repository npm test plus npm run demo:http from a normal full checkout after the queue refactor; fix any regression before expanding scope",
-    "wire the localhost review UI upload path to the same explicit queued job/polling contract so the browser visibly observes queued/running/complete state",
-    "if green, capture real review/approval/upload screenshots and a short truthful demo animation",
-    "build the distinctive image-heavy README from captured working behavior",
-    "research primary sources for established component/code reuse and document Graft's narrower contribution"
+    "first run the complete repository npm test plus npm run demo:http from a normal full checkout; this must include the updated browser queue/polling integration and fix any regression before expanding scope",
+    "if green, run the localhost UI and capture real review, approval, queued/running/complete upload screenshots plus a short truthful recording",
+    "add only those captured real application assets to the README and keep the evidence ledger tied to observed results",
+    "after the demonstration is fully green, decide whether durable worker/storage adapters belong in the remaining v0.1 sprint or should stay an explicit roadmap boundary"
   ],
   "session": {
     "date": "2026-09-20",
     "mode": "user-authorized-afternoon-exception",
     "cutoff": "2026-09-20T16:00:00-04:00",
-    "handoff": "The standalone upload transport now has an explicit bounded async job queue and polling API. The repo-wide and compiled-transplant tests still need a normal full-checkout rerun after this refactor before the evidence baseline can be raised. Next wire the review UI to the same queued contract, then capture truthful UI media."
+    "handoff": "Afternoon exception stopped with the queue boundary visible in both the standalone HTTP demo and browser code path. Standalone queue smoke and syntax checks passed, but the browser queue integration and complete repository suite have not been executed together after the latest wiring. Next overnight session must run npm test and npm run demo:http from a normal full checkout before capturing real screenshots or raising the 39/39 complete-suite baseline."
   }
 }

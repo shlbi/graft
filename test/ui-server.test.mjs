@@ -2,7 +2,20 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createReviewServer } from '../ui/server.mjs';
 
-test('localhost review server gates apply, verifies, then serves the approved transplanted upload runtime', async () => {
+async function waitForDemoJob(base, token, poll) {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const response = await fetch(`${base}${poll}`, {
+      headers: { 'x-graft-upload-token': token, origin: base },
+    });
+    assert.equal(response.status, 200);
+    const job = await response.json();
+    if (job.state === 'complete' || job.state === 'failed') return job;
+    await new Promise(resolve => setTimeout(resolve, 5));
+  }
+  throw new Error('demo job did not reach a terminal state');
+}
+
+test('localhost review server gates apply, verifies, then serves a queued approved transplant upload runtime', async () => {
   const app = createReviewServer({ host: '127.0.0.1', port: 0 });
   const address = await app.listen();
   const base = `http://127.0.0.1:${address.port}`;
@@ -47,6 +60,7 @@ test('localhost review server gates apply, verifies, then serves the approved tr
     assert.equal(result.verification.runs[0].cleanReset, true);
     assert.equal(typeof result.uploadDemo.token, 'string');
     assert.ok(result.uploadDemo.token.length > 16);
+    assert.match(result.uploadDemo.mode, /queued job with polling/u);
 
     const unauthorizedUpload = await fetch(`${base}/api/demo-upload?name=proof.txt`, {
       method: 'POST', body: 'not approved for this runtime',
@@ -59,8 +73,16 @@ test('localhost review server gates apply, verifies, then serves the approved tr
       headers: { 'x-graft-upload-token': result.uploadDemo.token, origin: base, 'content-type': 'text/plain' },
       body: uploadPayload,
     });
-    assert.equal(uploaded.status, 201);
-    const upload = await uploaded.json();
+    assert.equal(uploaded.status, 202);
+    const accepted = await uploaded.json();
+    assert.equal(accepted.state, 'queued');
+    assert.match(accepted.poll, /^\/api\/demo-jobs\//u);
+
+    const unauthorizedPoll = await fetch(`${base}${accepted.poll}`);
+    assert.equal(unauthorizedPoll.status, 403);
+
+    const upload = await waitForDemoJob(base, result.uploadDemo.token, accepted.poll);
+    assert.equal(upload.state, 'complete');
     assert.equal(upload.result.fileId, 'blob-1');
     assert.equal(upload.size, Buffer.byteLength(uploadPayload));
     assert.deepEqual(upload.result.progress.map(item => item.progress), [0, 50, 90, 100]);

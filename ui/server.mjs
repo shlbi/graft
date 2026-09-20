@@ -16,6 +16,7 @@ const MAX_UPLOAD_BYTES = 1024 * 1024;
 const SESSION_TTL_MS = 10 * 60 * 1000;
 const UPLOAD_DEMO_TTL_MS = 5 * 60 * 1000;
 const MAX_SESSIONS = 8;
+const MAX_DEMO_JOBS = 8;
 const staticRoutes = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
@@ -66,10 +67,26 @@ function summarizeApply(applied) {
   };
 }
 
+function publicDemoJob(job) {
+  const value = {
+    id: job.id,
+    name: job.name,
+    size: job.size,
+    state: job.state,
+    createdAt: job.createdAt,
+    updatedAt: job.updatedAt,
+  };
+  if (job.state === 'complete') return { ...value, result: job.result };
+  if (job.state === 'failed') return { ...value, error: job.error };
+  return value;
+}
+
 export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
   const sessions = new Map();
+  const demoJobs = new Map();
+  const demoQueue = [];
   let busy = false;
-  let uploadBusy = false;
+  let demoDrainPromise = null;
   let demoRuntime = null;
 
   function pruneSessions(now = Date.now()) {
@@ -77,13 +94,57 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
     while (sessions.size >= MAX_SESSIONS) sessions.delete(sessions.keys().next().value);
   }
 
+  function pruneDemoJobs(now = Date.now()) {
+    for (const [id, job] of demoJobs) {
+      if ((job.state === 'complete' || job.state === 'failed') && now - job.updatedAt >= UPLOAD_DEMO_TTL_MS) demoJobs.delete(id);
+    }
+  }
+
+  async function drainDemoQueue() {
+    if (demoDrainPromise) return demoDrainPromise;
+    demoDrainPromise = (async () => {
+      while (demoQueue.length) {
+        const job = demoQueue.shift();
+        if (!job || !demoJobs.has(job.id)) continue;
+        if (!demoRuntime || demoRuntime.token !== job.runtimeToken || demoRuntime.expiresAt <= Date.now()) {
+          job.state = 'failed';
+          job.error = 'approved upload runtime expired before processing';
+          job.content = '';
+          job.updatedAt = Date.now();
+          continue;
+        }
+        job.state = 'running';
+        job.updatedAt = Date.now();
+        try {
+          job.result = await demoRuntime.runtime.uploadAndProcess(job.name, job.content);
+          job.state = 'complete';
+        } catch (error) {
+          job.state = 'failed';
+          job.error = error instanceof Error ? error.message : String(error);
+        } finally {
+          job.content = '';
+          job.updatedAt = Date.now();
+        }
+      }
+    })().finally(() => { demoDrainPromise = null; });
+    return demoDrainPromise;
+  }
+
+  function scheduleDemoDrain() {
+    setImmediate(() => void drainDemoQueue());
+  }
+
   async function closeDemoRuntime() {
+    await demoDrainPromise;
     const current = demoRuntime;
     demoRuntime = null;
+    demoQueue.length = 0;
+    demoJobs.clear();
     if (current) await current.runtime.close();
   }
 
   async function pruneDemoRuntime(now = Date.now()) {
+    pruneDemoJobs(now);
     if (demoRuntime && demoRuntime.expiresAt <= now) await closeDemoRuntime();
   }
 
@@ -142,11 +203,33 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
               expiresInSeconds: UPLOAD_DEMO_TTL_MS / 1000,
               maxUploadBytes: MAX_UPLOAD_BYTES,
               accepted: 'UTF-8 text-like files sent as a raw bounded request body',
+              mode: 'explicit queued job with polling',
             },
           });
         } finally {
           busy = false;
         }
+        return;
+      }
+
+      if (request.method === 'GET' && url.pathname.startsWith('/api/demo-jobs/')) {
+        if (!sameOrigin(request)) {
+          sendError(response, 403, 'cross-origin job polling rejected');
+          return;
+        }
+        await pruneDemoRuntime();
+        const token = request.headers['x-graft-upload-token'];
+        if (!demoRuntime || typeof token !== 'string' || token !== demoRuntime.token) {
+          sendError(response, 403, 'a current approved upload-demo token is required');
+          return;
+        }
+        const id = decodeURIComponent(url.pathname.slice('/api/demo-jobs/'.length));
+        const job = demoJobs.get(id);
+        if (!job || job.runtimeToken !== token) {
+          sendError(response, 404, 'demo job not found or expired');
+          return;
+        }
+        sendJson(response, 200, publicDemoJob(job));
         return;
       }
 
@@ -161,19 +244,29 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
           sendError(response, 403, 'a current approved upload-demo token is required');
           return;
         }
-        if (uploadBusy) {
-          sendError(response, 409, 'another demo upload is already processing');
+        pruneDemoJobs();
+        if (demoJobs.size >= MAX_DEMO_JOBS) {
+          sendError(response, 503, 'demo job queue is full; wait for retained jobs to expire');
           return;
         }
         const name = normalizeUploadName(url.searchParams.get('name'));
         const body = await readBoundedUploadBody(request, MAX_UPLOAD_BYTES);
-        uploadBusy = true;
-        try {
-          const result = await demoRuntime.runtime.uploadAndProcess(name, body.toString('utf8'));
-          sendJson(response, 201, { name, size: body.length, result });
-        } finally {
-          uploadBusy = false;
-        }
+        const now = Date.now();
+        const id = randomBytes(12).toString('base64url');
+        const job = {
+          id,
+          name,
+          size: body.length,
+          state: 'queued',
+          createdAt: now,
+          updatedAt: now,
+          runtimeToken: token,
+          content: body.toString('utf8'),
+        };
+        demoJobs.set(id, job);
+        demoQueue.push(job);
+        sendJson(response, 202, { ...publicDemoJob(job), poll: `/api/demo-jobs/${encodeURIComponent(id)}` });
+        scheduleDemoDrain();
         return;
       }
 
