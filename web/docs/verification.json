@@ -1,0 +1,46 @@
+{
+  "observedAt": "2026-09-22T23:11:23-04:00",
+  "scope": "new web preview only; root v0.1 source unchanged",
+  "runtime": "v22.16.0",
+  "automated": {
+    "command": "cd web && npm test",
+    "tests": 39,
+    "passed": 39,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "includes": [
+      "Node unit and provider-contract tests using controlled upstream responses",
+      "Real local HTTP API tests",
+      "Trusted authored frontend controller in a DOM stub; not browser E2E",
+      "git apply --check and patch application in temporary directories",
+      "Executed authored destination module; preserved taskCount and unrelated README",
+      "CRLF, empty baseline and missing-final-newline patch cases"
+    ]
+  },
+  "syntax": {
+    "command": "cd web && npm run check",
+    "status": "passed"
+  },
+  "browser": {
+    "command": "cd web && python test/browser_smoke.py",
+    "status": "blocked",
+    "reason": "Chromium page.goto(http://127.0.0.1:<port>/) returned net::ERR_BLOCKED_BY_ADMINISTRATOR. No policy bypass attempted.",
+    "interactiveChecks": "not executed"
+  },
+  "layout": {
+    "status": "offline static render observed",
+    "scope": "Shipped HTML/CSS on about:blank with scripts disabled and all network requests aborted. Not a live-browser pass.",
+    "capture": "graft-offline-layout.webp in session artifacts; not a repository screenshot claim"
+  },
+  "liveGitHub": {
+    "status": "blocked",
+    "reason": "Runtime outbound request to api.github.com failed with EAI_AGAIN. GitHub reader tested with controlled responses, not a live remote snapshot."
+  },
+  "paidAI": {
+    "status": "not called",
+    "scope": "Responses API contract, consent and invalid-output behavior tested against controlled responses only"
+  },
+  "deployment": "not performed; loopback-only preview is not safe to expose as a multi-user service",
+  "legacyRootSuite": "not re-run; historical 53-pass record remains separate"
+}

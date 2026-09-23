@@ -11,6 +11,8 @@
     "test": "npm run build && node scripts/test.mjs",
     "demo": "npm run build && node demo/verify.mjs",
     "demo:http": "npm run build && node demo/http-transplant.mjs",
-    "ui": "npm run build && node ui/server.mjs"
+    "ui": "npm run build && node ui/server.mjs",
+    "web": "node web/server.mjs",
+    "test:web": "node --test web/test/*.test.mjs"
   }
 }

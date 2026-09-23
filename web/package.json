@@ -1,0 +1,12 @@
+{
+  "name": "graft-web-preview",
+  "version": "0.2.0-preview.1",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check server.mjs && node --check public/app.mjs && node --check lib/core.mjs && node --check lib/github.mjs && node --check lib/ai.mjs"
+  }
+}

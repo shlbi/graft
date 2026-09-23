@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Graft — move a feature, not an entire codebase."><title>Graft — New transfer</title><link rel="stylesheet" href="/style.css"><script type="module" src="/app.mjs"></script></head>
+<body>
+<a class="skip" href="#main">Skip to workspace</a>
+<aside class="sidebar">
+  <a class="brand" href="/" aria-label="Graft home"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M5 5h10v10H5zm12 12h10v10H17zM17 5h10v10H17z" fill="currentColor"/><path d="M5 17h10v10H5z" fill="#ea7555"/></svg>graft<span class="brand-dot">.</span></a>
+  <div class="side-label">YOUR WORKSPACE</div>
+  <div class="side-active"><span aria-hidden="true">↗</span> New transfer <span class="keycap">01</span></div>
+  <div class="side-note"><span class="dot"></span> Nothing changes until you decide.</div>
+  <div class="side-bottom"><div class="mono">BUILT FOR BUILDERS</div><p>Keep what works.<br>Make it work somewhere new.</p><span class="version">v0.2 · Local preview</span></div>
+</aside>
+<div class="shell">
+<header><div class="breadcrumb">Workspace <span>/</span> <strong>New transfer</strong></div><div class="header-actions"><span id="model-label" class="status-chip">Local preview</span><button id="try-demo" class="button quiet" type="button">Try the sample <span aria-hidden="true">↗</span></button></div></header>
+<main id="main">
+  <section class="intro"><div class="eyebrow"><span class="dash"></span> FEATURE TRANSFER, REIMAGINED</div><h1>Good features deserve<br>a <span>second home.</span></h1><p>Two repositories. One feature. A change set you can understand.<br>Bring the good parts with you — not the entire codebase.</p></section>
+  <form id="transfer-form">
+    <div class="section-heading"><h2><span class="step-no">01</span> Choose your repositories</h2><span class="micro">Source → destination</span></div>
+    <div class="repo-grid">
+      <section class="repo-card"><div class="repo-top"><span class="repo-icon" aria-hidden="true">↗</span><span class="eyebrow">TAKE A FEATURE FROM</span><span class="card-number">A</span></div><label for="source-url">Source repository</label><input id="source-url" name="source" autocomplete="off" placeholder="github.com/you/source-project" aria-describedby="source-hint"><div class="repo-bottom"><label class="folder-button" for="source-folder">Choose local folder <span aria-hidden="true">↗</span></label><input id="source-folder" class="visually-hidden" type="file" webkitdirectory multiple aria-label="Choose source project folder"><span id="source-hint" class="micro">Public URL or local code</span></div></section>
+      <div class="transfer-arrow" aria-hidden="true">→</div>
+      <section class="repo-card"><div class="repo-top"><span class="repo-icon destination" aria-hidden="true">↙</span><span class="eyebrow">GIVE IT A NEW HOME</span><span class="card-number">B</span></div><label for="destination-url">Destination repository</label><input id="destination-url" name="destination" autocomplete="off" placeholder="github.com/you/destination-project" aria-describedby="destination-hint"><div class="repo-bottom"><label class="folder-button" for="destination-folder">Choose local folder <span aria-hidden="true">↗</span></label><input id="destination-folder" class="visually-hidden" type="file" webkitdirectory multiple aria-label="Choose destination project folder"><span id="destination-hint" class="micro">Your existing app stays intact</span></div></section>
+    </div>
+    <div class="section-heading feature-heading"><h2><span class="step-no">02</span> What should come with you?</h2><span class="micro">Describe behavior, not filenames</span></div>
+    <div class="feature-card"><label for="feature" class="visually-hidden">Feature to move</label><textarea id="feature" name="feature" rows="3" maxlength="1500" placeholder="Move the CSV export feature. Keep my destination’s task structure and existing UI." required minlength="3"></textarea><div class="feature-bottom"><div class="suggestions"><span class="micro">Try:</span><button type="button" data-feature="Move the CSV export feature and adapt it to the destination data model.">CSV export</button><button type="button" data-feature="Move the file upload feature with its progress display and error handling.">File uploads</button><button type="button" data-feature="Move the search feature, keeping the destination's existing page layout.">Search</button></div><span id="character-count" class="micro mono">0 / 1500</span></div></div>
+    <div class="submit-row"><div class="privacy-note"><span aria-hidden="true">◇</span><p>Read-only analysis. No installs. No repository writes.<br><span>Local folders stay on this server unless you explicitly enable AI.</span></p></div><div class="submit-actions"><button id="cancel" class="button quiet" type="button" hidden>Cancel</button><button id="analyze" class="button primary" type="submit">Find my feature <span aria-hidden="true">→</span></button></div></div>
+    <details class="advanced"><summary>AI-assisted adaptation <span id="ai-state">Optional · not configured</span></summary><div class="advanced-body"><label class="check-line"><input id="use-ai" type="checkbox" disabled> Generate an AI-assisted draft after repository discovery</label><label class="check-line"><input id="consent" type="checkbox"> Allow selected source text from both repositories to be sent to OpenAI for this request. This uses the server’s API budget.</label><p>For your local instance, configure <code>OPENAI_API_KEY</code> and <code>GRAFT_AI_MODEL</code> on the server. Never paste a key into this form. A generated draft is not a tested integration.</p></div></details>
+  </form>
+  <div id="status" class="notice" role="status" aria-live="polite" hidden></div>
+  <section id="results" hidden aria-label="Transfer results" tabindex="-1">
+    <div class="result-heading"><div><div class="eyebrow" id="result-mode">REPOSITORIES INSPECTED</div><h2 id="result-title">Here’s what we found.</h2></div><button id="download-report" class="button secondary" type="button">Download review ↓</button></div>
+    <p id="result-summary" class="result-summary"></p>
+    <div id="snapshot-summary" class="snapshot-grid"></div>
+    <div class="result-grid"><section class="panel"><h3>Feature matches <span class="micro">Inspected source files</span></h3><div id="candidates"></div></section><section class="panel"><h3>What we actually know</h3><div id="checks"></div><details><summary>Context & limitations</summary><div id="context-details"></div></details></section></div>
+    <section id="review-panel" class="panel diff-panel" hidden><div class="diff-heading"><h3>Review the proposed changes</h3><span id="change-count" class="tag"></span></div><div id="change-list"></div><h3 class="risk-heading">Before you use this</h3><div id="risks"></div><h3>Suggested checks <span class="micro">Not executed</span></h3><div id="suggested-checks"></div><div class="approval-row"><label class="check-line"><input id="review-confirmation" type="checkbox"> I understand this draft has not been built or tested against my project.</label><button id="download-patch" class="button primary" type="button" disabled>Download patch ↓</button></div><p class="micro">Review in an isolated checkout. Use <code>git apply --check graft.patch</code> before applying; inspect the base snapshot and run your project’s checks. Graft never merges this for you.</p></section>
+  </section>
+  <footer><span class="footer-wordmark">graft.</span><span>Move the feature. Keep your architecture.</span><span>Discovery ≠ verified transfer</span></footer>
+</main>
+</div>
+</body></html>

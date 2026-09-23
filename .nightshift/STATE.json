@@ -1,62 +1,60 @@
 {
   "project": "Graft",
-  "cycle": {
-    "start": "2026-09-18",
-    "end": "2026-09-20"
+  "phase": "v0.2-local-web-preview-in-progress",
+  "authorization": "Saif explicitly paused Kinetic and returned to Graft in the live session on September 22, 2026. Prioritize two repositories plus a plain-language feature request, an optional AI API, and a future hosted web application. This supersedes the former Kinetic cycle. No domain, paid inference, public deployment or repository visibility change was performed.",
+  "automation": {
+    "kineticBuild": "paused",
+    "weeklyBriefing": "updated to Graft; no automatic project rollover",
+    "newOvernightCycle": "not scheduled"
   },
-  "phase": "v0.1-engineering-demo-delivered",
-  "authorization": "User requested finishing Graft now and starting the next project September 21 at 02:00 Eastern. This supersedes the earlier afternoon cutoff and September 24 cycle end.",
-  "acceptanceStatus": {
-    "sourceFeature": "Executed in the complete CLI verification.",
-    "destinationBaseline": "Compiled and executed without the feature.",
-    "reviewPlan": "Dependency graph, adapter bindings, exact copy/integration edits produced from real fixtures.",
-    "changeIsolation": "Stale-input and overwrite guards tested; unrelated destination files preserved.",
-    "destinationPostTransplantBuild": "Strict NodeNext compile and runtime execution passed.",
-    "endToEndDestinationFlow": "Real localhost HTTP 202 upload, token-gated polling and destination text processing passed.",
-    "cleanReset": "Two complete CLI cycles restore and recompile the original baseline.",
-    "browserUI": "HTTP integration plus DOM-stub controller tests passed; offline rendering checked desktop and mobile. Live Chromium navigation blocked by administrator policy; no live-browser pass claimed."
+  "previousRelease": {
+    "commit": "e8f74a9f6cc51644183ecd0932a259b4961c5d53",
+    "stateBlob": "2b796b0b57dac7fa29bd71f1f5f4f0965e17a00c",
+    "scope": "Authored TypeScript transplant demonstrator",
+    "reportedTests": 53,
+    "revalidatedThisSession": false,
+    "preservation": "Legacy source, demo, UI, tests, build configuration and README preserved. Root package only adds web and test:web commands. Original state remains available at the previous immutable commit."
   },
+  "completedThisSession": [
+    "New standalone dependency-free web application in web/",
+    "Public GitHub reader with commit pinning, allowlisted API paths, bounded text retrieval and truncated-tree rejection",
+    "Local folder intake with browser and server filters, content fingerprints and collision inventory",
+    "Plain-language feature ranking with bounded literal relative-import expansion",
+    "Consent-gated Responses API adapter with strict output structure, no tools and no automatic retries",
+    "Local draft validation, inspected-file provenance, overwrite/path guards and complete Git patch export",
+    "Two-repository UI, explicit discovery versus draft status, review gating, cancellation, JSON and patch downloads",
+    "Original synthetic CSV transfer patch applies and executes with destination behavior preserved"
+  ],
   "observedValidation": {
-    "runtime": "Node 22.16.0 on Linux",
-    "typescript": "5.8.3",
-    "fullSuite": {
-      "command": "npm test",
-      "passed": 53,
-      "failed": 0,
-      "skipped": 0
-    },
-    "cliDemo": "Two cycles passed",
-    "httpDemo": "Passed; invalid UTF-8 415, accepted upload 202, completed destination processing, approval replay 404",
-    "offlineRender": "Real shipped HTML/CSS/render functions with recorded HTTP results; 7 dependency nodes, hidden pre-approval panels and no horizontal overflow at 1280px or 390px."
+    "command": "cd web && npm test",
+    "passed": 39,
+    "failed": 0,
+    "skipped": 0,
+    "syntax": "npm run check passed",
+    "http": "Real local HTTP endpoint tests passed",
+    "frontend": "Actual controller tested with DOM stubs; not browser E2E",
+    "patch": "git apply --check, application and authored destination execution passed",
+    "browser": "Blocked by administrator policy on localhost navigation; no bypass or passing interactive claim",
+    "externalGitHub": "Runtime DNS failed with EAI_AGAIN; adapter verified with controlled responses only",
+    "paidAI": "Not called; adapter contract tested with controlled responses",
+    "record": "web/docs/verification.json"
   },
-  "completed": [
-    "Explicit manifest and inventory validation",
-    "Static TypeScript dependency closure and adapter-boundary rewriting",
-    "Reviewed immutable copy/integration plan with stale-input guards",
-    "Executable source and destination fixtures with reproducible reset",
-    "Bounded receiving reservations, serial queue and accepted-job shutdown drain",
-    "Exact reviewed snapshot compiled by approval path",
-    "Refined responsive UI with review export, sample text, retry and expiry gating",
-    "Four focused client-controller regressions",
-    "Published visual README with two explicitly labeled offline previews and reproducible evidence scripts",
-    "Release evidence separates HTTP execution, DOM-stub controllers, offline rendering and blocked live-browser verification"
-  ],
-  "limitations": [
-    "Only the documented TypeScript subset and authored browser demo are supported; no universal framework transplant.",
-    "Storage and queue remain in-memory; processing checkpoints are not durable worker progress.",
-    "No automatic package installation, database migration or arbitrary project execution.",
-    "Chromium localhost navigation is policy-blocked here; offline preview images are not live browser screenshots.",
-    "Windows, hosted CI and production use remain unverified."
-  ],
+  "acceptanceStatus": {
+    "twoRepoIntake": "Implemented; folder flow validated with HTTP/controller tests; live GitHub blocked in this runtime",
+    "naturalLanguageFeatureDiscovery": "Implemented as bounded lexical retrieval, not complete semantic understanding",
+    "adaptedDraft": "Provider adapter and local validation implemented; live model quality unmeasured",
+    "reviewAndExport": "Implemented and sample patch execution verified",
+    "isolatedDestinationVerification": "Not implemented for arbitrary user projects",
+    "githubAuthenticationAndPR": "Not implemented",
+    "hostedMultiUserProduct": "Not deployed; loopback preview is not suitable for public exposure"
+  },
   "next": [
-    "Next scheduled project is Kinetic on September 21 at 02:00 America/New_York; do not resume Graft automatically.",
-    "Kinetic repository access must be verified separately; last check returned 404.",
-    "Live-browser validation and broader framework/durable-runtime work remain explicit future scope, not completed claims."
+    "Obtain the friend's authorized source/destination pair and one concrete feature as the acceptance case",
+    "Run live provider evaluation only after explicit model/API-budget authorization",
+    "Improve symbol/dependency retrieval and integrate the existing adapter-aware engine where supported",
+    "Build isolated baseline-versus-destination verification and durable cancellation before executing user repository code",
+    "Configure a least-privilege GitHub App, tenant authorization and reviewable PR delivery",
+    "Complete unblocked real-browser checks and production security gates before hosting"
   ],
-  "release": {
-    "codeCommit": "7e30b3436ed55625a8d6c3ea38bfdde740200406",
-    "scope": "Tested authored TypeScript feature-transplant engineering demonstrator; not the entire universal-transplant product vision",
-    "evidence": "docs/verification/release.json",
-    "visuals": "Repository-owned concept hero and two offline UI previews from actual recorded HTTP results"
-  }
+  "productContract": "web/docs/PRODUCT.md"
 }
