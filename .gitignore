@@ -6,3 +6,8 @@ dist/
 .env
 .env.*
 !.env.example
+.graft-data/
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm

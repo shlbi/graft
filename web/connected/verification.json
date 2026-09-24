@@ -1,0 +1,44 @@
+{
+  "date": "2026-09-24",
+  "baseCommit": "105b19dab35bb4e58422e804105f7a93381f190f",
+  "scope": "Connected beta service; not a public production release",
+  "runtime": "v22.16.0",
+  "platform": "linux",
+  "command": "npm run test:connected",
+  "tests": {
+    "passed": 36,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "syntax": "All 12 new JavaScript modules, including tests and frontend, passed node --check.",
+  "observed": [
+    "Real local HTTP endpoints",
+    "File-backed SQLite encryption, reopen, expiry and tenant ownership",
+    "Actual frontend controller with explicit DOM doubles",
+    "OAuth state/PKCE, session rotation, CSRF and signed revocation",
+    "Authenticated repository snapshot and blob integrity checks with controlled GitHub responses",
+    "Persistent quotas, cancellation, restart recovery and duplicate-publication handling",
+    "Stale destination, changed branch, lost branch/PR responses and concurrent publication controls"
+  ],
+  "testBoundary": {
+    "github": "Controlled fetch responses; no actual GitHub App OAuth or product PR creation",
+    "ai": "Authored draft boundary using exact existing core-base.mjs primitives; no paid API call",
+    "defaultEngine": "Remote interface inspection only; latest parser/transfer full suite not reexecuted",
+    "browser": "BrowserType.launch: Executable doesn't exist at /home/oai/.cache/ms-playwright/chromium_headless_shell-1200/chrome-headless-shell-linux64/chrome-headless-shell",
+    "windows": "not_run",
+    "ci": "not_run",
+    "deployment": "none",
+    "legacySuite": "not_run",
+    "jestVitestRerun": "not_run",
+    "arbitraryUserCode": "never executed"
+  },
+  "lockfileCorrection": {
+    "uploadedBytes": 194867,
+    "uploadedSha256": "6aa761ecf3ca592d1b390971b3a68a476a403f43c020fe94b0a826fa93c8bb7a",
+    "committedBytes": 194866,
+    "committedSha256": "b1657fc519b93b430dc7edc889d26e0af840c3247edd4c390c2b91f2f3493577",
+    "committedGitBlob": "da81b7dd670f2387ad9fcfabe1e85bc4f2646f2c",
+    "difference": "The earlier connector reconstruction omitted the final LF byte. Parsed dependency data is identical, but the prior byte-for-byte/SHA-256 match claim was incorrect. No lockfile dependency was changed in this session."
+  }
+}

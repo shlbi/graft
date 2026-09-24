@@ -1,35 +1,76 @@
 {
   "project": "Graft",
-  "phase": "v0.2-cross-runner-runtime-verified",
-  "authorization": "Saif asked the assistant to continue finishing Graft. Kinetic remains paused. No paid inference or public deployment authorized.",
+  "phase": "connected-beta-implemented-not-public-production",
+  "authorization": "Saif requested production-level Graft and continued live work. Kinetic remains paused; no new schedule, paid API call, CI run, live App registration or deployment.",
   "previousHandoff": {
-    "commit": "4c11ae377c35359ecd8f9cccae0d8cf9bb691e4a"
+    "commit": "105b19dab35bb4e58422e804105f7a93381f190f",
+    "path": ".nightshift/STATE.json",
+    "preservedHistory": true
   },
+  "completedThisSession": [
+    "Separate GitHub-connected service and responsive review interface",
+    "GitHub App OAuth state/PKCE, invited identities, encrypted bounded sessions, signed revocation",
+    "Authenticated commit-pinned snapshots with blob-integrity checks and explicit size bounds",
+    "Encrypted persistent jobs, cancellation, quotas, expiry, deletion and crash recovery",
+    "Human-confirmed draft-PR delivery with stored-review digest, stale-head checks and duplicate/uncertain-write reconciliation",
+    "36 passing connected service tests plus syntax checks; observed-versus-unverified evidence recorded"
+  ],
   "observedValidation": {
-    "realRunnerGate": "passed on user WSL",
-    "runtime": "Node v22.23.3 on Linux/WSL",
-    "jest": "30.5.2",
-    "vitest": "5.0.1",
-    "lockHash": "6aa761ecf3ca592d1b390971b3a68a476a403f43c020fe94b0a826fa93c8bb7a",
-    "cases": {
-      "namedImports": "source 2/2, destination baseline 1/1, destination after 3/3, negative control failed transferred assertions, recovery 3/3",
-      "globalApis": "source 2/2, destination baseline 1/1, destination after 3/3, negative control failed transferred assertions, recovery 3/3",
-      "sharedSetup": "source 2/2, destination baseline 1/1, destination after 3/3, broken-feature and removed-setup controls failed transferred assertions, recovery 3/3"
+    "date": "2026-09-24",
+    "baseCommit": "105b19dab35bb4e58422e804105f7a93381f190f",
+    "scope": "Connected beta service; not a public production release",
+    "runtime": "v22.16.0",
+    "platform": "linux",
+    "command": "npm run test:connected",
+    "tests": {
+      "passed": 36,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
     },
-    "blockers": [],
-    "sourceRecord": "web/docs/runner-gate-verification-wsl-2026-09-24.json"
+    "syntax": "All 12 new JavaScript modules, including tests and frontend, passed node --check.",
+    "observed": [
+      "Real local HTTP endpoints",
+      "File-backed SQLite encryption, reopen, expiry and tenant ownership",
+      "Actual frontend controller with explicit DOM doubles",
+      "OAuth state/PKCE, session rotation, CSRF and signed revocation",
+      "Authenticated repository snapshot and blob integrity checks with controlled GitHub responses",
+      "Persistent quotas, cancellation, restart recovery and duplicate-publication handling",
+      "Stale destination, changed branch, lost branch/PR responses and concurrent publication controls"
+    ],
+    "testBoundary": {
+      "github": "Controlled fetch responses; no actual GitHub App OAuth or product PR creation",
+      "ai": "Authored draft boundary using exact existing core-base.mjs primitives; no paid API call",
+      "defaultEngine": "Remote interface inspection only; latest parser/transfer full suite not reexecuted",
+      "browser": "BrowserType.launch: Executable doesn't exist at /home/oai/.cache/ms-playwright/chromium_headless_shell-1200/chrome-headless-shell-linux64/chrome-headless-shell",
+      "windows": "not_run",
+      "ci": "not_run",
+      "deployment": "none",
+      "legacySuite": "not_run",
+      "jestVitestRerun": "not_run",
+      "arbitraryUserCode": "never executed"
+    },
+    "lockfileCorrection": {
+      "uploadedBytes": 194867,
+      "uploadedSha256": "6aa761ecf3ca592d1b390971b3a68a476a403f43c020fe94b0a826fa93c8bb7a",
+      "committedBytes": 194866,
+      "committedSha256": "b1657fc519b93b430dc7edc889d26e0af840c3247edd4c390c2b91f2f3493577",
+      "committedGitBlob": "da81b7dd670f2387ad9fcfabe1e85bc4f2646f2c",
+      "difference": "The earlier connector reconstruction omitted the final LF byte. Parsed dependency data is identical, but the prior byte-for-byte/SHA-256 match claim was incorrect. No lockfile dependency was changed in this session."
+    }
   },
   "acceptanceStatus": {
-    "jestToVitest": "Runtime-verified for documented synthetic subset",
-    "exactRunnerLockfile": "Used successfully in WSL but local lockfile bytes not yet committed",
-    "isolatedUserProjectVerification": "Not implemented",
-    "githubAuthenticationAndPR": "Not implemented in product",
-    "hostedMultiUserProduct": "Not deployed"
+    "githubAuthenticationAndPR": "Implemented and tested with controlled GitHub responses; actual App sign-in and PR round trip not performed",
+    "isolatedUserProjectVerification": "Not implemented; all user-project execution states remain not_run",
+    "hostedMultiUserProduct": "Invite-only single-process staging foundation; not deployed or cleared for strangers",
+    "jestToVitest": "Prior user-supplied WSL synthetic acceptance remains recorded; not rerun now",
+    "lockfile": "Committed dependency data is correct; original terminal newline lost. See integrity correction in connected verification record."
   },
   "next": [
-    "Capture exact acceptance package-lock for full repository reproducibility",
-    "Build isolated source/baseline/post-transfer verifier before running arbitrary user repositories",
-    "Add GitHub authentication and reviewable destination branch/PR delivery",
-    "Harden browser/security and deployment workflow before public hosting"
-  ]
+    "Configure a GitHub App using secrets outside chat/source and perform an authorized live auth/PR round trip",
+    "Run full existing engine and real browser/mobile acceptance in a package-enabled environment",
+    "Implement and validate a genuinely isolated user-project execution backend before marking any user draft verified",
+    "Approve hosting/model budgets and complete security/operations release gates before public deployment"
+  ],
+  "contract": "web/connected/README.md"
 }

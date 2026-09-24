@@ -13,6 +13,8 @@
     "demo:http": "npm run build && node demo/http-transplant.mjs",
     "ui": "npm run build && node ui/server.mjs",
     "web": "node web/server.mjs",
-    "test:web": "node --test web/test/*.test.mjs"
+    "test:web": "node --test web/test/*.test.mjs",
+    "connected": "node web/connected/server.mjs",
+    "test:connected": "node --test --test-timeout=15000 web/connected/test/*.test.mjs"
   }
 }
