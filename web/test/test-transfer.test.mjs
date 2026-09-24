@@ -113,7 +113,7 @@ test('unresolved helper and ambiguous module resolution block test transfer', ()
 test('dynamic imports and working-directory fixture reads are never silently rewritten', () => {
   for (const statement of [`await import(moduleName);`, `readFileSync('./fixture.json');`, `const p = __dirname;`, `vi.mock('./foo');`, `expect(result).toMatchSnapshot();`]) {
     const x = clone(); x.source.files.find(f => f.path === 'test/csv.test.mjs').content += statement;
-    assertBlocked(review(x), /dynamic|fixtures|snapshots/);
+    assertBlocked(review(x), /dynamic|fixture|snapshot|mock/);
   }
 });
 test('test/fixture collisions including case and file-directory aliases preserve existing paths', () => {
@@ -184,11 +184,14 @@ test('does not rewrite import-like text inside assertions or comments', () => {
   const r = review(x); assert.equal(r.exportable, true);
   assert.ok(r.changes.find(c => c.path === 'tests/csv.test.mjs').content.includes('assert.equal("import \'./not-a-real-dependency.mjs\';"'));
 });
-test('ambiguous lexer constructs and computed fixture paths require review rather than editing assertion text', () => {
-  for (const text of ['const rx = /from "foo"/;', 'const text = `a template`;', 'readFileSync(fixturePath);']) {
+test('parser distinguishes regex/templates from unresolved runtime fixture paths', () => {
+  for (const text of ['const rx = /from "foo"/;', 'const text = `a template`;']) {
     const x = clone(); x.source.files.find(f => f.path === 'test/csv.test.mjs').content += text;
-    assertBlocked(review(x), /parser-backed|fixture reads/);
+    const result = review(x); assert.equal(result.exportable, true);
+    assert.ok(result.changes.find(f => f.path === 'tests/csv.test.mjs').content.endsWith(text));
   }
+  const x = clone(); x.source.files.find(f => f.path === 'test/csv.test.mjs').content += 'readFileSync(fixturePath);';
+  assertBlocked(review(x), /fixture reads/);
 });
 test('plain node tests under test directories are found by their actual test calls', () => {
   const x = clone(); x.source.files.find(f => f.path === 'test/csv.test.mjs').path = 'test/check-csv.mjs';

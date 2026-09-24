@@ -88,3 +88,13 @@ test('blocked test transfer stays visible and cannot download a patch even after
   ids['download-patch'].dispatchEvent({ type: 'click' }); assert.equal(downloads.length, 0);
   ids['download-report'].click(); assert.equal(JSON.parse(await downloads[0].text()).review.patch, null);
 });
+
+test('client displays conversion and setup audit without implying runner verification', async () => {
+  const { ids } = await harness({ sample: () => {
+    const r = demoRun(); r.review.testTransfer.framework = {from:'jest',to:'vitest',conversion:true,runtimeVerification:'not_run'};
+    r.review.testTransfer.adaptations = [{sourcePath:'test/csv.test.mjs',kind:'explicit-per-file-setup',sourceSetup:['test/setupTests.mjs']}]; return r;
+  } });
+  ids['try-demo'].click(); await settle(() => !ids.results.hidden && !ids.analyze.disabled);
+  const rendered = ids['test-transfer'].children.map(c=>c.textContent).join('\n');
+  assert.match(rendered, /jest → vitest/); assert.match(rendered, /NOT VERIFIED/); assert.match(rendered, /explicit-per-file-setup/); assert.match(rendered, /test\/setupTests.mjs/);
+});

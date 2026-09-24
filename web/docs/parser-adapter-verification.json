@@ -1,0 +1,77 @@
+{
+  "date": "2026-09-24",
+  "baseCommit": "e981639f086e04de4944e127699b5c1acb84ae46",
+  "runtime": "v22.16.0",
+  "platform": "linux",
+  "parser": "typescript@5.8.3",
+  "suite": {
+    "command": "cd web && npm test",
+    "passed": 99,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "syntax": {
+    "command": "cd web && npm run check",
+    "status": "passed"
+  },
+  "validationScope": "Local Graft tests, controlled provider responses, DOM-stub controller tests, real local HTTP and original synthetic Node transfer executions only.",
+  "cases": [
+    {
+      "name": "CSV test/fixture transfer",
+      "sourceBaseline": {
+        "pass": 2,
+        "fail": 0
+      },
+      "destinationBaseline": {
+        "pass": 1,
+        "fail": 0
+      },
+      "gitApplyCheck": "passed",
+      "gitApply": "passed",
+      "destinationAfter": {
+        "pass": 2,
+        "fail": 0
+      },
+      "negativeControl": "Broken serializer causes the transferred assertion to fail."
+    },
+    {
+      "name": "AST constant-import, fixture URL and shared hook transfer",
+      "sourceBaseline": {
+        "pass": 2,
+        "fail": 0
+      },
+      "destinationBaseline": {
+        "pass": 1,
+        "fail": 0
+      },
+      "gitApplyCheck": "passed",
+      "gitApply": "passed",
+      "destinationAfter": {
+        "pass": 2,
+        "fail": 0
+      },
+      "negativeControl": "Removing copied setup causes the transferred assertion to fail."
+    }
+  ],
+  "crossRunner": {
+    "direction": "Jest to Vitest",
+    "parserAndPatchTests": "passed for documented subset",
+    "actualJestExecution": "not_run",
+    "actualVitestExecution": "not_run",
+    "reason": "jest and vitest MODULE_NOT_FOUND; npm registry lookup failed EAI_AGAIN. No simulated runner substituted for real execution."
+  },
+  "dependencyInstallation": "Network install not observed. Used preinstalled TypeScript 5.8.3 matching the exact dependency pin.",
+  "browser": "not rerun; prior attempt ERR_BLOCKED_BY_ADMINISTRATOR",
+  "windows": "not_run",
+  "ci": "not_run",
+  "legacySuite": "not rerun; root engine unchanged",
+  "paidAI": "not called",
+  "arbitraryProjectExecution": "not implemented; per-draft execution states remain not_run",
+  "deployment": "none",
+  "verificationCommands": [
+    "npm test",
+    "npm run check",
+    "node --test --test-name-pattern=\"AST-assisted transfer executes\" test/parser-adapter.test.mjs"
+  ]
+}

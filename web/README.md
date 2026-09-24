@@ -6,16 +6,19 @@ This is the new product-facing workflow, alongside the unchanged v0.1 TypeScript
 
 ## Tests are included by default
 
-The September 24 update adds related-test discovery, helper/fixture inclusion, destination-aware placement, and import-path rewriting for a conservative JS/TS subset. The sample now carries its CSV test and supporting files into the destination's `tests/` directory while preserving its existing regression test. Unsafe or incomplete test transfers block patch export rather than silently dropping tests. Assertions are preserved; general destination execution remains `not_run`.
+The latest September 24 update uses a TypeScript AST for JS/TS references, adds statically resolved constant/template paths and local `tsconfig` aliases, and builds related tests plus required helpers/fixtures into the reviewed patch. A bounded **Jest-to-Vitest draft adapter** handles common named APIs or globals without regenerating assertions. A single declarative hook setup file can be included explicitly in each test rather than replacing destination configuration. Unsupported semantics still block export.
 
-**Latest observed validation: 69/69 Node tests plus syntax checks.** Both synthetic baselines and the post-patch suite ran successfully, and a deliberately broken serializer caused the transferred test to fail. The browser attempt remains administrator-blocked. See [supported behavior and limitations](docs/TEST-TRANSFER.md) and [the new validation record](docs/test-transfer-verification.json). The original preview record below is retained as historical evidence, not the current test count.
+**Latest observed validation: 99/99 local Node tests plus syntax checks.** The original CSV transfer and a new constant-import/fixture/shared-hook transfer ran end to end with source and destination baselines. Broken-serializer and missing-setup negative controls fail as expected. Jest/Vitest conversion has parser/patch tests only: neither third-party runner was installed, and the runtime's npm lookup failed DNS. Actual cross-runner execution, a clean network install, Windows and browser checks are not claimed. Per-user draft verification remains `not_run`.
+
+See [supported behavior and limitations](docs/TEST-TRANSFER.md) and [the latest validation record](docs/parser-adapter-verification.json). Earlier validation records below are historical, not the current test count.
 
 ## Start
 
-Requires Node.js 22 or newer and Git for the patch-execution tests. The web runtime has no third-party npm dependencies and needs no build step.
+Requires Node.js 22 or newer and Git for the patch-execution tests. The web runtime uses the pinned TypeScript 5.8.3 parser and needs no build step. Install dependencies either at the repository root (which already declares the same parser) or in this standalone `web/` package.
 
 ```sh
 cd web
+npm install
 npm start
 ```
 
@@ -32,11 +35,11 @@ The optional browser smoke test needs Python, Pillow, Playwright, and an install
 python test/browser_smoke.py
 ```
 
-The script starts and stops its own local server, never inherits an AI API key, exercises the real HTTP app, and captures screenshots only after actual browser navigation succeeds. It currently hits `ERR_BLOCKED_BY_ADMINISTRATOR` in the development sandbox. **No passing live-browser result or screenshot is claimed.**
+The script starts and stops its own local server, never inherits an AI API key, exercises the real HTTP app, and captures screenshots only after actual browser navigation succeeds. The prior browser attempt hit `ERR_BLOCKED_BY_ADMINISTRATOR` in the development sandbox; it was not rerun for the parser/adapter update. **No passing live-browser result or screenshot is claimed.**
 
 ## One workflow, explicit evidence
 
-Choose a source and destination via a public GitHub URL or local folder. Describe behavior rather than assembling a manifest. Graft fingerprints the selected snapshots, ranks likely source files, expands bounded literal relative imports, and shows the files actually inspected. No source code is installed or executed.
+Choose a source and destination via a public GitHub URL or local folder. Describe behavior rather than assembling a manifest. Graft fingerprints the selected snapshots, ranks likely source files, expands parser-backed JS/TS references where statically resolvable, and shows the files actually inspected. No source code is installed or executed.
 
 Without an API key this produces **discovery**, not a speculative transfer. The sample produces a real deterministic patch from original synthetic fixtures and clearly identifies itself as authored, not AI-generated.
 

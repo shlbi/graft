@@ -1,53 +1,49 @@
 {
   "project": "Graft",
-  "phase": "v0.2-test-aware-local-preview",
-  "authorization": "Saif explicitly requested implementing source-test transfer and pushing to shlbi/graft in the live session. Kinetic remains paused. No new overnight cycle, paid inference, deployment, or permission change is authorized by this edit.",
+  "phase": "v0.2-parser-backed-test-adaptation-preview",
+  "authorization": "Saif requested working now on complex setup, dynamic references and cross-framework test transfer. Live work continues only in shlbi/graft; Kinetic remains paused. No paid inference, deployment, visibility change or new overnight cycle.",
   "automation": {
     "kineticBuild": "paused",
     "newOvernightCycle": "not scheduled"
   },
   "previousHandoff": {
-    "commit": "a643b7c28674741f958df5e9ac381ab80db26ba3",
+    "commit": "e981639f086e04de4944e127699b5c1acb84ae46",
     "path": ".nightshift/STATE.json",
-    "blob": "2f129084cf862d1f8a93ed4ad583f79f31e4d342",
-    "preservation": "Original preview progress and legacy 53-test record remain in the immutable prior handoff; legacy engine source/tests untouched."
+    "blob": "2e83dcfe7b4151f12b68783ec648e63f1224f575",
+    "preservation": "Previous evidence remains immutable; root engine, demo and unrelated work unchanged."
   },
   "completedThisSession": [
-    "Reverse-reference test discovery plus explicit test helper and text fixture closure",
-    "Test-prioritized bounded source context and destination test-layout/configuration evidence",
-    "Deterministic same-runner JS/TS test copying, destination placement and literal import/resource path rewriting without assertion changes",
-    "Review/API/UI export blocking for unknown setups, missing context, collisions, dynamic syntax and provider-authored test weakening",
-    "Working authored sample carrying tests and fixtures; observed source baseline, destination baseline, post-patch checks and failing negative control",
-    "New documentation and reproducible verification record"
+    "TypeScript AST reference reader with unique-constant import/fixture expressions, escaped spans, local tsconfig aliases and fail-closed dynamic/scoping checks",
+    "Bounded Jest-to-Vitest named/global API draft adaptation, unchanged assertion logic, explicit lifecycle and unsupported-API guards",
+    "Declarative root test config reader and single-file hook setup inclusion without replacing destination configuration",
+    "UI per-file adaptation audit and explicit runner-execution-not-verified notice",
+    "Expanded automated suite and real Node constant-import/shared-hook transfer with negative control"
   ],
   "observedValidation": {
-    "command": "cd web && npm test",
-    "passed": 69,
+    "passed": 99,
     "failed": 0,
     "skipped": 0,
-    "syntax": "npm run check passed",
-    "sourceBaseline": "2/2",
-    "destinationBaseline": "1/1",
-    "destinationAfterPatch": "2/2",
-    "negativeControl": "Broken serializer triggers transported test failure, exit 1",
-    "frontend": "Actual controller and blocked download gate tested with DOM stubs",
-    "http": "Existing real local HTTP endpoint/concurrency tests passed",
-    "browser": "Attempted; localhost ERR_BLOCKED_BY_ADMINISTRATOR; no workaround or pass claimed",
-    "paidAI": "not called; controlled provider response tests only",
+    "syntax": "passed",
+    "nodeAcceptance": "Two synthetic cases: source 2/2, destination 1/1, applied destination 2/2 each; broken serializer and removed setup fail as expected",
+    "crossRunner": "Parser/plan/patch tests only. Actual Jest and Vitest execution not run: packages unavailable and npm DNS failed.",
+    "browser": "not rerun; prior administrator block",
+    "windows": "not run",
+    "ci": "not run",
     "legacySuite": "not rerun",
-    "record": "web/docs/test-transfer-verification.json"
+    "paidAI": "not called; controlled responses only",
+    "record": "web/docs/parser-adapter-verification.json"
   },
   "acceptanceStatus": {
-    "testTransfer": "Implemented for a conservative compatible JS/TS subset; not universal",
-    "isolatedDestinationVerification": "Not implemented for arbitrary user projects; review statuses remain not_run",
+    "testTransfer": "Broader bounded JS/TS parser/setup support; Jest-to-Vitest drafts implemented but cross-runner execution unverified. Not universal.",
+    "isolatedDestinationVerification": "Not implemented for arbitrary user repositories; review states remain not_run",
     "githubAuthenticationAndPR": "Not implemented",
     "hostedMultiUserProduct": "Not deployed"
   },
   "next": [
-    "Evaluate an authorized real source/destination pair, including its test suite",
-    "Add parser-backed syntax, monorepo/setup-aware mapping and reviewed cross-runner/API adaptation without weakening assertions",
+    "Run the documented Jest/Vitest adapter against real pinned runners and authorized project pairs before calling it runtime-verified",
+    "Add explicit adapters for remaining mock/timer/lifecycle semantics, package-scoped configuration and additional languages, each with negative controls",
     "Build isolated source/baseline/post-transfer verification before executing user repository code",
-    "Continue GitHub authentication/PR delivery and browser/security release gates; no automatic new project"
+    "Continue private-repo authentication, PR delivery and browser/security release gates; no automatic new project"
   ],
   "testTransferContract": "web/docs/TEST-TRANSFER.md"
 }

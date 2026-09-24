@@ -105,6 +105,8 @@ function render({ mode, analysis, review }) {
   if (plan) {
     testReport.append(node('p', `${plan.tests.length} related test file(s) · ${plan.support.length} support file(s) · ${plan.source.frameworks.join(', ') || 'unknown runner'} → ${plan.destination.frameworks.join(', ') || 'unknown runner'}`));
     testReport.append(node('p', `Destination layout: ${plan.destination.layout ?? 'needs review'}. ${transfer?.status === 'blocked' ? 'PATCH BLOCKED' : transfer?.status === 'included' ? 'TESTS INCLUDED IN PATCH' : 'DISCOVERY ONLY'} · Tests have NOT RUN.`));
+    if (transfer?.framework?.conversion) testReport.append(node('p', `${transfer.framework.from} → ${transfer.framework.to}: bounded API adaptation · runner execution NOT VERIFIED.`, 'plain-item'));
+    for (const adaptation of transfer?.adaptations ?? []) testReport.append(node('p', `${adaptation.sourcePath}: ${adaptation.kind}${adaptation.sourceSetup ? ' (' + adaptation.sourceSetup.join(', ') + ')' : ''}`, 'plain-item'));
     for (const item of transfer?.placements ?? []) testReport.append(node('p', `${item.sourcePath} → ${item.destinationPath}`, 'plain-item'));
     if (!transfer) for (const item of plan.tests) testReport.append(node('p', `${item.path} · ${item.evidence}`, 'plain-item'));
     for (const message of [...(transfer?.blockers ?? []), ...plan.warnings]) testReport.append(node('p', message, 'plain-item'));
