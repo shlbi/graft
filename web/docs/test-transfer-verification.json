@@ -1,0 +1,62 @@
+{
+  "date": "2026-09-24",
+  "baseCommit": "a643b7c28674741f958df5e9ac381ab80db26ba3",
+  "runtime": "v22.16.0",
+  "platform": "linux",
+  "suite": {
+    "command": "cd web && npm test",
+    "passed": 69,
+    "failed": 0,
+    "skipped": 0
+  },
+  "syntax": "npm run check passed",
+  "browser": "Attempted python test/browser_smoke.py; localhost navigation failed with ERR_BLOCKED_BY_ADMINISTRATOR. No bypass, screenshot, or browser pass claimed.",
+  "paidAI": "not called; provider contract uses controlled responses",
+  "legacySuite": "not rerun; root TypeScript engine untouched",
+  "arbitraryProjectExecution": "not implemented; per-draft states remain not_run",
+  "sourceBaseline": {
+    "tests": 2,
+    "pass": 2,
+    "fail": 0,
+    "skipped": 0
+  },
+  "destinationBaseline": {
+    "tests": 1,
+    "pass": 1,
+    "fail": 0,
+    "skipped": 0
+  },
+  "gitApply": "check and application passed",
+  "destinationAfter": {
+    "tests": 2,
+    "pass": 2,
+    "fail": 0,
+    "skipped": 0
+  },
+  "negativeControl": {
+    "result": "broken serializer correctly failed transported assertion",
+    "exitCode": 1,
+    "tests": 1,
+    "pass": 0,
+    "fail": 1,
+    "skipped": 0
+  },
+  "reviewId": "c8c478ee692f591a64da6b019ddee4735c185ed674cd20ce0af72e7465c7745a",
+  "placements": [
+    {
+      "sourcePath": "test/csv.test.mjs",
+      "destinationPath": "tests/csv.test.mjs",
+      "kind": "test"
+    },
+    {
+      "sourcePath": "test/fixtures/cells.json",
+      "destinationPath": "tests/fixtures/cells.json",
+      "kind": "support"
+    },
+    {
+      "sourcePath": "test/support/rows.mjs",
+      "destinationPath": "tests/support/rows.mjs",
+      "kind": "support"
+    }
+  ]
+}

@@ -8,6 +8,29 @@ export const demoInput = {
   source: { name: 'sample/report-studio', files: [{ path: 'src/csv.mjs', content: csv }, { path: 'src/app.mjs', content: sourceApp }, { path: 'README.md', content: 'Original synthetic CSV export sample authored for Graft. Not a third-party repository.\n' }] },
   destination: { name: 'sample/taskboard', files: [{ path: 'src/app.mjs', content: before }, { path: 'README.md', content: 'Original synthetic task board sample. Tasks use name and complete.\n' }] }
 };
+// Authored tests travel from test/ to the destination's existing tests/ layout.
+demoInput.source.files.push(...[
+  {
+    "path": "test/csv.test.mjs",
+    "content": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { toCSV } from '../src/csv.mjs';\nimport { rows } from './support/rows.mjs';\ntest('CSV quoting and formula protection', () => {\n  assert.equal(toCSV(rows), '\"hello, world\",\"say \"\"yes\"\"\"\\r\\n\"\\'=1+1\",\"\"\\r\\n');\n});\n"
+  },
+  {
+    "path": "test/support/rows.mjs",
+    "content": "import { readFileSync } from 'node:fs';\nexport const rows = JSON.parse(readFileSync(new URL('../fixtures/cells.json', import.meta.url), 'utf8'));\n"
+  },
+  {
+    "path": "test/fixtures/cells.json",
+    "content": "[[\"hello, world\", \"say \\\"yes\\\"\"], [\"=1+1\", null]]\n"
+  },
+  {
+    "path": "test/unrelated.test.mjs",
+    "content": "import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('unrelated behavior', () => assert.equal(1 + 1, 2));\n"
+  }
+]);
+demoInput.destination.files.push({
+  "path": "tests/task-count.test.mjs",
+  "content": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { taskCount } from '../src/app.mjs';\ntest('taskCount remains intact', () => assert.equal(taskCount([{ name: 'Keep me', complete: true }]), 1));\n"
+});
 export const demoProposal = { summary: 'Move CSV export into the task board, adapting title/done to name/complete and preserving taskCount.',
   changes: [
     { path: 'src/csv.mjs', action: 'add', content: csv, reason: 'Reuse the CSV serializer, including quoting and common spreadsheet-formula prefix protection.', sourcePaths: ['src/csv.mjs'] },

@@ -47,7 +47,9 @@ try:
         page.locator('#results').wait_for(state='visible')
         assert 'AUTHORED SAMPLE' in page.locator('#result-mode').inner_text()
         assert page.locator('#download-patch').is_disabled()
-        assert page.locator('.change').count() == 2
+        assert page.locator('.change').count() == 5
+        assert 'TESTS INCLUDED IN PATCH' in page.locator('#test-transfer').inner_text()
+        assert 'tests/csv.test.mjs' in page.locator('#test-transfer').inner_text()
         assert 'NOT RUN' in page.locator('#checks').inner_text()
         page.locator('#review-confirmation').check()
         with page.expect_download() as dl:

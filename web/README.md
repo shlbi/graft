@@ -4,6 +4,12 @@
 
 This is the new product-facing workflow, alongside the unchanged v0.1 TypeScript engineering demonstrator in the repository root. It is a **local web preview**, not a hosted service or a universal verified transplant engine.
 
+## Tests are included by default
+
+The September 24 update adds related-test discovery, helper/fixture inclusion, destination-aware placement, and import-path rewriting for a conservative JS/TS subset. The sample now carries its CSV test and supporting files into the destination's `tests/` directory while preserving its existing regression test. Unsafe or incomplete test transfers block patch export rather than silently dropping tests. Assertions are preserved; general destination execution remains `not_run`.
+
+**Latest observed validation: 69/69 Node tests plus syntax checks.** Both synthetic baselines and the post-patch suite ran successfully, and a deliberately broken serializer caused the transferred test to fail. The browser attempt remains administrator-blocked. See [supported behavior and limitations](docs/TEST-TRANSFER.md) and [the new validation record](docs/test-transfer-verification.json). The original preview record below is retained as historical evidence, not the current test count.
+
 ## Start
 
 Requires Node.js 22 or newer and Git for the patch-execution tests. The web runtime has no third-party npm dependencies and needs no build step.
@@ -58,7 +64,7 @@ Public GitHub intake only requests allowlisted GitHub API paths, disables redire
 
 Supported *intake* includes text from JavaScript/TypeScript, Python, Go, Rust, Java, C#, Swift, C/C++, Ruby, PHP and common web/configuration formats. This does not imply semantic analysis or verified transformation support for every language or framework. Code that crosses database, build-system, infrastructure, binary-asset or service boundaries needs further integration work.
 
-## Validation observed in this session
+## Original preview validation (September 22, 2026)
 
 39/39 Node tests passed with zero failures, skips or cancellations. The suite covers normalization, filtering, snapshot hashes, ranking, language detection, context limits, provider schema and consent, collision guards, real HTTP endpoints, concurrency/cancellation, and the actual frontend controller using explicit DOM stubs.
 

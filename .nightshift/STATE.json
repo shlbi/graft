@@ -1,60 +1,53 @@
 {
   "project": "Graft",
-  "phase": "v0.2-local-web-preview-in-progress",
-  "authorization": "Saif explicitly paused Kinetic and returned to Graft in the live session on September 22, 2026. Prioritize two repositories plus a plain-language feature request, an optional AI API, and a future hosted web application. This supersedes the former Kinetic cycle. No domain, paid inference, public deployment or repository visibility change was performed.",
+  "phase": "v0.2-test-aware-local-preview",
+  "authorization": "Saif explicitly requested implementing source-test transfer and pushing to shlbi/graft in the live session. Kinetic remains paused. No new overnight cycle, paid inference, deployment, or permission change is authorized by this edit.",
   "automation": {
     "kineticBuild": "paused",
-    "weeklyBriefing": "updated to Graft; no automatic project rollover",
     "newOvernightCycle": "not scheduled"
   },
-  "previousRelease": {
-    "commit": "e8f74a9f6cc51644183ecd0932a259b4961c5d53",
-    "stateBlob": "2b796b0b57dac7fa29bd71f1f5f4f0965e17a00c",
-    "scope": "Authored TypeScript transplant demonstrator",
-    "reportedTests": 53,
-    "revalidatedThisSession": false,
-    "preservation": "Legacy source, demo, UI, tests, build configuration and README preserved. Root package only adds web and test:web commands. Original state remains available at the previous immutable commit."
+  "previousHandoff": {
+    "commit": "a643b7c28674741f958df5e9ac381ab80db26ba3",
+    "path": ".nightshift/STATE.json",
+    "blob": "2f129084cf862d1f8a93ed4ad583f79f31e4d342",
+    "preservation": "Original preview progress and legacy 53-test record remain in the immutable prior handoff; legacy engine source/tests untouched."
   },
   "completedThisSession": [
-    "New standalone dependency-free web application in web/",
-    "Public GitHub reader with commit pinning, allowlisted API paths, bounded text retrieval and truncated-tree rejection",
-    "Local folder intake with browser and server filters, content fingerprints and collision inventory",
-    "Plain-language feature ranking with bounded literal relative-import expansion",
-    "Consent-gated Responses API adapter with strict output structure, no tools and no automatic retries",
-    "Local draft validation, inspected-file provenance, overwrite/path guards and complete Git patch export",
-    "Two-repository UI, explicit discovery versus draft status, review gating, cancellation, JSON and patch downloads",
-    "Original synthetic CSV transfer patch applies and executes with destination behavior preserved"
+    "Reverse-reference test discovery plus explicit test helper and text fixture closure",
+    "Test-prioritized bounded source context and destination test-layout/configuration evidence",
+    "Deterministic same-runner JS/TS test copying, destination placement and literal import/resource path rewriting without assertion changes",
+    "Review/API/UI export blocking for unknown setups, missing context, collisions, dynamic syntax and provider-authored test weakening",
+    "Working authored sample carrying tests and fixtures; observed source baseline, destination baseline, post-patch checks and failing negative control",
+    "New documentation and reproducible verification record"
   ],
   "observedValidation": {
     "command": "cd web && npm test",
-    "passed": 39,
+    "passed": 69,
     "failed": 0,
     "skipped": 0,
     "syntax": "npm run check passed",
-    "http": "Real local HTTP endpoint tests passed",
-    "frontend": "Actual controller tested with DOM stubs; not browser E2E",
-    "patch": "git apply --check, application and authored destination execution passed",
-    "browser": "Blocked by administrator policy on localhost navigation; no bypass or passing interactive claim",
-    "externalGitHub": "Runtime DNS failed with EAI_AGAIN; adapter verified with controlled responses only",
-    "paidAI": "Not called; adapter contract tested with controlled responses",
-    "record": "web/docs/verification.json"
+    "sourceBaseline": "2/2",
+    "destinationBaseline": "1/1",
+    "destinationAfterPatch": "2/2",
+    "negativeControl": "Broken serializer triggers transported test failure, exit 1",
+    "frontend": "Actual controller and blocked download gate tested with DOM stubs",
+    "http": "Existing real local HTTP endpoint/concurrency tests passed",
+    "browser": "Attempted; localhost ERR_BLOCKED_BY_ADMINISTRATOR; no workaround or pass claimed",
+    "paidAI": "not called; controlled provider response tests only",
+    "legacySuite": "not rerun",
+    "record": "web/docs/test-transfer-verification.json"
   },
   "acceptanceStatus": {
-    "twoRepoIntake": "Implemented; folder flow validated with HTTP/controller tests; live GitHub blocked in this runtime",
-    "naturalLanguageFeatureDiscovery": "Implemented as bounded lexical retrieval, not complete semantic understanding",
-    "adaptedDraft": "Provider adapter and local validation implemented; live model quality unmeasured",
-    "reviewAndExport": "Implemented and sample patch execution verified",
-    "isolatedDestinationVerification": "Not implemented for arbitrary user projects",
+    "testTransfer": "Implemented for a conservative compatible JS/TS subset; not universal",
+    "isolatedDestinationVerification": "Not implemented for arbitrary user projects; review statuses remain not_run",
     "githubAuthenticationAndPR": "Not implemented",
-    "hostedMultiUserProduct": "Not deployed; loopback preview is not suitable for public exposure"
+    "hostedMultiUserProduct": "Not deployed"
   },
   "next": [
-    "Obtain the friend's authorized source/destination pair and one concrete feature as the acceptance case",
-    "Run live provider evaluation only after explicit model/API-budget authorization",
-    "Improve symbol/dependency retrieval and integrate the existing adapter-aware engine where supported",
-    "Build isolated baseline-versus-destination verification and durable cancellation before executing user repository code",
-    "Configure a least-privilege GitHub App, tenant authorization and reviewable PR delivery",
-    "Complete unblocked real-browser checks and production security gates before hosting"
+    "Evaluate an authorized real source/destination pair, including its test suite",
+    "Add parser-backed syntax, monorepo/setup-aware mapping and reviewed cross-runner/API adaptation without weakening assertions",
+    "Build isolated source/baseline/post-transfer verification before executing user repository code",
+    "Continue GitHub authentication/PR delivery and browser/security release gates; no automatic new project"
   ],
-  "productContract": "web/docs/PRODUCT.md"
+  "testTransferContract": "web/docs/TEST-TRANSFER.md"
 }

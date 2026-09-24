@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, mkdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { snapshot, analyze, reviewProposal, rank, stack, unifiedPatch, featureText, LIMITS } from '../lib/core.mjs';
@@ -64,7 +64,7 @@ test('identifies different languages without promising cross-language execution'
 test('reject identical source and destination', () => { const { source } = setup(); assert.throws(() => analyze(source, source, 'csv'), /identical/); });
 test('authored demo generates a review with honest verification states and input hashes', () => {
   const x = demoRun(); assert.equal(x.mode, 'synthetic-demo'); assert.equal(x.review.provider, 'authored-demo');
-  assert.equal(x.review.changes.length, 2); assert.equal(x.review.verification.build, 'not_run');
+  assert.equal(x.review.changes.length, 5); assert.equal(x.review.verification.build, 'not_run');
   assert.equal(x.review.sourceFingerprint, x.analysis.source.fingerprint); assert.ok(x.review.changes[1].baseHash);
 });
 test('reject unknown provider fields, deletion, secrets and missing provenance', () => {
@@ -101,7 +101,7 @@ test('exported demo patch applies cleanly and the destination executes with pres
   const dir = await mkdtemp(join(tmpdir(), 'graft-demo-test-'));
   try {
     await mkdir(join(dir, 'src'));
-    for (const file of demoInput.destination.files) await writeFile(join(dir, file.path), file.content);
+    for (const file of demoInput.destination.files) { await mkdir(dirname(join(dir, file.path)), { recursive: true }); await writeFile(join(dir, file.path), file.content); }
     const patchPath = join(dir, 'graft.patch'); await writeFile(patchPath, demoRun().review.patch);
     execFileSync('git', ['init', '-q'], { cwd: dir });
     execFileSync('git', ['apply', '--check', patchPath], { cwd: dir });

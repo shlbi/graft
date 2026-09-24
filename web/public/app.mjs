@@ -64,7 +64,7 @@ async function run(path, payload) {
     const response = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload), signal: controller.signal });
     const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Request failed.');
     state.result = result; render(result);
-    notify(result.review ? 'Draft ready for review. No repository has been changed. Build and integration checks have not been run.' : 'Discovery complete. Enable a configured AI provider to request an adapted draft; this result is not a transfer.');
+    notify(result.review?.exportable === false ? 'Draft needs test-transfer review. Patch download is blocked; inspect the listed issues.' : result.review ? 'Draft ready for review. No repository has been changed. Build and integration checks have not been run.' : 'Discovery complete. Enable a configured AI provider to request an adapted draft; this result is not a transfer.');
     $('results').focus({ preventScroll: true }); $('results').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
   } catch (e) { notify(e.name === 'AbortError' ? 'Cancelled. No repository was changed. An already-started provider request may still incur usage.' : e.message, e.name === 'AbortError' ? '' : 'error'); }
   finally { state.controller = null; busy(false); }
@@ -100,6 +100,15 @@ function render({ mode, analysis, review }) {
   $('context-details').replaceChildren();
   [...analysis.warnings, `Source context: ${analysis.contextManifest.source.join(', ')}`, `Destination context: ${analysis.contextManifest.destination.join(', ')}`,
     `Filtered server-side: ${[...analysis.source.skipped, ...analysis.destination.skipped].join(', ') || 'none among submitted files'}`].forEach(text => $('context-details').append(node('p', text)));
+  const testReport = $('test-transfer'); testReport.replaceChildren();
+  const plan = analysis.testPlan, transfer = review?.testTransfer;
+  if (plan) {
+    testReport.append(node('p', `${plan.tests.length} related test file(s) · ${plan.support.length} support file(s) · ${plan.source.frameworks.join(', ') || 'unknown runner'} → ${plan.destination.frameworks.join(', ') || 'unknown runner'}`));
+    testReport.append(node('p', `Destination layout: ${plan.destination.layout ?? 'needs review'}. ${transfer?.status === 'blocked' ? 'PATCH BLOCKED' : transfer?.status === 'included' ? 'TESTS INCLUDED IN PATCH' : 'DISCOVERY ONLY'} · Tests have NOT RUN.`));
+    for (const item of transfer?.placements ?? []) testReport.append(node('p', `${item.sourcePath} → ${item.destinationPath}`, 'plain-item'));
+    if (!transfer) for (const item of plan.tests) testReport.append(node('p', `${item.path} · ${item.evidence}`, 'plain-item'));
+    for (const message of [...(transfer?.blockers ?? []), ...plan.warnings]) testReport.append(node('p', message, 'plain-item'));
+  }
   $('review-panel').hidden = !review; if (!review) return;
   $('change-count').textContent = `${review.changes.length} files · ${review.id.slice(0, 8)}`;
   $('change-list').replaceChildren();
@@ -119,8 +128,8 @@ function download(filename, content, type) {
   const url = URL.createObjectURL(new Blob([content], { type })); const a = node('a'); a.href = url; a.download = filename; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 $('download-report').addEventListener('click', () => { if (state.result) download('graft-review.json', JSON.stringify(state.result, null, 2), 'application/json'); });
-$('review-confirmation').addEventListener('change', () => { $('download-patch').disabled = !$('review-confirmation').checked || !state.result?.review; });
-$('download-patch').addEventListener('click', () => { if ($('review-confirmation').checked && state.result?.review) download('graft.patch', state.result.review.patch, 'text/plain'); });
+$('review-confirmation').addEventListener('change', () => { $('download-patch').disabled = !$('review-confirmation').checked || !state.result?.review?.exportable; });
+$('download-patch').addEventListener('click', () => { if ($('review-confirmation').checked && state.result?.review?.exportable) download('graft.patch', state.result.review.patch, 'text/plain'); });
 fetch('/api/config').then(r => { if (!r.ok) throw new Error(); return r.json(); }).then(config => {
   state.configured = config.aiConfigured; $('use-ai').disabled = !config.aiConfigured || Boolean(state.controller);
   $('model-label').textContent = config.aiConfigured ? 'AI available' : 'No API key needed to explore';
