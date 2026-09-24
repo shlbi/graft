@@ -9,7 +9,9 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test test/*.test.mjs",
-    "check": "node --check server.mjs && node --check public/app.mjs && node --check lib/core.mjs && node --check lib/github.mjs && node --check lib/ai.mjs && node --check lib/test-transfer.mjs && node --check lib/core-base.mjs && node --check lib/syntax.mjs && node --check lib/runner-adapter.mjs && node --check lib/test-config.mjs"
+    "check": "node --check server.mjs && node --check public/app.mjs && node --check lib/core.mjs && node --check lib/github.mjs && node --check lib/ai.mjs && node --check lib/test-transfer.mjs && node --check lib/core-base.mjs && node --check lib/syntax.mjs && node --check lib/runner-adapter.mjs && node --check lib/test-config.mjs",
+    "test:runners": "node acceptance/run.mjs",
+    "test:runners:preflight": "node acceptance/run.mjs --preflight"
   },
   "dependencies": {
     "typescript": "5.8.3"

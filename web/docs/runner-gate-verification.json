@@ -1,0 +1,40 @@
+{
+  "date": "2026-09-24",
+  "baseCommit": "159a9c77805de591c15f7c18d728e4fa29050308",
+  "scope": "New acceptance gate policy/process tests only; no cross-runner execution claimed",
+  "runtime": "v22.16.0",
+  "platform": "linux",
+  "gatePolicyTests": {
+    "command": "node --test web/test/runner-acceptance.test.mjs",
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0
+  },
+  "syntax": "node --check passed for all five new JavaScript modules, including the policy test",
+  "realRunnerAttempt": {
+    "schema": "graft-real-runner-acceptance-v1",
+    "startedAt": "2026-09-24T16:30:36.134Z",
+    "status": "blocked",
+    "scope": "Original synthetic cases only; no uploaded repository code, paid APIs, or CI.",
+    "runtime": "v22.16.0",
+    "platform": "linux",
+    "lockHash": null,
+    "runners": {},
+    "blockers": [
+      "jest: MODULE_NOT_FOUND; a real installed runner is required.",
+      "vitest: MODULE_NOT_FOUND; a real installed runner is required."
+    ],
+    "cases": [],
+    "finishedAt": "2026-09-24T16:30:36.134Z"
+  },
+  "realRunnerExitCode": 2,
+  "npmLookup": "npm view jest version --fetch-retries=0 --fetch-timeout=12000 failed: EAI_AGAIN registry.npmjs.org",
+  "dependencyInstallation": "none; no runner packages or fabricated lockfile committed",
+  "previous99TestSuite": "not rerun",
+  "legacySuite": "not rerun",
+  "browser": "not rerun; prior administrator block remains historical",
+  "ci": "not run",
+  "windows": "not run",
+  "paidAI": "not called",
+  "deployment": "none"
+}

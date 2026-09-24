@@ -1,49 +1,51 @@
 {
   "project": "Graft",
-  "phase": "v0.2-parser-backed-test-adaptation-preview",
-  "authorization": "Saif requested working now on complex setup, dynamic references and cross-framework test transfer. Live work continues only in shlbi/graft; Kinetic remains paused. No paid inference, deployment, visibility change or new overnight cycle.",
+  "phase": "v0.2-real-runner-acceptance-prepared",
+  "authorization": "Saif asked the assistant to handle remaining work directly while using ChatGPT on his phone. Live work remains scoped to shlbi/graft. Kinetic stays paused; no new overnight cycle, paid inference, CI usage, deployment or visibility change.",
   "automation": {
     "kineticBuild": "paused",
     "newOvernightCycle": "not scheduled"
   },
   "previousHandoff": {
-    "commit": "e981639f086e04de4944e127699b5c1acb84ae46",
+    "commit": "159a9c77805de591c15f7c18d728e4fa29050308",
     "path": ".nightshift/STATE.json",
-    "blob": "2e83dcfe7b4151f12b68783ec648e63f1224f575",
-    "preservation": "Previous evidence remains immutable; root engine, demo and unrelated work unchanged."
+    "blob": "cee18b7d950e3b4195a9edebca7fe5eb14c087e8",
+    "preservation": "Prior parser/setup implementation and historical 99-test observations remain at the immutable preceding commit. Existing application code and legacy engine were not changed."
   },
   "completedThisSession": [
-    "TypeScript AST reference reader with unique-constant import/fixture expressions, escaped spans, local tsconfig aliases and fail-closed dynamic/scoping checks",
-    "Bounded Jest-to-Vitest named/global API draft adaptation, unchanged assertion logic, explicit lifecycle and unsupported-API guards",
-    "Declarative root test config reader and single-file hook setup inclusion without replacing destination configuration",
-    "UI per-file adaptation audit and explicit runner-execution-not-verified notice",
-    "Expanded automated suite and real Node constant-import/shared-hook transfer with negative control"
+    "Optional real Jest/Vitest acceptance command with named-import, global-API and shared-setup synthetic fixtures",
+    "Installed-runner and exact-version lockfile preflight; no automatic download or simulated-runner fallback",
+    "Original test identity/count checks, destination preservation, negative-control and recovery requirements",
+    "Bounded credential-scrubbed fixture processes and policy tests; user-repository execution remains disabled"
   ],
   "observedValidation": {
-    "passed": 99,
+    "command": "node --test web/test/runner-acceptance.test.mjs",
+    "scope": "New gate-policy/process tests only",
+    "passed": 13,
     "failed": 0,
     "skipped": 0,
-    "syntax": "passed",
-    "nodeAcceptance": "Two synthetic cases: source 2/2, destination 1/1, applied destination 2/2 each; broken serializer and removed setup fail as expected",
-    "crossRunner": "Parser/plan/patch tests only. Actual Jest and Vitest execution not run: packages unavailable and npm DNS failed.",
-    "browser": "not rerun; prior administrator block",
+    "syntax": "Five new JavaScript modules passed node --check",
+    "realRunnerAttempt": "blocked, exit 2; zero acceptance cases executed; jest and vitest MODULE_NOT_FOUND",
+    "npmLookup": "EAI_AGAIN for registry.npmjs.org",
+    "full99TestSuite": "not rerun",
+    "legacySuite": "not rerun",
+    "browser": "not rerun",
     "windows": "not run",
     "ci": "not run",
-    "legacySuite": "not rerun",
-    "paidAI": "not called; controlled responses only",
-    "record": "web/docs/parser-adapter-verification.json"
+    "paidAI": "not called",
+    "record": "web/docs/runner-gate-verification.json"
   },
   "acceptanceStatus": {
-    "testTransfer": "Broader bounded JS/TS parser/setup support; Jest-to-Vitest drafts implemented but cross-runner execution unverified. Not universal.",
-    "isolatedDestinationVerification": "Not implemented for arbitrary user repositories; review states remain not_run",
+    "testTransfer": "Previously implemented bounded JS/TS and Jest-to-Vitest drafts; actual cross-runner migration remains unverified",
+    "isolatedDestinationVerification": "Not implemented for user repositories; per-draft statuses remain not_run",
     "githubAuthenticationAndPR": "Not implemented",
     "hostedMultiUserProduct": "Not deployed"
   },
   "next": [
-    "Run the documented Jest/Vitest adapter against real pinned runners and authorized project pairs before calling it runtime-verified",
-    "Add explicit adapters for remaining mock/timer/lifecycle semantics, package-scoped configuration and additional languages, each with negative controls",
-    "Build isolated source/baseline/post-transfer verification before executing user repository code",
-    "Continue private-repo authentication, PR delivery and browser/security release gates; no automatic new project"
+    "Use a permitted package-enabled execution environment to install real Jest/Vitest into web/acceptance with exact pins and a reviewed package-lock; execute the gate and fix any failures",
+    "Do not claim runner acceptance from the policy tests or from a successful prerequisite check",
+    "Continue isolated user-project verification and GitHub authentication/PR delivery only after their safety/authorization requirements are satisfied",
+    "Handle available implementation and validation directly; do not treat the user being on a phone as a technical blocker or request local terminal work"
   ],
-  "testTransferContract": "web/docs/TEST-TRANSFER.md"
+  "runnerAcceptanceContract": "web/docs/RUNNER-ACCEPTANCE.md"
 }

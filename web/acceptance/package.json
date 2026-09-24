@@ -1,0 +1,7 @@
+{
+  "name": "graft-real-runner-acceptance",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node run.mjs" },
+  "description": "Optional real-runner gate. No package installation or network calls are performed by the test command."
+}
