@@ -1,51 +1,35 @@
 {
   "project": "Graft",
-  "phase": "v0.2-real-runner-acceptance-prepared",
-  "authorization": "Saif asked the assistant to handle remaining work directly while using ChatGPT on his phone. Live work remains scoped to shlbi/graft. Kinetic stays paused; no new overnight cycle, paid inference, CI usage, deployment or visibility change.",
-  "automation": {
-    "kineticBuild": "paused",
-    "newOvernightCycle": "not scheduled"
-  },
+  "phase": "v0.2-cross-runner-runtime-verified",
+  "authorization": "Saif asked the assistant to continue finishing Graft. Kinetic remains paused. No paid inference or public deployment authorized.",
   "previousHandoff": {
-    "commit": "159a9c77805de591c15f7c18d728e4fa29050308",
-    "path": ".nightshift/STATE.json",
-    "blob": "cee18b7d950e3b4195a9edebca7fe5eb14c087e8",
-    "preservation": "Prior parser/setup implementation and historical 99-test observations remain at the immutable preceding commit. Existing application code and legacy engine were not changed."
+    "commit": "4c11ae377c35359ecd8f9cccae0d8cf9bb691e4a"
   },
-  "completedThisSession": [
-    "Optional real Jest/Vitest acceptance command with named-import, global-API and shared-setup synthetic fixtures",
-    "Installed-runner and exact-version lockfile preflight; no automatic download or simulated-runner fallback",
-    "Original test identity/count checks, destination preservation, negative-control and recovery requirements",
-    "Bounded credential-scrubbed fixture processes and policy tests; user-repository execution remains disabled"
-  ],
   "observedValidation": {
-    "command": "node --test web/test/runner-acceptance.test.mjs",
-    "scope": "New gate-policy/process tests only",
-    "passed": 13,
-    "failed": 0,
-    "skipped": 0,
-    "syntax": "Five new JavaScript modules passed node --check",
-    "realRunnerAttempt": "blocked, exit 2; zero acceptance cases executed; jest and vitest MODULE_NOT_FOUND",
-    "npmLookup": "EAI_AGAIN for registry.npmjs.org",
-    "full99TestSuite": "not rerun",
-    "legacySuite": "not rerun",
-    "browser": "not rerun",
-    "windows": "not run",
-    "ci": "not run",
-    "paidAI": "not called",
-    "record": "web/docs/runner-gate-verification.json"
+    "realRunnerGate": "passed on user WSL",
+    "runtime": "Node v22.23.3 on Linux/WSL",
+    "jest": "30.5.2",
+    "vitest": "5.0.1",
+    "lockHash": "6aa761ecf3ca592d1b390971b3a68a476a403f43c020fe94b0a826fa93c8bb7a",
+    "cases": {
+      "namedImports": "source 2/2, destination baseline 1/1, destination after 3/3, negative control failed transferred assertions, recovery 3/3",
+      "globalApis": "source 2/2, destination baseline 1/1, destination after 3/3, negative control failed transferred assertions, recovery 3/3",
+      "sharedSetup": "source 2/2, destination baseline 1/1, destination after 3/3, broken-feature and removed-setup controls failed transferred assertions, recovery 3/3"
+    },
+    "blockers": [],
+    "sourceRecord": "web/docs/runner-gate-verification-wsl-2026-09-24.json"
   },
   "acceptanceStatus": {
-    "testTransfer": "Previously implemented bounded JS/TS and Jest-to-Vitest drafts; actual cross-runner migration remains unverified",
-    "isolatedDestinationVerification": "Not implemented for user repositories; per-draft statuses remain not_run",
-    "githubAuthenticationAndPR": "Not implemented",
+    "jestToVitest": "Runtime-verified for documented synthetic subset",
+    "exactRunnerLockfile": "Used successfully in WSL but local lockfile bytes not yet committed",
+    "isolatedUserProjectVerification": "Not implemented",
+    "githubAuthenticationAndPR": "Not implemented in product",
     "hostedMultiUserProduct": "Not deployed"
   },
   "next": [
-    "Use a permitted package-enabled execution environment to install real Jest/Vitest into web/acceptance with exact pins and a reviewed package-lock; execute the gate and fix any failures",
-    "Do not claim runner acceptance from the policy tests or from a successful prerequisite check",
-    "Continue isolated user-project verification and GitHub authentication/PR delivery only after their safety/authorization requirements are satisfied",
-    "Handle available implementation and validation directly; do not treat the user being on a phone as a technical blocker or request local terminal work"
-  ],
-  "runnerAcceptanceContract": "web/docs/RUNNER-ACCEPTANCE.md"
+    "Capture exact acceptance package-lock for full repository reproducibility",
+    "Build isolated source/baseline/post-transfer verifier before running arbitrary user repositories",
+    "Add GitHub authentication and reviewable destination branch/PR delivery",
+    "Harden browser/security and deployment workflow before public hosting"
+  ]
 }

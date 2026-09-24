@@ -1,0 +1,47 @@
+{
+  "date": "2026-09-24",
+  "source": "User-executed WSL acceptance run; terminal output supplied in ChatGPT conversation",
+  "command": "npm run test:runners",
+  "schema": "graft-real-runner-acceptance-v1",
+  "status": "passed",
+  "runtime": "v22.23.3",
+  "platform": "linux",
+  "lockHash": "6aa761ecf3ca592d1b390971b3a68a476a403f43c020fe94b0a826fa93c8bb7a",
+  "runners": {
+    "jest": "30.5.2",
+    "vitest": "5.0.1"
+  },
+  "blockers": [],
+  "cases": [
+    {
+      "kind": "named-imports",
+      "sourceBaseline": "2/2 passed",
+      "destinationBaseline": "1/1 passed",
+      "destinationAfter": "3/3 passed",
+      "brokenFeature": "2 transferred tests failed as expected; existing destination test stayed green",
+      "recovery": "3/3 passed"
+    },
+    {
+      "kind": "global-apis",
+      "sourceBaseline": "2/2 passed",
+      "destinationBaseline": "1/1 passed",
+      "destinationAfter": "3/3 passed",
+      "brokenFeature": "2 transferred tests failed as expected; existing destination test stayed green",
+      "recovery": "3/3 passed"
+    },
+    {
+      "kind": "shared-setup",
+      "sourceBaseline": "2/2 passed",
+      "destinationBaseline": "1/1 passed",
+      "destinationAfter": "3/3 passed",
+      "brokenFeature": "2 transferred tests failed as expected; existing destination test stayed green",
+      "removedSetup": "2 transferred tests failed as expected; existing destination test stayed green",
+      "recovery": "3/3 passed"
+    }
+  ],
+  "limitations": [
+    "Synthetic authored fixtures only; no arbitrary user repository execution",
+    "This evidence does not validate every Jest/Vitest API or configuration",
+    "The exact acceptance package-lock used in the WSL run is not yet committed from the user's local checkout"
+  ]
+}
