@@ -1,10 +1,94 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Graft — move the feature, keep your architecture</title><link rel="stylesheet" href="/style.css"><script type="module" src="/app.mjs"></script></head>
-<body><div class="shell"><header><a class="wordmark" href="/" aria-label="Graft home">graft<span>.</span></a><span class="pill">CONNECTED BETA</span><div id="account"><a class="button secondary" href="/auth/github">Connect GitHub ↗</a></div></header>
-<main><section class="hero"><div class="eyebrow">GOOD IDEAS DESERVE A SECOND HOME</div><h1>Keep the feature.<br><span>Leave the baggage.</span></h1><p>Two repositories. One request. A focused, reviewable change—with the tests that belong to it.</p><div class="process" aria-label="Transfer steps"><span>01 / Connect</span><span>02 / Describe</span><span>03 / Review</span><span>04 / Draft PR</span></div></section>
-<div id="status" class="notice" role="status" aria-live="polite" hidden></div>
-<section id="welcome" class="panel"><h2>Your repositories, your decision.</h2><p>Connect an installed GitHub App to choose public or private repositories. This beta is invitation-only. Nothing is written to GitHub until you review a draft and explicitly publish it.</p><a href="/auth/github" class="button primary">Connect GitHub →</a></section>
-<section id="workspace" hidden><form id="transfer-form"><div class="repo-grid"><section class="panel repo"><label for="source">01 / SOURCE</label><h2>Where the feature lives.</h2><select id="source" required><option value="">Select source repository</option></select></section><section class="panel repo"><label for="destination">02 / DESTINATION</label><h2>Where it belongs.</h2><select id="destination" required><option value="">Select destination repository</option></select></section></div><div class="panel request"><label for="feature">03 / WHAT SHOULD TRAVEL?</label><textarea id="feature" required minlength="3" maxlength="1500" rows="3" placeholder="Move the CSV export feature. Keep this project's data model and existing UI."></textarea><label class="checkbox"><input id="consent" type="checkbox" required> Allow selected code from both repositories to be sent to the configured OpenAI model for this draft.</label><div class="action-row"><span id="allowance" class="muted"></span><button class="button primary" id="create-draft">Prepare my draft →</button></div></div></form>
-<div class="workspace-grid"><section class="panel history"><div class="section-heading"><h2>Your transfers</h2><button class="button quiet" id="refresh">Refresh</button></div><div id="jobs"></div><p class="muted small">Draft data expires after 24 hours. GitHub branches and pull requests stay in GitHub.</p></section><section class="panel review" id="review" tabindex="-1"><div class="eyebrow">REVIEW DESK</div><h2 id="review-title">The next home for your feature.</h2><p id="review-message">Choose a transfer to inspect the proposed changes.</p><div id="review-details"></div><button id="cancel" class="button secondary" hidden>Cancel transfer</button><div id="publish-controls" hidden><label class="checkbox"><input id="acknowledge" type="checkbox"> I reviewed this exact draft and understand that its build and tests have not run against these repositories.</label><label class="checkbox"><input id="workflows" type="checkbox"> I authorize creating a branch and draft pull request. Existing GitHub workflows may run and use my GitHub allowance.</label><div class="action-row"><button id="download" class="button secondary">Download patch ↓</button><button id="publish" class="button primary" disabled>Open draft PR ↗</button></div></div><a id="pr-link" class="button primary" hidden target="_blank" rel="noopener noreferrer">View pull request ↗</a></section></div>
-<section class="privacy"><h2>In your control.</h2><p>Selected code and access tokens are encrypted in this service's database. Drafts expire after 24 hours. Deleting your Graft data does not delete GitHub pull requests or provider-side data. Minimal usage counters remain for up to two UTC calendar days to prevent quota resets. AI drafting has a per-user and global daily request limit.</p><button id="delete-data" class="button secondary">Delete my Graft data and sign out</button></section></section>
-<footer><span class="wordmark">graft<span>.</span></span><p>Tests travel. Assertions stay.<br><strong>Draft ≠ verified integration.</strong></p><p class="small">Bounded JS/TS beta · no arbitrary code execution<br>Public launch acceptance is not complete.</p></footer></main></div></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0D0D0F">
+  <meta name="description" content="Give good code a new home. Repot helps move features and related tests between repositories, with every proposed change yours to review.">
+  <meta property="og:title" content="Repot — Good code. New ground.">
+  <meta property="og:description" content="Two repositories. One feature. A considered change, not another rewrite.">
+  <meta property="og:type" content="website">
+  <title>Repot — Good code. New ground.</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.mjs"></script>
+</head>
+<body>
+<a class="skip" href="#desk">Skip to workspace</a>
+<div class="page-frame">
+  <header class="masthead">
+    <a class="wordmark" href="#top" aria-label="Repot home"><span class="brand-mark" aria-hidden="true"></span>Repot<span class="wordmark-dot" aria-hidden="true">↗</span></a>
+    <nav aria-label="Main navigation"><a href="#method">The method</a><a href="#desk">Workspace <span aria-hidden="true">↗</span></a></nav>
+    <div id="account"><span class="micro muted">Checking connection</span></div>
+  </header>
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-heading">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="small-cross" aria-hidden="true">+</span> CODE REUSE, RECONSIDERED</p>
+        <h1 id="hero-heading">Good code.<br><em>New ground.</em></h1>
+        <p class="hero-description">The feature you need already exists.<br>Give it a home in your codebase.</p>
+        <div class="hero-actions"><a class="button primary" href="#desk">Explore workspace <span aria-hidden="true">↗</span></a><a class="text-link" href="#method">See the method <span aria-hidden="true">↓</span></a></div>
+        <p class="hero-footnote"><span class="status-dot" aria-hidden="true"></span> TWO REPOSITORIES. ONE INTENTION.</p>
+      </div>
+      <div class="specimen" aria-label="Illustration of a feature and its related tests moving between repositories">
+        <div class="specimen-top micro"><span>FIG. 01 / THE TRANSPLANT</span><span>ILLUSTRATION</span></div>
+        <svg class="topology" viewBox="0 0 600 480" role="img" aria-labelledby="diagram-title diagram-desc">
+          <title id="diagram-title">A feature, not a fork</title><desc id="diagram-desc">Two wireframe repositories. A small group of implementation, test and helper files moves between them while the surrounding code stays put.</desc>
+          <defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="grid-line"/></pattern></defs>
+          <rect x="0" y="0" width="600" height="480" fill="url(#grid)"/>
+          <path d="M20 238H580M300 16V450" class="axis-line"/>
+          <g class="repo-wire source-wire"><path d="M38 166 158 96 278 166 158 236Z M38 166V298L158 368 278 298V166 M158 236V368 M38 232 158 302 278 232 M38 199 158 269 278 199 M38 265 158 335 278 265"/><path d="M78 143 198 213 M118 119 238 189 M78 321V189L198 119 M118 345V213L238 143"/></g>
+          <g class="repo-wire destination-wire"><path d="M338 166 458 96 578 166 458 236Z M338 166V298L458 368 578 298V166 M458 236V368 M338 232 458 302 578 232 M338 199 458 269 578 199 M338 265 458 335 578 265"/><path d="M378 143 498 213 M418 119 538 189 M378 321V189L498 119 M418 345V213L538 143"/></g>
+          <path d="M157 181V52H460V154" class="transfer-route"/>
+          <path d="m455 149 5 5 5-5" class="route-arrow"/>
+          <g class="capsule"><path d="m224 185 78-45 78 45-78 45Z" class="capsule-top"/><path d="m224 185 78 45v90l-78-45Z" class="capsule-side"/><path d="m302 230 78-45v90l-78 45Z" class="capsule-front"/>
+            <path d="M236 211l52 30m-52-13 52 30M316 243l47-27m-47 45 47-27m-47 45 47-27" class="capsule-detail"/>
+            <path d="m264 183 38-22 38 22-38 22Z" class="capsule-symbol"/>
+          </g>
+          <g class="diagram-labels"><text x="37" y="400">01 / SOURCE</text><text x="338" y="400">02 / DESTINATION</text><text x="263" y="36">MOVE THE FEATURE</text></g>
+          <g class="crosshairs"><path d="M16 12v12m-6-6h12M578 438v12m-6-6h12M16 438v12m-6-6h12M578 12v12m-6-6h12"/></g>
+        </svg>
+        <div class="specimen-bottom"><span class="micro">TAKE WHAT MATTERS.<br>LEAVE THE REST IN PLACE.</span><span class="specimen-index">R—01</span></div>
+      </div>
+    </section>
+    <div class="principle-strip" aria-label="Product principles"><span>FEATURE, NOT FORK.</span><span>TESTS TRAVEL WITH IT.</span><span>YOUR REVIEW. YOUR REPO.</span><span class="strip-symbol" aria-hidden="true">↗</span></div>
+    <section class="method" id="method" aria-labelledby="method-title">
+      <div class="section-intro"><p class="eyebrow">01 / THE METHOD</p><h2 id="method-title">Less rebuilding.<br><em>More building.</em></h2><p>Describe the behavior you want to keep.<br>Review how it fits somewhere new.</p></div>
+      <div class="method-steps"><article><span class="step-number">01</span><div><h3>Point to two repositories.</h3><p>Where the feature lives. Where you want it next. Your destination stays yours.</p></div></article><article><span class="step-number">02</span><div><h3>Name what should travel.</h3><p>Repot traces the implementation and related tests, then prepares an adapted draft.</p></div></article><article><span class="step-number">03</span><div><h3>Make the final call.</h3><p>Inspect the changes and the gaps. Download a patch or publish an authorized draft PR.</p></div></article></div>
+    </section>
+    <section class="anatomy" aria-labelledby="anatomy-title">
+      <div class="anatomy-heading"><p class="eyebrow">02 / NOT JUST THE CODE</p><h2 id="anatomy-title">Bring the behavior.<br><em>Keep the evidence.</em></h2><p>Related tests belong with the feature.<br>Not in the repository it left behind.</p><p class="micro muted">ILLUSTRATIVE JS/TS MAPPING · NOT A RUN RESULT</p></div>
+      <div class="anatomy-console"><div class="console-header"><span class="micro">TRANSFER ANATOMY</span><span aria-hidden="true">↗</span></div>
+        <div class="anatomy-tabs" role="group" aria-label="Explore transfer files"><button type="button" class="anatomy-tab" aria-pressed="true" data-layer="implementation">Implementation</button><button type="button" class="anatomy-tab" aria-pressed="false" data-layer="tests">Tests</button><button type="button" class="anatomy-tab" aria-pressed="false" data-layer="support">Support</button></div>
+        <div class="mapping-illustration" aria-live="polite"><span class="micro muted">SOURCE</span><code id="anatomy-source">src/csv.ts</code><span class="mapping-connector" aria-hidden="true">└──────────────────↘</span><span class="micro muted">DESTINATION</span><code id="anatomy-destination">lib/export/csv.ts</code><p id="anatomy-note">Adapt the implementation to its new surroundings.</p></div>
+        <div class="console-footer micro">SAME INTENTION <span>DIFFERENT ADDRESS</span></div>
+      </div>
+    </section>
+    <section class="desk" id="desk" aria-labelledby="desk-title">
+      <div class="desk-heading"><div><p class="eyebrow">03 / THE WORKSPACE</p><h2 id="desk-title">A new home.<br><em>On your terms.</em></h2></div><span class="pill" id="connection-state">CONNECTING</span></div>
+      <div id="status" class="notice" role="status" aria-live="polite" hidden></div>
+      <div id="welcome" class="welcome"><div><h3 id="welcome-title">Start with your GitHub account.</h3><p id="welcome-copy">The connected beta is invite-only. Explore the workspace below; repository actions require sign-in.</p></div><a id="connect" class="button primary" href="#desk" aria-disabled="true">Checking connection</a></div>
+      <div class="workbench" id="workspace">
+        <aside class="workspace-nav"><span class="micro rail-label">YOUR WORKSPACE</span><a href="#transfer-form" class="rail-link"><span aria-hidden="true">↗</span> New transfer</a><a href="#history" class="rail-link"><span aria-hidden="true">≡</span> Saved transfers</a><a href="#settings" class="rail-link"><span aria-hidden="true">⊙</span> Data & access</a><div class="rail-foot micro">REVIEW FIRST.<br>PUBLISH SECOND.<br><span class="muted">NEVER AUTO-MERGE.</span></div></aside>
+        <div class="workspace-main"><form id="transfer-form"><fieldset id="composer" disabled><legend class="sr-only">New feature transfer</legend><div class="panel-head"><h3>New transfer</h3><span class="micro muted">01 — SPECIFY</span></div>
+          <div class="repo-grid"><div class="repo-input"><label for="source"><span class="micro muted">SOURCE REPOSITORY</span><span>Where it lives</span></label><select id="source" required><option value="">Select source repository</option></select></div><span class="repo-arrow" aria-hidden="true">→</span><div class="repo-input"><label for="destination"><span class="micro muted">DESTINATION REPOSITORY</span><span>Where it goes</span></label><select id="destination" required><option value="">Select destination repository</option></select></div></div>
+          <div class="feature-field"><label for="feature" class="micro">WHAT SHOULD TRAVEL?</label><textarea id="feature" required minlength="3" maxlength="1500" rows="4" aria-describedby="feature-hint" placeholder="Move the CSV export feature. Keep my data model and existing UI."></textarea><div class="field-footer"><span id="feature-hint">Describe the behavior. Include what must stay unchanged.</span><span id="character-count">0 / 1500</span></div></div>
+          <label class="checkbox"><input id="consent" type="checkbox" required><span>Allow selected code from both repositories to be sent to the configured OpenAI model for this draft.</span></label>
+          <div class="action-row"><span id="allowance" class="micro muted">SIGN IN TO PREPARE A TRANSFER</span><button class="button primary" id="create-draft" disabled>Prepare transfer <span aria-hidden="true">↗</span></button></div>
+        </fieldset></form>
+        <section class="review" id="review" tabindex="-1" aria-labelledby="review-title"><div class="panel-head"><span class="micro">02 — REVIEW</span><span class="pill" id="review-state">NO TRANSFER SELECTED</span></div><h3 id="review-title">Every change, considered.</h3><p id="review-message" class="muted">Choose a saved transfer to inspect its files, related tests, and proposed changes.</p><div id="review-details"><div class="empty-review"><span class="empty-glyph" aria-hidden="true">[ ↗ ]</span><span>Your next feature starts with a clear intention.</span></div></div>
+          <button id="cancel" type="button" class="button secondary" hidden>Cancel transfer</button><button id="download" type="button" class="button secondary" disabled>Download patch ↓</button>
+          <div id="publish-controls" hidden><label class="checkbox"><input id="acknowledge" type="checkbox"><span>I reviewed this exact draft and understand that its build and tests have not run against these repositories.</span></label><label class="checkbox"><input id="workflows" type="checkbox"><span>I authorize a branch and draft PR. Existing GitHub workflows may run and use my GitHub allowance.</span></label><button id="publish" type="button" class="button primary" disabled>Open draft PR ↗</button></div>
+          <a id="pr-link" class="button primary" hidden target="_blank" rel="noopener noreferrer">View pull request ↗</a>
+        </section></div>
+        <aside class="context-rail"><div class="context-heading micro">TRANSFER CONTRACT <span aria-hidden="true">+</span></div><div class="contract-item"><span class="micro muted">01 / SCOPE</span><h4>A feature. Not a fork.</h4><p>A focused proposal, shaped for the destination.</p></div><div class="contract-item"><span class="micro muted">02 / EVIDENCE</span><h4>Tests travel.</h4><p>Related tests and supported helpers follow. Assertions stay intact.</p></div><div class="contract-item"><span class="micro muted">03 / CONTROL</span><h4>Your review comes first.</h4><p>No automatic merges. No silent writes to your default branch.</p></div><div class="contract-limit micro">DRAFT ≠ VERIFIED INTEGRATION<br><span class="muted">Project execution is not yet available.</span></div></aside>
+      </div>
+      <section class="history" id="history" aria-labelledby="history-title"><div class="panel-head"><div><span class="micro muted">YOUR ACTIVITY</span><h3 id="history-title">Saved transfers</h3></div><button type="button" class="button secondary" id="refresh" disabled>Refresh ↻</button></div><div id="jobs"><p class="muted">Sign in to see your transfers. No repository data is stored in this browser.</p></div></section>
+      <details class="privacy" id="settings"><summary>Data & access <span class="micro">24H DRAFT RETENTION <span aria-hidden="true">+</span></span></summary><p>On the connected service, selected code and access tokens are encrypted in the database. Drafts expire after 24 hours. Deleting your Repot data does not delete GitHub pull requests or provider-side data. Minimal usage counters remain for up to two UTC calendar days to prevent quota resets.</p><button type="button" id="delete-data" class="button secondary" disabled>Delete my Repot data and sign out</button></details>
+    </section>
+    <section class="closing"><p class="eyebrow">THE NEXT CHAPTER OF YOUR CODE</p><h2>Don’t start over.<br><em>Start from something.</em></h2><a class="button primary" href="#desk">Find it a new home <span aria-hidden="true">↗</span></a></section>
+  </main>
+  <footer><a class="wordmark" href="#top"><span class="brand-mark" aria-hidden="true"></span>Repot</a><p class="micro">GOOD CODE DESERVES A SECOND HOME.</p><div class="footer-links"><a href="https://github.com/shlbi/graft" target="_blank" rel="noopener noreferrer">GitHub ↗</a><span>getrepot.com</span></div><p class="footer-note">Early access · Bounded JS/TS transfers · Public production acceptance is incomplete.</p></footer>
+</div>
+<noscript><p class="notice">JavaScript is required for the connected workspace. The product overview is available without it.</p></noscript>
+</body>
+</html>

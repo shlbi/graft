@@ -11,3 +11,5 @@ dist/
 *.sqlite-journal
 *.sqlite-wal
 *.sqlite-shm
+.repot-site/
+.repot-evidence/

@@ -1,0 +1,66 @@
+{
+  "date": "2026-09-27",
+  "baseCommit": "cd669b366353cea01b51fde6a27e638ea93f880e",
+  "scope": "Repot connected frontend redesign and static website build only",
+  "runtime": "Node v22.16.0 / Linux",
+  "tests": {
+    "command": "npm run test:frontend",
+    "passed": 26,
+    "failed": 0,
+    "skipped": 0
+  },
+  "build": {
+    "command": "npm run build:site",
+    "status": "passed",
+    "output": {
+      "app.mjs": {
+        "bytes": 14411,
+        "sha256": "e830ace71ed5f5734afdce4a9d9c9a716e7ae73a43d9540ce8b9a58314570191"
+      },
+      "index.html": {
+        "bytes": 14243,
+        "sha256": "b11a0c250b0f399c40dda6784bcb0d1e9cc6c403b8de06759e5ac995ca5b8cb4"
+      },
+      "style.css": {
+        "bytes": 18988,
+        "sha256": "fca4035479895f6aa1522924d2249f57f9bda777788795a116f20221e289fa1d"
+      }
+    }
+  },
+  "syntax": "passed for app.mjs, build-site.mjs and two frontend test files",
+  "offlineDOM": {
+    "scope": "offline authored-source DOM render, no HTTP or backend",
+    "layouts": [
+      {
+        "viewport": 1440,
+        "documentWidth": 1440,
+        "disabledComposer": true
+      },
+      {
+        "viewport": 1024,
+        "documentWidth": 1024,
+        "disabledComposer": true
+      },
+      {
+        "viewport": 390,
+        "documentWidth": 390,
+        "disabledComposer": true
+      },
+      {
+        "viewport": 320,
+        "documentWidth": 320,
+        "disabledComposer": true
+      }
+    ],
+    "pageErrors": [],
+    "anatomyTabs": "passed",
+    "privacyDisclosure": "passed",
+    "unavailableBackend": "correctly disabled"
+  },
+  "httpBrowser": "attempted; ERR_BLOCKED_BY_ADMINISTRATOR; not passed",
+  "fullBackendAndEngineSuite": "not rerun",
+  "liveOAuthPR": "not run",
+  "paidAI": "not called",
+  "userProjectExecution": "not run",
+  "deployedReadiness": "frontend only; no production-readiness claim"
+}

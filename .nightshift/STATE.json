@@ -1,76 +1,41 @@
 {
-  "project": "Graft",
-  "phase": "connected-beta-implemented-not-public-production",
-  "authorization": "Saif requested production-level Graft and continued live work. Kinetic remains paused; no new schedule, paid API call, CI run, live App registration or deployment.",
+  "project": "Repot",
+  "legacyName": "Graft",
+  "repository": "shlbi/graft",
+  "domain": "getrepot.com",
+  "phase": "repot-frontend-rebrand-not-public-production",
+  "authorization": "Saif requested rebrand/redesign and commit/push. Existing Vercel Git deployment is acknowledged. No paid resource, credentials, account permissions or repository rename changed. Kinetic stays paused.",
   "previousHandoff": {
-    "commit": "105b19dab35bb4e58422e804105f7a93381f190f",
+    "commit": "cd669b366353cea01b51fde6a27e638ea93f880e",
     "path": ".nightshift/STATE.json",
     "preservedHistory": true
   },
   "completedThisSession": [
-    "Separate GitHub-connected service and responsive review interface",
-    "GitHub App OAuth state/PKCE, invited identities, encrypted bounded sessions, signed revocation",
-    "Authenticated commit-pinned snapshots with blob-integrity checks and explicit size bounds",
-    "Encrypted persistent jobs, cancellation, quotas, expiry, deletion and crash recovery",
-    "Human-confirmed draft-PR delivery with stored-review digest, stale-head checks and duplicate/uncertain-write reconciliation",
-    "36 passing connected service tests plus syntax checks; observed-versus-unverified evidence recorded"
+    "Two-color Repot landing page and connected workspace",
+    "Interactive illustrative transfer anatomy; responsive review and privacy controls",
+    "Preserved API/CSRF/review-digest contracts; clear unavailable-backend mode",
+    "Allowlisted static Vercel build, no dependency install or backend export",
+    "26 passing frontend tests; offline layout evidence; legacy README preserved"
   ],
   "observedValidation": {
-    "date": "2026-09-24",
-    "baseCommit": "105b19dab35bb4e58422e804105f7a93381f190f",
-    "scope": "Connected beta service; not a public production release",
-    "runtime": "v22.16.0",
-    "platform": "linux",
-    "command": "npm run test:connected",
-    "tests": {
-      "passed": 36,
-      "failed": 0,
-      "skipped": 0,
-      "cancelled": 0
-    },
-    "syntax": "All 12 new JavaScript modules, including tests and frontend, passed node --check.",
-    "observed": [
-      "Real local HTTP endpoints",
-      "File-backed SQLite encryption, reopen, expiry and tenant ownership",
-      "Actual frontend controller with explicit DOM doubles",
-      "OAuth state/PKCE, session rotation, CSRF and signed revocation",
-      "Authenticated repository snapshot and blob integrity checks with controlled GitHub responses",
-      "Persistent quotas, cancellation, restart recovery and duplicate-publication handling",
-      "Stale destination, changed branch, lost branch/PR responses and concurrent publication controls"
-    ],
-    "testBoundary": {
-      "github": "Controlled fetch responses; no actual GitHub App OAuth or product PR creation",
-      "ai": "Authored draft boundary using exact existing core-base.mjs primitives; no paid API call",
-      "defaultEngine": "Remote interface inspection only; latest parser/transfer full suite not reexecuted",
-      "browser": "BrowserType.launch: Executable doesn't exist at /home/oai/.cache/ms-playwright/chromium_headless_shell-1200/chrome-headless-shell-linux64/chrome-headless-shell",
-      "windows": "not_run",
-      "ci": "not_run",
-      "deployment": "none",
-      "legacySuite": "not_run",
-      "jestVitestRerun": "not_run",
-      "arbitraryUserCode": "never executed"
-    },
-    "lockfileCorrection": {
-      "uploadedBytes": 194867,
-      "uploadedSha256": "6aa761ecf3ca592d1b390971b3a68a476a403f43c020fe94b0a826fa93c8bb7a",
-      "committedBytes": 194866,
-      "committedSha256": "b1657fc519b93b430dc7edc889d26e0af840c3247edd4c390c2b91f2f3493577",
-      "committedGitBlob": "da81b7dd670f2387ad9fcfabe1e85bc4f2646f2c",
-      "difference": "The earlier connector reconstruction omitted the final LF byte. Parsed dependency data is identical, but the prior byte-for-byte/SHA-256 match claim was incorrect. No lockfile dependency was changed in this session."
-    }
+    "record": "docs/repot-frontend-verification.json",
+    "tests": "26/26 frontend tests passed",
+    "staticBuild": "passed",
+    "offlineRendering": "4 widths, no horizontal overflow/page errors",
+    "httpBrowser": "blocked by administrator; not passed",
+    "fullBackendSuite": "not rerun"
   },
   "acceptanceStatus": {
-    "githubAuthenticationAndPR": "Implemented and tested with controlled GitHub responses; actual App sign-in and PR round trip not performed",
-    "isolatedUserProjectVerification": "Not implemented; all user-project execution states remain not_run",
-    "hostedMultiUserProduct": "Invite-only single-process staging foundation; not deployed or cleared for strangers",
-    "jestToVitest": "Prior user-supplied WSL synthetic acceptance remains recorded; not rerun now",
-    "lockfile": "Committed dependency data is correct; original terminal newline lost. See integrity correction in connected verification record."
+    "frontend": "redesigned and locally validated within documented offline scope",
+    "vercelBackend": "not migrated; static site does not provide authentication or jobs",
+    "isolatedUserProjectVerification": "not implemented",
+    "liveOAuthPR": "not performed",
+    "publicProduction": "not ready"
   },
+  "compatibility": "GRAFT_* keys, cookie names, storage and graft/ branch prefixes remain unchanged. Historical engine/local preview retained.",
   "next": [
-    "Configure a GitHub App using secrets outside chat/source and perform an authorized live auth/PR round trip",
-    "Run full existing engine and real browser/mobile acceptance in a package-enabled environment",
-    "Implement and validate a genuinely isolated user-project execution backend before marking any user draft verified",
-    "Approve hosting/model budgets and complete security/operations release gates before public deployment"
-  ],
-  "contract": "web/connected/README.md"
+    "Validate the real hosted frontend after automatic deployment",
+    "Complete Vercel-compatible durable backend and isolated verifier",
+    "Authorized live GitHub App and real-repository acceptance before public release"
+  ]
 }
