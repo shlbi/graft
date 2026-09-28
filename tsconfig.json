@@ -15,6 +15,6 @@
     "incremental": true,
     "plugins": [{ "name": "next" }]
   },
-  "include": ["next-env.d.ts", ".next/types/**/*.ts", ".next/dev/types/**/*.ts", "app/**/*.js", "remote/**/*.mjs"],
-  "exclude": ["node_modules", "src", "dist", "mcp", "web", "scripts", "demo", "test", "ui"]
+  "include": ["next-env.d.ts", ".next/types/**/*.ts", ".next/dev/types/**/*.ts", "app/**/*.js", "remote/*.mjs"],
+  "exclude": ["node_modules", "src", "dist", "mcp", "web", "scripts", "demo", "test", "ui", "**/*.test.*", "**/*.spec.*"]
 }
