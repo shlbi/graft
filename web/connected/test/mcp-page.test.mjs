@@ -1,10 +1,5 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-const html=await readFile(new URL('../public/mcp/index.html',import.meta.url),'utf8');
-const css=await readFile(new URL('../public/mcp/mcp.css',import.meta.url),'utf8');
-test('MCP page documents all three tools and does not claim verification',()=>{for(const name of ['repot_inspect','repot_draft','repot_apply'])assert.ok(html.includes(name));assert.ok(html.includes('not_run'));assert.ok(html.includes('ILLUSTRATIVE FLOW · NOT A RUN RESULT'));});
-test('MCP page documents allowed roots, read-only default, and no shell execution',()=>{assert.ok(html.includes('Allowed roots are mandatory'));assert.ok(html.includes('Writes require operator opt-in'));assert.ok(html.includes('No shell execution'));assert.ok(html.includes('--allow-writes'));});
-test('MCP page provides Cursor and portable VS Code configs',()=>{assert.ok(html.includes('.cursor/mcp.json'));assert.ok(html.includes('.mcp.json'));assert.ok(html.includes('"type": "stdio"'));assert.ok(html.includes('--allow-root'));});
-test('MCP page is local-only and does not pretend npm publication',()=>{assert.match(html,/not published to npm yet/i);assert.ok(html.includes('LOCAL STDIO ALPHA'));assert.ok(!html.includes('npx -y repot-mcp'));});
-test('MCP page keeps the two-color system and has mobile layout',()=>{assert.doesNotMatch(css,/#(?:[0-9a-f]{3}){1,2}\b|rgb\(/i);assert.ok(css.includes('@media(max-width:900px)'));assert.ok(css.includes('@media(max-width:600px)'));});
+import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
+const html=await readFile(new URL('../public/mcp/index.html',import.meta.url),'utf8'),css=await readFile(new URL('../public/mcp/mcp.css',import.meta.url),'utf8');
+test('MCP page is the remote one-link experience',()=>{assert.match(html,/https:\/\/mcp\.getrepot\.com\/mcp/);assert.match(html,/Copy MCP URL/);assert.match(html,/STREAMABLE HTTP/);assert.match(html,/OAUTH 2\.1/);assert.doesNotMatch(html,/git clone|npm install|--allow-root|LOCAL STDIO ALPHA/);});
+test('MCP page explains review and draft-PR safety boundaries',()=>{for(const text of ['default branch is never written','encrypted at rest','not_run','ILLUSTRATIVE FLOW · NOT A RUN RESULT'])assert.ok(html.includes(text));});
+test('MCP page keeps the two-color system and mobile layout',()=>{assert.doesNotMatch(css,/#(?:[0-9a-f]{3}){1,2}\b|rgb\(/i);assert.ok(css.includes('@media(max-width:900px)'));assert.ok(css.includes('@media(max-width:600px)'));});

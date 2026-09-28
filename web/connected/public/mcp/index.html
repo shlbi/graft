@@ -1,128 +1,30 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0D0D0F">
-  <meta name="description" content="Repot MCP puts feature transfer inside Cursor, VS Code, and other MCP clients.">
-  <title>Repot MCP — Move features from your AI workflow</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/repot-favicon-c7217cca.png">
-  <link rel="stylesheet" href="/style.css">
-  <link rel="stylesheet" href="/brand.css">
-  <link rel="stylesheet" href="/mcp/mcp.css">
-</head>
-<body>
-<a class="skip" href="#install">Skip to install</a>
-<div class="page-frame">
-  <header class="masthead">
-    <a class="wordmark" href="/" aria-label="Repot home"><img class="wordmark-logo" src="/assets/repot-mark-c7217cca.png" width="64" height="64" alt="" aria-hidden="true"><span class="wordmark-text" aria-hidden="true">epot</span></a>
-    <nav aria-label="MCP navigation"><a href="#tools">Tools</a><a href="#install">Install</a><a href="/">Home ↗</a></nav>
-    <span class="pill">MCP / LOCAL ALPHA</span>
-  </header>
-  <main>
-    <section class="mcp-hero">
-      <div>
-        <p class="eyebrow">REPOT / MODEL CONTEXT PROTOCOL</p>
-        <h1>Move the feature.<br><em>Without leaving your agent.</em></h1>
-        <p class="mcp-lede">Built on the official MCP TypeScript SDK v2 for the 2026-07-28 protocol. Point Repot at two local repositories. Describe the behavior you want. Your AI client can inspect the implementation, carry related tests, prepare a bounded draft, and—only when you enable it—apply the exact reviewed change set.</p>
-        <div class="hero-actions"><a class="button primary" href="#install">Install MCP ↘</a><a class="text-link" href="#contract">Read the safety contract ↓</a></div>
-      </div>
-      <div class="mcp-terminal" aria-label="Illustrative Repot MCP workflow">
-        <div class="terminal-head micro"><span>REPOT / STDIO</span><span>3 TOOLS</span></div>
-        <pre><span class="dim">you</span>
-move CSV export from ./source to ./app
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0D0D0F"><title>Repot MCP — One link. Any compatible agent.</title><link rel="icon" type="image/png" sizes="32x32" href="/assets/repot-favicon-c7217cca.png"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/brand.css"><link rel="stylesheet" href="/mcp/mcp.css"><script type="module" src="/mcp/mcp-page.js"></script></head>
+<body><div class="page-frame"><header class="masthead"><a class="wordmark" href="/" aria-label="Repot home"><img class="wordmark-logo" src="/assets/repot-mark-c7217cca.png" width="64" height="64" alt=""><span class="wordmark-text">epot</span></a><nav><a href="#how">How it works</a><a href="#security">Security</a><a href="/">Home ↗</a></nav><span class="pill">REMOTE MCP</span></header>
+<main><section class="mcp-hero"><div><p class="eyebrow">REPOT / REMOTE MCP</p><h1>One link.<br><em>Your repositories.</em></h1><p class="mcp-lede">Add Repot to any compatible MCP client. Your agent connects over Streamable HTTP, opens Repot's OAuth flow, and works only with repositories you authorized through the Repot GitHub App.</p><div class="mcp-url"><span id="mcp-url">https://mcp.getrepot.com/mcp</span><button class="button primary" id="copy-mcp" type="button">Copy MCP URL</button></div><p class="micro muted" id="copy-status" aria-live="polite">NO CLONE. NO LOCAL SERVER. NO API KEY FROM THE USER.</p></div>
+<div class="mcp-terminal"><div class="terminal-head micro"><span>REPOT / STREAMABLE HTTP</span><span>OAUTH 2.1</span></div><pre><span class="dim">you</span>
+Move the billing portal feature
+from org/old-app to org/new-app.
 
 <span class="dim">agent → repot_inspect</span>
-implementation   src/csv.ts
-tests            test/csv.test.ts
-support          test/fixtures/rows.json
+implementation   discovered
+tests            discovered
+destination      inspected
 
 <span class="dim">agent → repot_draft</span>
-review           6Qm…2Ls
-files            3 proposed
-tests            included
+review           ready
 build            not_run
+tests            not_run
 
 <span class="dim">you</span>
-apply that exact reviewed draft
+Publish that exact review.
 
-<span class="dim">agent → repot_apply</span>
-written          3 files
-shell            never executed</pre>
-        <div class="terminal-foot micro">ILLUSTRATIVE FLOW · NOT A RUN RESULT</div>
-      </div>
-    </section>
-
-    <section class="mcp-strip"><span>LOCAL FIRST.</span><span>ALLOWED ROOTS.</span><span>WRITES OFF BY DEFAULT.</span><span>NO GENERATED CODE EXECUTION.</span></section>
-
-    <section class="method" id="tools">
-      <div class="section-intro"><p class="eyebrow">01 / THE TOOL SURFACE</p><h2>Three tools.<br><em>Clear boundaries.</em></h2><p>Repot follows MCP's tool model: the agent can discover capabilities, but the server still enforces filesystem and write boundaries.</p></div>
-      <div class="method-steps">
-        <article><span class="step-number">01</span><div><h3>repot_inspect</h3><p>Read-only. Finds likely feature files, related tests/support, destination context, and warnings. No AI call.</p></div></article>
-        <article><span class="step-number">02</span><div><h3>repot_draft</h3><p>Read-only. Optional AI turns bounded selected context into a reviewable patch. Nothing is written or executed.</p></div></article>
-        <article><span class="step-number">03</span><div><h3>repot_apply</h3><p>Write-capable, disabled by default. Applies only a stored review and refuses stale destinations, symlinks, deletes, and path escapes.</p></div></article>
-      </div>
-    </section>
-
-    <section class="mcp-doc-grid" id="contract">
-      <div><p class="eyebrow">02 / SAFETY CONTRACT</p><h2>Agentic.<br><em>Not reckless.</em></h2></div>
-      <div class="contract-list">
-        <div><span>01</span><p><strong>Allowed roots are mandatory.</strong> Repot cannot read repositories outside the directories you explicitly expose.</p></div>
-        <div><span>02</span><p><strong>Secrets fail closed.</strong> Common secret/generated paths are excluded and sensitive-looking selected text stops the request.</p></div>
-        <div><span>03</span><p><strong>Writes require operator opt-in.</strong> Start read-only. Enable <code>--allow-writes</code> only when you want reviewed drafts to modify files.</p></div>
-        <div><span>04</span><p><strong>No shell execution.</strong> Repot MCP does not run generated code, package managers, hooks, builds, or tests. Verification stays <code>not_run</code> until a separate isolated workflow actually runs it.</p></div>
-      </div>
-    </section>
-
-    <section class="install" id="install">
-      <div class="install-head"><p class="eyebrow">03 / INSTALL</p><h2>Source install.<br><em>For now.</em></h2><p>The MCP package is not published to npm yet. Install from the public Repot repository, then point your client at the local stdio server.</p></div>
-      <div class="code-card"><div class="code-title micro">TERMINAL</div><pre>git clone https://github.com/shlbi/graft.git repot
-cd repot/mcp
-npm install
-npm test
-npm run check</pre></div>
-
-      <div class="client-grid">
-        <article><span class="micro muted">CURSOR / .cursor/mcp.json</span><h3>Cursor</h3><pre>{
-  "mcpServers": {
-    "repot": {
-      "type": "stdio",
-      "command": "node",
-      "args": [
-        "/absolute/path/to/repot/mcp/server.mjs",
-        "--allow-root",
-        "/absolute/path/to/projects"
-      ]
-    }
-  }
-}</pre><p>Keep it read-only first. Add <code>--allow-writes</code> only when you want the apply tool enabled.</p></article>
-        <article><span class="micro muted">VS CODE / .mcp.json</span><h3>VS Code / Copilot</h3><pre>{
-  "mcpServers": {
-    "repot": {
-      "type": "stdio",
-      "command": "node",
-      "args": [
-        "/absolute/path/to/repot/mcp/server.mjs",
-        "--allow-root",
-        "/absolute/path/to/projects"
-      ]
-    }
-  }
-}</pre><p>The portable <code>.mcp.json</code> format can live at the workspace root.</p></article>
-      </div>
-
-      <div class="ai-config">
-        <div><span class="micro muted">OPTIONAL / AI DRAFTING</span><h3>Bring your own model key.</h3><p><code>repot_inspect</code> works without a paid API. To enable <code>repot_draft</code>, pass these through your MCP client's environment. Never commit them.</p></div>
-        <pre>"env": {
-  "OPENAI_API_KEY": "${env:OPENAI_API_KEY}",
-  "REPOT_AI_MODEL": "${env:REPOT_AI_MODEL}"
-}</pre>
-      </div>
-    </section>
-
-    <section class="closing"><p class="eyebrow">THE WORKFLOW</p><h2>Two repos.<br><em>One sentence.</em></h2><p class="mcp-closing-copy">“Use Repot to move the upload progress feature from /projects/old-app to /projects/new-app. Keep the new app's storage layer.”</p><a class="button primary" href="#install">Install Repot MCP ↗</a></section>
-  </main>
-  <footer><a class="wordmark" href="/" aria-label="Repot home"><img class="wordmark-logo" src="/assets/repot-mark-c7217cca.png" width="64" height="64" alt="" aria-hidden="true"><span class="wordmark-text" aria-hidden="true">epot</span></a><p class="micro">MCP / LOCAL STDIO ALPHA</p><div class="footer-links"><a href="https://github.com/shlbi/graft" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="/">Home ↗</a></div><p class="footer-note">MCP runtime package integration still requires dependency installation and client-side acceptance before a stable release. <a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener noreferrer">MCP specification ↗</a> · <a href="https://ts.sdk.modelcontextprotocol.io/v2/" target="_blank" rel="noopener noreferrer">TypeScript SDK ↗</a></p></footer>
-</div>
-</body>
-</html>
+<span class="dim">agent → repot_publish</span>
+branch           repot/transfer-…
+pull request     draft
+default branch   untouched</pre><div class="terminal-foot micro">ILLUSTRATIVE FLOW · NOT A RUN RESULT</div></div></section>
+<section class="mcp-strip"><span>STREAMABLE HTTP.</span><span>OAUTH 2.1 + PKCE.</span><span>GITHUB APP ACCESS.</span><span>DRAFT PR ONLY.</span></section>
+<section class="method" id="how"><div class="section-intro"><p class="eyebrow">01 / CONNECT</p><h2>Paste once.<br><em>Then ask.</em></h2><p>Your MCP client discovers Repot's authorization server automatically. Sign in with GitHub, review consent, and the client receives a Repot-scoped token—not your GitHub token.</p></div><div class="method-steps"><article><span class="step-number">01</span><div><h3>Add the URL.</h3><p>Paste <code>https://mcp.getrepot.com/mcp</code> into a compatible remote-MCP client.</p></div></article><article><span class="step-number">02</span><div><h3>Authorize Repot.</h3><p>GitHub access remains server-side and limited to repositories available through your Repot GitHub App connection.</p></div></article><article><span class="step-number">03</span><div><h3>Tell your agent what to move.</h3><p>Repot inspects, drafts, preserves related tests where supported, and publishes only after an explicit reviewed-draft request.</p></div></article></div></section>
+<section class="mcp-doc-grid" id="security"><div><p class="eyebrow">02 / PRODUCTION BOUNDARIES</p><h2>Powerful.<br><em>Deliberate.</em></h2></div><div class="contract-list"><div><span>01</span><p><strong>No bearer-token passthrough.</strong> MCP access tokens authorize Repot. GitHub tokens remain server-side and are obtained through the user's linked GitHub account.</p></div><div><span>02</span><p><strong>Reviews expire and are encrypted at rest.</strong> A publish call must reference an exact unexpired review owned by the authenticated user.</p></div><div><span>03</span><p><strong>The default branch is never written.</strong> Publication creates a new <code>repot/*</code> branch and a draft pull request, and refuses a destination that changed after review.</p></div><div><span>04</span><p><strong>Verification is never invented.</strong> Repot does not execute generated repository code in the MCP service. Build, tests, and integration remain <code>not_run</code> until an isolated verifier actually runs them.</p></div></div></section>
+<section class="closing"><p class="eyebrow">REPOT MCP</p><h2>Good code.<br><em>Now agent-native.</em></h2><button class="button primary" type="button" data-copy-mcp>Copy https://mcp.getrepot.com/mcp</button></section></main>
+<footer><a class="wordmark" href="/"><img class="wordmark-logo" src="/assets/repot-mark-c7217cca.png" width="64" height="64" alt=""><span class="wordmark-text">epot</span></a><p class="micro">REMOTE MCP / GITHUB</p><div class="footer-links"><a href="https://github.com/shlbi/graft">GitHub ↗</a></div><p class="footer-note">The endpoint requires Repot production secrets, database migrations, and the mcp.getrepot.com domain before live authorization can complete.</p></footer></div></body></html>

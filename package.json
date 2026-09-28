@@ -1,23 +1,39 @@
 {
   "name": "repot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
+  "engines": { "node": ">=22" },
   "dependencies": {
-    "typescript": "5.8.3"
+    "@better-auth/cimd": "1.7.6",
+    "@better-auth/mcp": "1.7.6",
+    "@better-auth/oauth-provider": "1.7.6",
+    "@modelcontextprotocol/server": "2.1.0",
+    "better-auth": "1.7.6",
+    "next": "16.3.6",
+    "pg": "8.16.3",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "tar-stream": "3.1.7",
+    "typescript": "5.8.3",
+    "zod": "4.6.5"
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "build:site": "node scripts/build-site.mjs",
-    "test": "npm run build && node scripts/test.mjs",
-    "demo": "npm run build && node demo/verify.mjs",
-    "demo:http": "npm run build && node demo/http-transplant.mjs",
-    "ui": "npm run build && node ui/server.mjs",
+    "build": "node scripts/sync-next-public.mjs && next build",
+    "dev": "node scripts/sync-next-public.mjs && next dev",
+    "start": "next start",
+    "auth:migrate": "node scripts/migrate-auth.mjs",
+    "db:migrate": "node scripts/migrate-repot.mjs",
+    "migrate": "npm run auth:migrate && npm run db:migrate",
+    "test": "node scripts/test.mjs",
+    "demo": "node scripts/build.mjs && node demo/verify.mjs",
+    "demo:http": "node scripts/build.mjs && node demo/http-transplant.mjs",
+    "ui": "node scripts/build.mjs && node ui/server.mjs",
     "web": "node web/server.mjs",
     "test:web": "node --test web/test/*.test.mjs",
     "connected": "node web/connected/server.mjs",
     "test:connected": "node --test --test-timeout=15000 web/connected/test/*.test.mjs",
     "test:frontend": "node --test web/connected/test/client.test.mjs web/connected/test/presentation.test.mjs web/connected/test/branding.test.mjs web/connected/test/mcp-page.test.mjs",
-    "test:mcp": "node --test mcp/test/*.test.mjs"
+    "test:mcp": "node --test mcp/test/*.test.mjs remote/test/*.test.mjs"
   }
 }

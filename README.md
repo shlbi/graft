@@ -18,9 +18,13 @@ The redesigned frontend is intentionally restrained: obsidian `#0D0D0F`, bone `#
 
 ## MCP
 
-Repot now includes a source-distributed local MCP server in [mcp/](mcp/README.md). It exposes `repot_inspect`, `repot_draft`, and opt-in `repot_apply` over stdio, plus a safety resource and guided prompt. Allowed filesystem roots are mandatory and writes are disabled by default.
+The production integration is a hosted remote MCP endpoint:
 
-The public site includes a dedicated MCP install/safety page at `/mcp/`. The MCP package is not published to npm yet, and the actual SDK handshake was not executed in the development runtime because npm registry access timed out; see [recorded MCP verification](docs/repot-mcp-verification.json).
+    https://mcp.getrepot.com/mcp
+
+Compatible MCP clients discover Repot's OAuth server, authenticate the user through GitHub, and receive a Repot-scoped access token. GitHub credentials remain server-side. Tools cover repository discovery, read-only inspection, AI-assisted review creation, review retrieval, and explicit draft-PR publication. Publication never writes or merges the default branch.
+
+The earlier local stdio implementation remains under [mcp/](mcp/README.md) as a development fallback, not the primary product. See [production runbook](docs/PRODUCTION.md).
 
 ## Run the frontend
 

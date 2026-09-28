@@ -3,7 +3,7 @@
   "legacyName": "Graft",
   "repository": "shlbi/graft",
   "domain": "getrepot.com",
-  "phase": "repot-mcp-local-alpha",
+  "phase": "remote-mcp-production-code-awaiting-secrets-and-live-acceptance",
   "authorization": "Saif requested rebrand/redesign and commit/push. Existing Vercel Git deployment is acknowledged. No paid resource, credentials, account permissions or repository rename changed. Kinetic stays paused.",
   "previousHandoff": {
     "commit": "cd669b366353cea01b51fde6a27e638ea93f880e",
@@ -18,7 +18,11 @@
     "26 passing frontend tests; offline layout evidence; legacy README preserved",
     "Local stdio MCP server with inspect, AI draft, and opt-in apply tools",
     "Mandatory allowed roots, symlink/secret/stale-review guards, rollback on partial write failure",
-    "Dedicated /mcp/ documentation page and hero MCP CTA"
+    "Dedicated /mcp/ documentation page and hero MCP CTA",
+    "Remote Streamable HTTP MCP endpoint at mcp.getrepot.com/mcp",
+    "OAuth 2.1/PKCE via Better Auth with CIMD and DCR fallback",
+    "GitHub delegated repository access; encrypted durable reviews; rate limits; draft-PR publication",
+    "Next.js/Vercel production runtime and one-link MCP documentation"
   ],
   "observedValidation": {
     "record": "docs/repot-frontend-verification.json",
@@ -35,14 +39,14 @@
     "isolatedUserProjectVerification": "not implemented",
     "liveOAuthPR": "not performed",
     "publicProduction": "not ready",
-    "mcp": "Source-distributed local alpha; official SDK runtime handshake not executed because npm registry access timed out"
+    "mcp": "Source-distributed local alpha; official SDK runtime handshake not executed because npm registry access timed out",
+    "remoteMcp": "production implementation committed after build validation; live OAuth/GitHub/OpenAI/Postgres acceptance requires operator secrets and migrations"
   },
   "compatibility": "GRAFT_* keys, cookie names, storage and graft/ branch prefixes remain unchanged. Historical engine/local preview retained.",
   "next": [
-    "Install pinned MCP dependencies in a network-enabled environment and run MCP Inspector plus Cursor acceptance",
-    "Publish Repot MCP package only after runtime/client acceptance",
-    "Validate the real hosted frontend after automatic deployment",
-    "Complete Vercel-compatible durable backend and isolated verifier",
-    "Authorized live GitHub App and real-repository acceptance before public release"
+    "Add production environment variables and PostgreSQL",
+    "Run npm run migrate against production database",
+    "Attach mcp.getrepot.com to Vercel",
+    "Execute live OAuth + MCP client + real-repository acceptance checklist in docs/PRODUCTION.md"
   ]
 }

@@ -13,3 +13,5 @@ dist/
 *.sqlite-shm
 .repot-site/
 .repot-evidence/
+.next/
+public/
