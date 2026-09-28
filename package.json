@@ -3,7 +3,9 @@
   "version": "0.2.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "@better-auth/cimd": "1.7.6",
     "@better-auth/mcp": "1.7.6",
