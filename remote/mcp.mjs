@@ -67,8 +67,11 @@ export function createRepotServer(authInfo){
     inputSchema:z.object({reviewId:z.string().min(20),confirmReviewed:z.literal(true).describe('Confirm the user reviewed this exact Repot review and wants a draft PR')}),
     annotations:{readOnlyHint:false,destructiveHint:true,idempotentHint:true,openWorldHint:true}
   },async({reviewId})=>{try{
-    const uid=userId(authInfo);const token=await githubTokenForUser(uid);\n    const existing=await getReview(uid,reviewId);if(existing?.status!=='published')await incrementUsage(uid,'publishes');
-    const result=await consumeForPublish(uid,reviewId,row=>publishDraft(token,{reviewId,destinationRepo:row.destination_repo,destinationRevision:row.destination_revision,review:row.review}));
+    const uid=userId(authInfo);
+    const token=await githubTokenForUser(uid);
+    const existing=await getReview(uid,reviewId);
+    if(existing?.status!=='published')await incrementUsage(uid,'publishes');
+    const result=await publishStoredReview(uid,reviewId,row=>publishDraft(token,{reviewId,destinationRepo:row.destination_repo,destinationRevision:row.destination_revision,review:row.review}));
     return ok(result.already?{alreadyPublished:true,url:result.url,branch:result.branch}:{draftPullRequest:true,url:result.url,branch:result.branch,number:result.number,verification:{build:'not_run',tests:'not_run',integration:'not_run'},notice:'Repot created a draft PR only. It did not merge or execute generated code. Run project checks before merging.'});
   }catch(e){return fail(e);}});
 
