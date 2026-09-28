@@ -1,0 +1,10 @@
+/* The supplied R is the first letter, not a separate icon before "Repot". */
+.wordmark { gap: .035em; }
+.wordmark-logo {
+  display: block;
+  flex: 0 0 auto;
+  width: .88em;
+  height: .88em;
+  object-fit: contain;
+}
+.wordmark-text { display: block; }

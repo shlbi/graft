@@ -7,7 +7,7 @@ import { Store } from './store.mjs';
 import { GitHubClient } from './github.mjs';
 import { Service } from './service.mjs';
 import { readConfig, opaque, sha256, equal, HttpError, ensure, cookie, cookieName, readCookie, checkOrigin, jsonBody, bodyBytes, limiter, verifyWebhook } from './security.mjs';
-const staticFiles = new Map([['/', ['index.html', 'text/html']], ['/app.mjs', ['app.mjs', 'text/javascript']], ['/style.css', ['style.css', 'text/css']]]);
+import { staticFiles } from './public-assets.mjs';
 const identity = x => typeof x === 'string' && /^[A-Za-z0-9_-]{43}$/.test(x);
 export function createConnectedApp({ config, store = new Store(config.database, config.dataKey), github = new GitHubClient(config), draft } = {}) {
   const service = new Service(store, github, config, { draft });
@@ -35,7 +35,7 @@ export function createConnectedApp({ config, store = new Store(config.database, 
       const url = new URL(req.url, config.origin), route = url.pathname;
       limit(req.socket.remoteAddress || 'unknown'); // Proxy headers are intentionally not trusted for identity or limits.
       if (req.method === 'GET' && staticFiles.has(route) && !url.search) {
-        const [file, type] = staticFiles.get(route); return send(200, await readFile(new URL('./public/' + file, import.meta.url)), { 'content-type': type + '; charset=utf-8' });
+        const [file, type] = staticFiles.get(route); return send(200, await readFile(new URL('./public/' + file, import.meta.url)), { 'content-type': type });
       }
       if (req.method === 'GET' && route === '/healthz') return send(200, { status: 'ok', release: 'connected-beta', publicLaunchReady: false });
       if (req.method === 'POST' && route === '/webhooks/github') {

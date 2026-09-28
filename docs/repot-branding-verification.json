@@ -1,0 +1,23 @@
+{
+  "baseCommit": "422d261dfc8b5285a5e30f37a6eeb8ef18ad369d",
+  "scope": "Supplied logo as wordmark R and browser-tab favicon; no backend migration",
+  "sourceAsset": {
+    "sha256": "c7217ccaf5dbc74d5b65697d504981d018d1f88dd1da81b4382aaeeabf2c884a",
+    "dimensions": [378, 378],
+    "derivatives": "Pillow LANCZOS resize to 64px and 32px; optimized 64-entry PNG palette with transparency. No generated replacement design."
+  },
+  "observedValidation": {
+    "command": "node --test web/connected/test/branding.test.mjs",
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "runtime": "v22.16.0",
+    "syntax": "node --check passed for changed JavaScript files",
+    "images": "Both PNGs decoded with Pillow; dimensions and transparency checked",
+    "build": "Allowlisted build executed against an explicit fixture with actual new brand assets; unchanged app/CSS represented by named copying fixtures",
+    "preservation": "Original non-brand HTML and non-static-route server code verified by base Git blob hashes",
+    "browser": "Attempted isolated branding component over localhost in Chromium; ERR_BLOCKED_BY_ADMINISTRATOR, no browser pass claimed",
+    "fullAppSuite": "not rerun",
+    "liveOAuthPR": "not performed"
+  }
+}
