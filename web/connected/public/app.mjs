@@ -12,8 +12,8 @@ function clearReview() {
   $('acknowledge').checked = false; $('workflows').checked = false; $('download').disabled = true;
 }
 function connectLink(available) {
-  const label = available ? 'Connect GitHub ↗' : 'Explore workspace ↗';
-  const a = el('a', label, 'button secondary'); a.href = available ? '/auth/github' : '#desk'; $('account').replaceChildren(a);
+  const label = available ? 'Connect GitHub ↗' : 'MCP ↗';
+  const a = el('a', label, 'button secondary'); a.href = available ? '/auth/github' : '/mcp/'; $('account').replaceChildren(a);
   $('connect').textContent = available ? 'Connect GitHub ↗' : 'Connection unavailable';
   $('connect').href = available ? '/auth/github' : '#desk'; $('connect').setAttribute('aria-disabled', String(!available));
 }
