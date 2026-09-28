@@ -72,6 +72,10 @@ export async function publishDraft(token,{reviewId,destinationRepo,destinationRe
   const tree=await gh(token,`/repos/${name}/git/trees`,{method:'POST',body:{base_tree:baseCommit.tree.sha,tree:elements}});
   const commit=await gh(token,`/repos/${name}/git/commits`,{method:'POST',body:{message:`Repot: ${review.summary.slice(0,120)}`,tree:tree.sha,parents:[destinationRevision]}});
   const slug=reviewId.slice(0,10).toLowerCase(),branch=`repot/transfer-${slug}`;
+  const existingRef=await fetch(`${API}/repos/${name}/git/ref/heads/${encodeURIComponent(branch)}`,{headers:headers(token),signal:AbortSignal.timeout(15000)});
+  if(existingRef.ok){const pulls=await gh(token,`/repos/${name}/pulls?state=all&head=${encodeURIComponent(meta.owner.login+':'+branch)}&per_page=10`);if(pulls[0])return{url:pulls[0].html_url,branch,number:pulls[0].number,reconciled:true};throw new Fault('A Repot branch with this review ID already exists without a pull request. Inspect it before retrying.',409);}
+  if(existingRef.status!==404){await existingRef.body?.cancel();throw new Fault(`GitHub returned ${existingRef.status} while checking the Repot branch.`,502);}
+  await existingRef.body?.cancel();
   await gh(token,`/repos/${name}/git/refs`,{method:'POST',body:{ref:`refs/heads/${branch}`,sha:commit.sha}});
   try{
     const pr=await gh(token,`/repos/${name}/pulls`,{method:'POST',body:{title:`Repot: ${review.summary.slice(0,100)}`,head:branch,base:baseBranch,draft:true,body:`## Repot transfer\n\n${review.summary}\n\n### Verification\n- Structure: ${review.verification?.structure??'unknown'}\n- Build: not run\n- Tests: not run\n- Integration: not run\n\nReview this draft and run project checks before merging.\n`}});
