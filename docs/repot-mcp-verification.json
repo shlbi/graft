@@ -1,0 +1,29 @@
+{
+  "project": "Repot MCP",
+  "date": "2026-09-28",
+  "scope": "local stdio MCP alpha plus static documentation page",
+  "protocolTarget": "MCP TypeScript SDK v2 / protocol 2026-07-28",
+  "tools": ["repot_inspect", "repot_draft", "repot_apply"],
+  "safety": {
+    "allowedRootsRequired": true,
+    "writesDefault": "disabled",
+    "generatedCodeExecution": "never",
+    "shellExecution": "never",
+    "staleDestinationGuard": true,
+    "symlinkWriteGuard": true,
+    "reviewTtlMinutes": 30
+  },
+  "observed": {
+    "mcpLayerTests": { "passed": 10, "failed": 0, "skipped": 0 },
+    "mcpPageTests": { "passed": 5, "failed": 0, "skipped": 0 },
+    "syntax": ["mcp/server.mjs", "mcp/local-repo.mjs"]
+  },
+  "notObserved": [
+    "official SDK dependency installation in this runtime (npm registry DNS timed out)",
+    "MCP Inspector handshake/tool calls",
+    "Cursor/VS Code live client connection",
+    "paid AI draft call",
+    "generated-code build/test execution"
+  ],
+  "releaseBoundary": "Source-distributed local alpha; not published to npm and not a hosted remote MCP endpoint."
+}

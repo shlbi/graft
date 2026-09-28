@@ -26,7 +26,7 @@ test('static build exports exact allowlisted bytes and never exports secrets/bac
     for (const file of ['.env', 'connected.sqlite', 'assets/private-key.pem'])
       await writeFile(join(publicDir, file), 'DO_NOT_EXPORT');
     const output = await buildSite(scratch);
-    const actual = (await readdir(output, { recursive: true })).filter(name => name !== 'assets').sort();
+    const actual = (await readdir(output, { recursive: true, withFileTypes: true })).filter(entry => entry.isFile()).map(entry => join(entry.parentPath, entry.name).slice(output.length + 1).replaceAll('\\\\', '/')).sort();
     assert.deepEqual(actual, PUBLIC_ASSETS.map(a => a.file).sort());
     for (const { file } of PUBLIC_ASSETS)
       assert.deepEqual(await readFile(join(output, file)), await readFile(join(assets, file)));

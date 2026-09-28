@@ -16,6 +16,12 @@ Point to a source and destination repository, describe the behavior to move, and
 
 The redesigned frontend is intentionally restrained: obsidian `#0D0D0F`, bone `#E7E1D8`, structural rules, a wireframe transplant illustration, and a three-column review workspace. It uses native HTML, CSS and JavaScript, with no third-party fonts, trackers or UI dependencies. Interactive anatomy tabs are labeled illustrations, not analysis results.
 
+## MCP
+
+Repot now includes a source-distributed local MCP server in [mcp/](mcp/README.md). It exposes `repot_inspect`, `repot_draft`, and opt-in `repot_apply` over stdio, plus a safety resource and guided prompt. Allowed filesystem roots are mandatory and writes are disabled by default.
+
+The public site includes a dedicated MCP install/safety page at `/mcp/`. The MCP package is not published to npm yet, and the actual SDK handshake was not executed in the development runtime because npm registry access timed out; see [recorded MCP verification](docs/repot-mcp-verification.json).
+
 ## Run the frontend
 
 Node.js 22 or newer; no dependency install is needed for the static frontend build or frontend tests.

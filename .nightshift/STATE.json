@@ -3,7 +3,7 @@
   "legacyName": "Graft",
   "repository": "shlbi/graft",
   "domain": "getrepot.com",
-  "phase": "repot-frontend-rebrand-not-public-production",
+  "phase": "repot-mcp-local-alpha",
   "authorization": "Saif requested rebrand/redesign and commit/push. Existing Vercel Git deployment is acknowledged. No paid resource, credentials, account permissions or repository rename changed. Kinetic stays paused.",
   "previousHandoff": {
     "commit": "cd669b366353cea01b51fde6a27e638ea93f880e",
@@ -15,7 +15,10 @@
     "Interactive illustrative transfer anatomy; responsive review and privacy controls",
     "Preserved API/CSRF/review-digest contracts; clear unavailable-backend mode",
     "Allowlisted static Vercel build, no dependency install or backend export",
-    "26 passing frontend tests; offline layout evidence; legacy README preserved"
+    "26 passing frontend tests; offline layout evidence; legacy README preserved",
+    "Local stdio MCP server with inspect, AI draft, and opt-in apply tools",
+    "Mandatory allowed roots, symlink/secret/stale-review guards, rollback on partial write failure",
+    "Dedicated /mcp/ documentation page and hero MCP CTA"
   ],
   "observedValidation": {
     "record": "docs/repot-frontend-verification.json",
@@ -23,17 +26,21 @@
     "staticBuild": "passed",
     "offlineRendering": "4 widths, no horizontal overflow/page errors",
     "httpBrowser": "blocked by administrator; not passed",
-    "fullBackendSuite": "not rerun"
+    "fullBackendSuite": "not rerun",
+    "mcp": "10/10 MCP-layer tests passed; 5/5 MCP page tests passed; server/local-repo syntax passed"
   },
   "acceptanceStatus": {
     "frontend": "redesigned and locally validated within documented offline scope",
     "vercelBackend": "not migrated; static site does not provide authentication or jobs",
     "isolatedUserProjectVerification": "not implemented",
     "liveOAuthPR": "not performed",
-    "publicProduction": "not ready"
+    "publicProduction": "not ready",
+    "mcp": "Source-distributed local alpha; official SDK runtime handshake not executed because npm registry access timed out"
   },
   "compatibility": "GRAFT_* keys, cookie names, storage and graft/ branch prefixes remain unchanged. Historical engine/local preview retained.",
   "next": [
+    "Install pinned MCP dependencies in a network-enabled environment and run MCP Inspector plus Cursor acceptance",
+    "Publish Repot MCP package only after runtime/client acceptance",
     "Validate the real hosted frontend after automatic deployment",
     "Complete Vercel-compatible durable backend and isolated verifier",
     "Authorized live GitHub App and real-repository acceptance before public release"

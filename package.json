@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "dependencies": { "typescript": "5.8.3" },
+  "dependencies": {
+    "typescript": "5.8.3"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "build:site": "node scripts/build-site.mjs",
@@ -15,6 +17,7 @@
     "test:web": "node --test web/test/*.test.mjs",
     "connected": "node web/connected/server.mjs",
     "test:connected": "node --test --test-timeout=15000 web/connected/test/*.test.mjs",
-    "test:frontend": "node --test web/connected/test/client.test.mjs web/connected/test/presentation.test.mjs"
+    "test:frontend": "node --test web/connected/test/client.test.mjs web/connected/test/presentation.test.mjs web/connected/test/branding.test.mjs web/connected/test/mcp-page.test.mjs",
+    "test:mcp": "node --test mcp/test/*.test.mjs"
   }
 }
