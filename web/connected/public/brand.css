@@ -7,4 +7,4 @@
   height: .88em;
   object-fit: contain;
 }
-.wordmark-text { display: block; }
+.wordmark-text { display: block; color: white; }
