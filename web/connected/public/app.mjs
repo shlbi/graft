@@ -7,14 +7,14 @@ function clearReview() {
   $('review-title').textContent = 'Every change, considered.';
   $('review-message').textContent = 'Choose a saved transfer to inspect its files, related tests, and proposed changes.';
   $('review-state').textContent = 'NO TRANSFER SELECTED';
-  const empty = el('div', undefined, 'empty-review'); empty.append(el('span', '[ ↗ ]', 'empty-glyph'), el('span', 'Your next feature starts with a clear intention.')); $('review-details').replaceChildren(empty);
+  const empty = el('div', undefined, 'empty-review'); empty.append(el('span', '[ ↗︎ ]', 'empty-glyph'), el('span', 'Your next feature starts with a clear intention.')); $('review-details').replaceChildren(empty);
   $('publish-controls').hidden = true; $('cancel').hidden = true; $('pr-link').hidden = true; $('pr-link').removeAttribute('href');
   $('acknowledge').checked = false; $('workflows').checked = false; $('download').disabled = true;
 }
 function connectLink(available) {
-  const label = available ? 'Connect GitHub ↗' : 'MCP ↗';
+  const label = available ? 'Connect GitHub ↗︎' : 'MCP ↗︎';
   const a = el('a', label, 'button secondary'); a.href = available ? '/auth/github' : '/mcp/'; $('account').replaceChildren(a);
-  $('connect').textContent = available ? 'Connect GitHub ↗' : 'Connection unavailable';
+  $('connect').textContent = available ? 'Connect GitHub ↗︎' : 'Connection unavailable';
   $('connect').href = available ? '/auth/github' : '#desk'; $('connect').setAttribute('aria-disabled', String(!available));
 }
 function loggedOut(available = state.online) {
@@ -56,7 +56,7 @@ async function loadJobs() {
   if (!jobs.length) $('jobs').append(el('p', 'No transfers yet. Your first feature starts above.', 'muted'));
   for (const j of jobs) {
     const b = el('button', undefined, 'job'); b.type = 'button'; b.setAttribute('aria-current', String(j.id === state.job?.id));
-    b.append(el('strong', j.feature), el('small', j.state.replaceAll('_', ' ') + ' ↗'));
+    b.append(el('strong', j.feature), el('small', j.state.replaceAll('_', ' ') + ' ↗︎'));
     b.addEventListener('click', () => select(j.id, true).catch(e => notice(e.message))); $('jobs').append(b);
   }
 }
@@ -77,7 +77,7 @@ function render(job) {
     details.append(el('p', `Review ${job.digest?.slice(0, 12) || '—'} · ${job.review.changes.length} changed files`, 'path'));
     const placements = job.review.testTransfer?.placements || [];
     if (placements.length) details.append(el('h4', 'Tests travel with the feature.'));
-    for (const p of placements) { const row = el('div', undefined, 'mapping-row'); row.append(el('span', p.sourcePath), el('span', '↗'), el('span', p.destinationPath)); details.append(row); }
+    for (const p of placements) { const row = el('div', undefined, 'mapping-row'); row.append(el('span', p.sourcePath), el('span', '↗︎'), el('span', p.destinationPath)); details.append(row); }
     for (const text of [...(job.review.testTransfer?.blockers || []), ...(job.review.risks || [])]) details.append(el('p', text, 'risk'));
     for (const c of job.review.changes) {
       const d = el('details', undefined, 'change'); d.append(el('summary', `${c.action === 'add' ? '+' : '~'} ${c.path}`), el('p', c.reason));
@@ -147,7 +147,7 @@ async function init() {
     state.session = session; state.online = true; state.epoch++; const epoch = state.epoch;
     $('welcome').hidden = true; $('workspace').hidden = false; $('composer').disabled = false;
     $('refresh').disabled = false; $('delete-data').disabled = false; $('connection-state').textContent = 'GITHUB CONNECTED';
-    $('account').replaceChildren(el('span', session.user.login)); const b = el('button', 'Sign out ↗', 'button secondary'); b.type = 'button';
+    $('account').replaceChildren(el('span', session.user.login)); const b = el('button', 'Sign out ↗︎', 'button secondary'); b.type = 'button';
     b.addEventListener('click', async () => { try { await request('/api/logout', {}); loggedOut(true); notice('Signed out. Private review content has been cleared.'); } catch (e) { notice(e.message); } }); $('account').append(b);
     $('allowance').textContent = `${session.userDailyDraftLimit} DRAFT REQUESTS / UTC DAY · 24H RETENTION`; gate();
     if (!session.aiConfigured) notice('AI drafting is disabled until the operator configures a model and API budget. Repository selection is available.');

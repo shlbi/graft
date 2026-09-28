@@ -1,17 +1,17 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0D0D0F"><title>Repot MCP — One link. Any compatible agent.</title><link rel="icon" type="image/png" sizes="32x32" href="/assets/repot-favicon-c7217cca.png"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/brand.css"><link rel="stylesheet" href="/mcp/mcp.css"><script type="module" src="/mcp/mcp-page.js"></script></head>
-<body><div class="page-frame"><header class="masthead"><a class="wordmark" href="/" aria-label="Repot home"><img class="wordmark-logo" src="/assets/repot-mark-c7217cca.png" width="64" height="64" alt=""><span class="wordmark-text">epot</span></a><nav><a href="#how">How it works</a><a href="#security">Security</a><a href="/">Home ↗</a></nav><span class="pill">REMOTE MCP</span></header>
+<body><div class="page-frame"><header class="masthead"><a class="wordmark" href="/" aria-label="Repot home"><img class="wordmark-logo" src="/assets/repot-mark-c7217cca.png" width="64" height="64" alt=""><span class="wordmark-text">epot</span></a><nav><a href="#how">How it works</a><a href="#security">Security</a><a href="/">Home ↗︎</a></nav><span class="pill">REMOTE MCP</span></header>
 <main><section class="mcp-hero"><div><p class="eyebrow">REPOT / REMOTE MCP</p><h1>One link.<br><em>Your repositories.</em></h1><p class="mcp-lede">Add Repot to any compatible MCP client. Your agent connects over Streamable HTTP, opens Repot's OAuth flow, and works only with repositories you authorized through the Repot GitHub App.</p><div class="mcp-url"><span id="mcp-url">https://mcp.getrepot.com/mcp</span><button class="button primary" id="copy-mcp" type="button">Copy MCP URL</button></div><p class="micro muted" id="copy-status" aria-live="polite">NO CLONE. NO LOCAL SERVER. NO API KEY FROM THE USER.</p></div>
 <div class="mcp-terminal"><div class="terminal-head micro"><span>REPOT / STREAMABLE HTTP</span><span>OAUTH 2.1</span></div><pre><span class="dim">you</span>
 Move the billing portal feature
 from org/old-app to org/new-app.
 
-<span class="dim">agent → repot_inspect</span>
+<span class="dim">agent →︎ repot_inspect</span>
 implementation   discovered
 tests            discovered
 destination      inspected
 
-<span class="dim">agent → repot_draft</span>
+<span class="dim">agent →︎ repot_draft</span>
 review           ready
 build            not_run
 tests            not_run
@@ -19,7 +19,7 @@ tests            not_run
 <span class="dim">you</span>
 Publish that exact review.
 
-<span class="dim">agent → repot_publish</span>
+<span class="dim">agent →︎ repot_publish</span>
 branch           repot/transfer-…
 pull request     draft
 default branch   untouched</pre><div class="terminal-foot micro">ILLUSTRATIVE FLOW · NOT A RUN RESULT</div></div></section>
@@ -27,4 +27,4 @@ default branch   untouched</pre><div class="terminal-foot micro">ILLUSTRATIVE FL
 <section class="method" id="how"><div class="section-intro"><p class="eyebrow">01 / CONNECT</p><h2>Paste once.<br><em>Then ask.</em></h2><p>Your MCP client discovers Repot's authorization server automatically. Sign in with GitHub, review consent, and the client receives a Repot-scoped token—not your GitHub token.</p></div><div class="method-steps"><article><span class="step-number">01</span><div><h3>Add the URL.</h3><p>Paste <code>https://mcp.getrepot.com/mcp</code> into a compatible remote-MCP client.</p></div></article><article><span class="step-number">02</span><div><h3>Authorize Repot.</h3><p>GitHub access remains server-side and limited to repositories available through your Repot GitHub App connection.</p></div></article><article><span class="step-number">03</span><div><h3>Tell your agent what to move.</h3><p>Repot inspects, drafts, preserves related tests where supported, and publishes only after an explicit reviewed-draft request.</p></div></article></div></section>
 <section class="mcp-doc-grid" id="security"><div><p class="eyebrow">02 / PRODUCTION BOUNDARIES</p><h2>Powerful.<br><em>Deliberate.</em></h2></div><div class="contract-list"><div><span>01</span><p><strong>No bearer-token passthrough.</strong> MCP access tokens authorize Repot. GitHub tokens remain server-side and are obtained through the user's linked GitHub account.</p></div><div><span>02</span><p><strong>Reviews expire and are encrypted at rest.</strong> A publish call must reference an exact unexpired review owned by the authenticated user.</p></div><div><span>03</span><p><strong>The default branch is never written.</strong> Publication creates a new <code>repot/*</code> branch and a draft pull request, and refuses a destination that changed after review.</p></div><div><span>04</span><p><strong>Verification is never invented.</strong> Repot does not execute generated repository code in the MCP service. Build, tests, and integration remain <code>not_run</code> until an isolated verifier actually runs them.</p></div></div></section>
 <section class="closing"><p class="eyebrow">REPOT MCP</p><h2>Good code.<br><em>Now agent-native.</em></h2><button class="button primary" type="button" data-copy-mcp>Copy https://mcp.getrepot.com/mcp</button></section></main>
-<footer><a class="wordmark" href="/"><img class="wordmark-logo" src="/assets/repot-mark-c7217cca.png" width="64" height="64" alt=""><span class="wordmark-text">epot</span></a><p class="micro">REMOTE MCP / GITHUB</p><div class="footer-links"><a href="https://github.com/shlbi/graft">GitHub ↗</a></div><p class="footer-note">The endpoint requires Repot production secrets, database migrations, and the mcp.getrepot.com domain before live authorization can complete.</p></footer></div></body></html>
+<footer><a class="wordmark" href="/"><img class="wordmark-logo" src="/assets/repot-mark-c7217cca.png" width="64" height="64" alt=""><span class="wordmark-text">epot</span></a><p class="micro">REMOTE MCP / GITHUB</p><div class="footer-links"><a href="https://github.com/shlbi/graft">GitHub ↗︎</a></div><p class="footer-note">The endpoint requires Repot production secrets, database migrations, and the mcp.getrepot.com domain before live authorization can complete.</p></footer></div></body></html>
