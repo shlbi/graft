@@ -1,9 +1,1 @@
-{
-  "$schema":"https://openapi.vercel.sh/vercel.json",
-  "framework":"nextjs",
-  "regions":["iad1"],
-  "functions":{
-    "app/mcp/route.js":{"maxDuration":60},
-    "app/api/auth/[...all]/route.js":{"maxDuration":30}
-  }
-}
+{"$schema":"https://openapi.vercel.sh/vercel.json","framework":"nextjs","regions":["iad1"]}
