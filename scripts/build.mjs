@@ -6,6 +6,6 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const root = fileURLToPath(new URL('../', import.meta.url));
 rmSync(new URL('../dist/', import.meta.url), { recursive: true, force: true });
-execFileSync(process.execPath, [require.resolve('typescript/bin/tsc'), '-p', 'tsconfig.json'], {
+execFileSync(process.execPath, [require.resolve('typescript/bin/tsc'), '-p', 'tsconfig.engine.json'], {
   cwd: root, stdio: 'inherit', shell: false, windowsHide: true, timeout: 60_000,
 });
