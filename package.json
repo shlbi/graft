@@ -37,5 +37,10 @@
     "test:connected": "node --test --test-timeout=15000 web/connected/test/*.test.mjs",
     "test:frontend": "node --test web/connected/test/client.test.mjs web/connected/test/presentation.test.mjs web/connected/test/branding.test.mjs web/connected/test/mcp-page.test.mjs",
     "test:mcp": "node --test mcp/test/*.test.mjs remote/test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3"
   }
 }
