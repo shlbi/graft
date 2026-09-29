@@ -1,7 +1,16 @@
+/**
+ * @file Synthetic Repot demo source/support module (demo/workspace.mjs) used by repeatable transfer and verification examples.
+ *
+ * Demo invariant: do not confuse fixture behavior with production guarantees.
+ */
 import { mkdtemp, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, posix } from 'node:path';
 
+/**
+ * @function safeRelativePath
+ * Implements safe relative path for this synthetic demo.
+ */
 function safeRelativePath(value) {
   if (typeof value !== 'string' || !value || value.startsWith('/') || value.endsWith('/')
     || /[\\:\x00-\x1f\x7f]/u.test(value)) {
@@ -15,6 +24,10 @@ function safeRelativePath(value) {
 }
 
 /** Validate and detach the entire input before creating/removing any files. */
+/**
+ * @function validatedSnapshots
+ * Implements validated snapshots for this synthetic demo.
+ */
 function validatedSnapshots(snapshots) {
   if (!Array.isArray(snapshots)) throw new Error('snapshots must be an array');
   const seen = new Set();
@@ -36,6 +49,10 @@ function validatedSnapshots(snapshots) {
 }
 
 /** Stage complete files before replacing this owned temporary workspace. */
+/**
+ * @function replaceSnapshots
+ * Implements replace snapshots for this synthetic demo.
+ */
 async function replaceSnapshots(parent, root, snapshots) {
   const staging = await mkdtemp(join(parent, 'staging-'));
   const backup = join(parent, 'previous');
@@ -62,6 +79,10 @@ async function replaceSnapshots(parent, root, snapshots) {
  * Owned temporary fixture workspace, NOT a sandbox for arbitrary untrusted code
  * or a production filesystem transaction. Mutations/read/close are serialized.
  */
+/**
+ * @function createDemoWorkspace
+ * Implements create demo workspace for this synthetic demo.
+ */
 export async function createDemoWorkspace(baselineSnapshots) {
   const baseline = validatedSnapshots(baselineSnapshots);
   const parent = await mkdtemp(join(tmpdir(), 'graft-demo-'));
@@ -77,6 +98,10 @@ export async function createDemoWorkspace(baselineSnapshots) {
   let tail = Promise.resolve();
   let closing = false;
   let closePromise;
+  /**
+   * @function serialize
+   * Implements serialize for this synthetic demo.
+   */
   function serialize(operation) {
     if (closing) return Promise.reject(new Error('demo workspace is closed'));
     const next = tail.then(operation);

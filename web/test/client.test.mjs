@@ -1,3 +1,8 @@
+/**
+ * @file Web-engine regression suite (web/test/client.test.mjs) for Repot provider, parser, server, runner, or test-transfer behavior.
+ *
+ * Verification note: distinguish synthetic/provider doubles from real external execution in assertions and evidence.
+ */
 // DOM-stub tests of the actual shipped controller. Not a browser-rendering claim.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -15,7 +20,15 @@ class Element {
   click() { if (!this.disabled) this.dispatchEvent({ type: 'click', target: this }); }
   focus() {} scrollIntoView() {} remove() {}
 }
+/**
+ * @function settle
+ * Test helper for settle; keeps setup, doubles, or assertions explicit and reusable.
+ */
 async function settle(check) { for (let i = 0; i < 100; i++) { if (check()) return; await new Promise(r => setImmediate(r)); } assert.fail('Controller did not settle'); }
+/**
+ * @function harness
+ * Test helper for harness; keeps setup, doubles, or assertions explicit and reusable.
+ */
 async function harness({ sample = demoRun } = {}) {
   const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
   const ids = Object.fromEntries([...html.matchAll(/id="([^"]+)"/g)].map(m => [m[1], new Element()]));
@@ -23,6 +36,10 @@ async function harness({ sample = demoRun } = {}) {
   for (const id of ['download-patch', 'use-ai']) ids[id].disabled = true;
   const downloads = [], requests = [], buttons = [];
   const source = (await readFile(new URL('../public/app.mjs', import.meta.url), 'utf8')).replace(/^import[^\n]+\n/, '');
+  /**
+   * @function fetchImpl
+   * Test helper for fetchImpl; keeps setup, doubles, or assertions explicit and reusable.
+   */
   const fetchImpl = async (url, options) => {
     if (url === '/api/config') return { ok: true, json: async () => ({ aiConfigured: false, model: null }) };
     if (url === '/api/demo') return { ok: true, json: async () => sample() };

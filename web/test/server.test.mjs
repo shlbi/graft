@@ -1,15 +1,28 @@
+/**
+ * @file Web-engine regression suite (web/test/server.test.mjs) for Repot provider, parser, server, runner, or test-transfer behavior.
+ *
+ * Verification note: distinguish synthetic/provider doubles from real external execution in assertions and evidence.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import http from 'node:http';
 import { createApp } from '../server.mjs';
 import { demoInput } from '../lib/demo.mjs';
+/**
+ * @function withServer
+ * Test helper for withServer; keeps setup, doubles, or assertions explicit and reusable.
+ */
 async function withServer(options, fn) {
   const server = createApp(options); server.listen(0, '127.0.0.1'); await once(server, 'listening');
   try { await fn(`http://127.0.0.1:${server.address().port}`); }
   finally { const closed = once(server, 'close'); server.close(); server.closeAllConnections(); await closed; }
 }
 const payload = { source: { kind: 'folder', snapshot: demoInput.source }, destination: { kind: 'folder', snapshot: demoInput.destination }, feature: 'CSV export', useAI: false, consent: false };
+/**
+ * @function post
+ * Test helper for post; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const post = (base, path, body, extra = {}) => fetch(base + path, { method: 'POST', headers: { 'content-type': 'application/json', ...extra }, body: JSON.stringify(body) });
 test('web shell, styles and modules serve from exact routes with restrictive CSP', async () => withServer({}, async base => {
   for (const route of ['/', '/app.mjs', '/style.css', '/policy.mjs']) {

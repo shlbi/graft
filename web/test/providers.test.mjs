@@ -1,9 +1,18 @@
+/**
+ * @file Web-engine regression suite (web/test/providers.test.mjs) for Repot provider, parser, server, runner, or test-transfer behavior.
+ *
+ * Verification note: distinguish synthetic/provider doubles from real external execution in assertions and evidence.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { repositoryName, readPublicRepository, boundedJSON } from '../lib/github.mjs';
 import { proposeWithAI } from '../lib/ai.mjs';
 import { snapshot, analyze } from '../lib/core.mjs';
 import { demoInput, demoProposal } from '../lib/demo.mjs';
+/**
+ * @function json
+ * Test helper for json; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const json = body => new Response(JSON.stringify(body), { status: 200 });
 const sha = 'a'.repeat(40), treeSha = 'b'.repeat(40), blobSha = 'c'.repeat(40);
 test('GitHub URL intake allowlists the exact host and owner/repo grammar', () => {
@@ -13,6 +22,10 @@ test('GitHub URL intake allowlists the exact host and owner/repo grammar', () =>
 });
 test('public intake pins commit/tree/blob and never fetches user-controlled hosts or download URLs', async () => {
   const calls = [];
+  /**
+   * @function fetchImpl
+   * Test helper for fetchImpl; keeps setup, doubles, or assertions explicit and reusable.
+   */
   const fetchImpl = async (url, opts) => {
     calls.push({ url, opts });
     if (url.endsWith('/a/b')) return json({ private: false, default_branch: 'feature/main' });
@@ -34,6 +47,10 @@ test('upstream error response never leaks body contents', async () => {
   await assert.rejects(readPublicRepository('a/b', 'csv', { fetchImpl: async () => new Response('sensitive debug body', { status: 403 }) }), e => /rate limit/.test(e.message) && !e.message.includes('sensitive'));
 });
 test('upstream response byte limit is enforced', async () => { await assert.rejects(boundedJSON(json({ data: 'x'.repeat(200) }), 20), /size limit/); });
+/**
+ * @function aiOptions
+ * Test helper for aiOptions; keeps setup, doubles, or assertions explicit and reusable.
+ */
 function aiOptions() {
   const source = snapshot(demoInput.source), destination = snapshot(demoInput.destination);
   return { source, destination, context: analyze(source, destination, 'CSV export').context, consent: true, apiKey: 'test-placeholder', model: 'test-model' };

@@ -1,3 +1,8 @@
+/**
+ * @file Connected-web regression/fixture module (web/connected/test/fixtures.mjs) covering Repot authentication, delivery, presentation, or storage contracts.
+ *
+ * Test invariant: simulated GitHub/AI/browser behavior must be labeled as simulated and must not be reported as live acceptance.
+ */
 import { createHash } from 'node:crypto';
 import { readConfig } from '../security.mjs';
 import { GitHubClient } from '../github.mjs';
@@ -20,11 +25,23 @@ export async function fixtureDraft(s, d, feature) {
 }
 export function fakeGitHub(cfg) {
   const calls = [], branches = new Map(), prs = [], tokens = new Map([['ghu_alice', { id: 1, login: 'alice' }], ['ghu_bob', { id: 2, login: 'bob' }]]);
+  /**
+   * @function metadata
+   * Test/fixture helper for metadata, keeping setup and expected security behavior reusable.
+   */
   const metadata = (id, name) => ({ id, full_name: name, private: true, archived: false, default_branch: 'main', permissions: { push: true } });
   const source = metadata(10, 'demo/source'), destination = metadata(20, 'demo/destination');
   const blobs = new Map([...sourceFiles, ...destinationFiles].map(f => [gitBlob(f.content), f.content]));
   const state = { calls, branches, prs, head: ids.base, deny: false, losePRResponse: false, loseBranchResponse: false, user: { id: 1, login: 'alice' }, countRepos: 0 };
+  /**
+   * @function json
+   * Test/fixture helper for json, keeping setup and expected security behavior reusable.
+   */
   const json = (data, status = 200) => new Response(JSON.stringify(data), { status });
+  /**
+   * @function fetchImpl
+   * Test/fixture helper for fetchImpl, keeping setup and expected security behavior reusable.
+   */
   const fetchImpl = async (url, options) => {
     const u = new URL(url), body = options.body ? JSON.parse(options.body) : undefined, method = options.method || 'GET';
     calls.push({ path: u.pathname + u.search, method, body, options });

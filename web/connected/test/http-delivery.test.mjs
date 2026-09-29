@@ -1,3 +1,8 @@
+/**
+ * @file Connected-web regression/fixture module (web/connected/test/http-delivery.test.mjs) covering Repot authentication, delivery, presentation, or storage contracts.
+ *
+ * Test invariant: simulated GitHub/AI/browser behavior must be labeled as simulated and must not be reported as live acceptance.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
@@ -7,6 +12,10 @@ import { createConnectedApp } from '../server.mjs';
 import { Store } from '../store.mjs';
 import { sha256 } from '../security.mjs';
 import { config, fakeGitHub, fixtureDraft, ids } from './fixtures.mjs';
+/**
+ * @function harness
+ * Test/fixture helper for harness, keeping setup and expected security behavior reusable.
+ */
 async function harness(extra = {}) {
   let cfg = config(extra.env); const gh = fakeGitHub(cfg), store = new Store(':memory:', cfg.dataKey);
   const app = createConnectedApp({ config: cfg, store, github: gh.client, draft: extra.draft || fixtureDraft });
@@ -14,7 +23,15 @@ async function harness(extra = {}) {
   // Use the configured canonical Host in real HTTP tests while the TCP server uses an ephemeral port.
   const base = 'http://127.0.0.1:' + app.server.address().port;
   const sessions = {};
+  /**
+   * @function session
+   * Test/fixture helper for session, keeping setup and expected security behavior reusable.
+   */
   function session(owner = '1') { return sessions[owner] ||= store.session({ id: Number(owner), login: owner === '1' ? 'alice' : 'bob' }, owner === '1' ? 'ghu_alice' : 'ghu_bob', 28800, cfg); }
+  /**
+   * @function request
+   * Test/fixture helper for request, keeping setup and expected security behavior reusable.
+   */
   const request = async (path, { body, owner = '1', headers = {}, raw, method, auth = true } = {}) => {
     const s = auth ? session(owner) : null;
     return await new Promise((done, reject) => {
@@ -31,7 +48,15 @@ async function harness(extra = {}) {
       }); req.on('error', reject); req.setTimeout(10000, () => req.destroy(new Error('HTTP test timed out'))); req.end(textBody);
     });
   };
+  /**
+   * @function start
+   * Test/fixture helper for start, keeping setup and expected security behavior reusable.
+   */
   const start = async () => { const r = await request('/api/jobs', { body: { sourceId: 10, destinationId: 20, feature: 'greeting', consentAI: true } }); assert.equal(r.res.status, 202, r.text); await Promise.allSettled([...app.service.pending]); return store.get('job', r.json.id, '1'); };
+  /**
+   * @function publish
+   * Test/fixture helper for publish, keeping setup and expected security behavior reusable.
+   */
   const publish = job => request(`/api/jobs/${job.id}/publish`, { body: { digest: job.digest, acknowledgeUnverified: true, acknowledgeWorkflows: true } });
   return { app, cfg, gh, store, base, request, start, publish, session, close: () => app.close() };
 }

@@ -1,3 +1,8 @@
+/**
+ * @file Web-engine regression suite (web/test/parser-adapter.test.mjs) for Repot provider, parser, server, runner, or test-transfer behavior.
+ *
+ * Verification note: distinguish synthetic/provider doubles from real external execution in assertions and evidence.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, writeFile, rm } from 'node:fs/promises';
@@ -9,8 +14,20 @@ import { references } from '../lib/test-transfer.mjs';
 import { parse, staticString, applyEdits } from '../lib/syntax.mjs';
 import { staticConfig } from '../lib/test-config.mjs';
 import { demoInput, demoProposal } from '../lib/demo.mjs';
+/**
+ * @function f
+ * Test helper for f; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const f = (path, content) => ({ path, content });
+/**
+ * @function pkg
+ * Test helper for pkg; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const pkg = (runner, extra = {}) => f('package.json', JSON.stringify({ type: 'module', devDependencies: { [runner]: '*' }, ...extra }));
+/**
+ * @function input
+ * Test helper for input; keeps setup, doubles, or assertions explicit and reusable.
+ */
 function input() {
   return {
     source: { name: 'jest-source', files: [f('src/csv.mjs', 'export const csv = value => value.toUpperCase();\n'), pkg('jest'), f('test/csv.test.mjs', "import { test, expect } from '@jest/globals';\nimport { csv } from '../src/csv.mjs';\ntest('CSV', () => { expect(csv('hello')).toBe('HELLO'); });\n")] },
@@ -18,12 +35,28 @@ function input() {
   };
 }
 const proposal = { summary: 'Move csv', changes: [{ path: 'lib/csv.mjs', action: 'add', content: 'export const csv = value => value.toUpperCase();\n', reason: 'Move csv into destination', sourcePaths: ['src/csv.mjs'] }], risks: [], suggestedChecks: [] };
+/**
+ * @function run
+ * Test helper for run; keeps setup, doubles, or assertions explicit and reusable.
+ */
 function run(x = input(), prop = proposal) {
   const s = snapshot(x.source), d = snapshot(x.destination), a = analyze(s, d, 'csv');
   return { analysis: a, review: reviewProposal(prop, s, d, a.context) };
 }
+/**
+ * @function sourceTest
+ * Test helper for sourceTest; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const sourceTest = x => x.source.files.find(p => p.path === 'test/csv.test.mjs');
+/**
+ * @function blocked
+ * Test helper for blocked; keeps setup, doubles, or assertions explicit and reusable.
+ */
 function blocked(x, regex) { const r = run(x).review; assert.equal(r.exportable, false); assert.equal(r.patch, null); assert.match(r.testTransfer.blockers.join('\n'), regex); }
+/**
+ * @function ref
+ * Test helper for ref; keeps setup, doubles, or assertions explicit and reusable.
+ */
 function ref(content, others = []) { const file = f('tests/check.test.mjs', content); return references(file, new Map([file, ...others].map(f => [f.path, f]))); }
 
 test('AST reference extraction ignores comments, assertion strings, templates, regex and division', () => {
@@ -112,6 +145,10 @@ test('static config reads literal ESM/CJS/defineConfig/JSON but never executes i
   for (const file of [f('jest.config.mjs', "export default {testEnvironment:'node'};"), f('jest.config.cjs', "module.exports = {testEnvironment:'node'};"), f('vitest.config.ts', "import { defineConfig as config } from 'vitest/config'; export default config({test:{environment:'node'}});"), f('jest.config.json', '{"testEnvironment":"node"}')]) assert.ok(staticConfig(file));
   for (const code of ["export default fetch('https://example.invalid');", "export default {...process.env};", "process.exit(); export default {};", "import c from './config'; export default c;", 'export default {get test(){return {}}};', 'export default {__proto__:{}};', 'export default {test: {}, test: {}};']) assert.throws(() => staticConfig(f('vitest.config.mjs', code)));
 });
+/**
+ * @function addSetup
+ * Test helper for addSetup; keeps setup, doubles, or assertions explicit and reusable.
+ */
 function addSetup(x) {
   x.source.files.push(f('jest.config.mjs', "export default {testEnvironment:'node', transform:{}, setupFilesAfterEnv:['<rootDir>/test/setupTests.mjs']};"),
     f('test/setupTests.mjs', "import {beforeEach} from '@jest/globals'; import {reset} from './support/state.mjs'; beforeEach(() => { reset(); });"),
@@ -146,6 +183,10 @@ test('AST-assisted transfer executes dynamic fixture imports and shared hook sup
   const options = structuredClone(demoProposal); options.changes[0].path = 'lib/csv.mjs'; options.changes[1].content = options.changes[1].content.replace('./csv.mjs', '../lib/csv.mjs');
   const { review: r } = run(x, options); assert.equal(r.exportable, true, r.testTransfer.blockers.join('\n'));
   const dir = await mkdtemp(join(tmpdir(), 'graft-parser-e2e-'));
+  /**
+   * @function execute
+   * Test helper for execute; keeps setup, doubles, or assertions explicit and reusable.
+   */
   const execute = (role, args) => execFileSync(process.execPath, ['--test', ...args], {cwd:join(dir,role),encoding:'utf8',timeout:10000,env:{PATH:process.env.PATH},stdio:'pipe'});
   try {
     for (const role of ['source','destination']) for (const file of x[role].files) {const full=join(dir,role,file.path); await mkdir(dirname(full),{recursive:true}); await writeFile(full,file.content);}

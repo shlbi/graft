@@ -1,6 +1,15 @@
+/**
+ * @file Demo fixture/support module (demo/review-model.mjs). It exists to exercise Repot behavior against synthetic code rather than customer repositories.
+ *
+ * Demo invariant: keep examples deterministic and clearly separate illustrative behavior from production claims.
+ */
 import { parseTypeScriptModules } from '../dist/imports.js';
 import { prepareDemoTransplant } from './graft-fixture.mjs';
 
+/**
+ * @function edgeKey
+ * Implements edge key for the deterministic Repot demo fixture.
+ */
 function edgeKey(edge) {
   return `${edge.kind}:${edge.from}:${edge.to}`;
 }
@@ -8,6 +17,10 @@ function edgeKey(edge) {
 /**
  * Build a serializable, read-only review from the same trusted prepared object
  * used by the executable demo. This intentionally contains no apply authority.
+ */
+/**
+ * @function serializeDemoReview
+ * Implements serialize demo review for the deterministic Repot demo fixture.
  */
 export function serializeDemoReview(fixture) {
   const { prepared } = fixture;
@@ -18,11 +31,19 @@ export function serializeDemoReview(fixture) {
   const nodes = [];
   const edges = [];
   const seenNodes = new Set();
+  /**
+   * @function addNode
+   * Implements add node for the deterministic Repot demo fixture.
+   */
   const addNode = node => {
     if (seenNodes.has(node.id)) return;
     seenNodes.add(node.id);
     nodes.push(node);
   };
+  /**
+   * @function addEdge
+   * Implements add edge for the deterministic Repot demo fixture.
+   */
   const addEdge = edge => edges.push(edge);
 
   if (closure) {
@@ -104,6 +125,10 @@ export function serializeDemoReview(fixture) {
   };
 }
 
+/**
+ * @function buildDemoReview
+ * Implements build demo review for the deterministic Repot demo fixture.
+ */
 export async function buildDemoReview() {
   return serializeDemoReview(await prepareDemoTransplant({ integrate: true }));
 }

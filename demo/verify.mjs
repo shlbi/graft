@@ -1,3 +1,8 @@
+/**
+ * @file Synthetic Repot demo source/support module (demo/verify.mjs) used by repeatable transfer and verification examples.
+ *
+ * Demo invariant: do not confuse fixture behavior with production guarantees.
+ */
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -30,6 +35,10 @@ const compileMetadata = [
   },
 ];
 
+/**
+ * @function compileAndRun
+ * Implements compile and run for this synthetic demo.
+ */
 async function compileAndRun(root) {
   const options = {
     cwd: root, timeout: 15_000, killSignal: 'SIGKILL', maxBuffer: 1_048_576,
@@ -48,6 +57,10 @@ async function compileAndRun(root) {
  * Execute source -> destination baseline -> reviewed transplant -> compile/run
  * -> clean reset. Every run uses a fresh process, so adapter module state cannot
  * accidentally leak between cycles. Only checked-in, authored fixture code runs.
+ */
+/**
+ * @function verifyDemo
+ * Implements verify demo for this synthetic demo.
  */
 export async function verifyDemo({ cycles = 2, fixture: reviewedFixture } = {}) {
   if (!Number.isInteger(cycles) || cycles < 1 || cycles > 3) {

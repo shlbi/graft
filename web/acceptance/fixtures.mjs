@@ -1,10 +1,23 @@
+/**
+ * @file Acceptance-harness module that records reproducible runner evidence for Repot test transfer.
+ *
+ * Evidence invariant: only record checks that actually executed; never promote a skipped or simulated result to verified.
+ */
 /** Original synthetic code, not uploaded projects and not model-generated tests. */
+/**
+ * @function runnerFixture
+ * Acceptance/test helper for runnerFixture; preserves repeatable setup and explicit evidence boundaries.
+ */
 export function runnerFixture(kind, versions) {
   if (!['named-imports', 'global-apis', 'shared-setup'].includes(kind)) throw new Error('Unknown acceptance fixture.');
   const named = kind !== 'global-apis', setup = kind === 'shared-setup';
   const feature = `export const greeting = name => 'Hello, ' + name;\n`;
   const title1 = 'greeting preserves input', title2 = 'greeting remains deterministic';
   const testText = `${named ? "import { test as check, expect as verify } from '@jest/globals';\n" : ''}import { greeting } from '../src/greeting.js';\n${setup ? "import { next } from './support/counter.js';\n" : ''}${named ? 'check' : 'test'}('${title1}', () => { ${named ? 'verify' : 'expect'}(greeting(${setup ? 'next()' : "'Ada'"})).toBe('${setup ? 'Hello, 1' : 'Hello, Ada'}'); });\n${named ? 'check' : 'test'}('${title2}', () => { ${named ? 'verify' : 'expect'}(greeting(${setup ? 'next()' : "'Ada'"})).toBe('${setup ? 'Hello, 1' : 'Hello, Ada'}'); });\n`;
+  /**
+   * @function file
+   * Acceptance/test helper for file; preserves repeatable setup and explicit evidence boundaries.
+   */
   const file = (path, content) => ({ path, content });
   const source = { name: `authored/${kind}-source`, files: [
     file('package.json', JSON.stringify({ name: 'graft-synthetic-source', private: true, type: 'module', devDependencies: { jest: versions.jest } })),

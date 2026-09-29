@@ -1,3 +1,8 @@
+/**
+ * @file Connected-web regression/fixture module (web/connected/test/presentation.test.mjs) covering Repot authentication, delivery, presentation, or storage contracts.
+ *
+ * Test invariant: simulated GitHub/AI/browser behavior must be labeled as simulated and must not be reported as live acceptance.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir, mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';

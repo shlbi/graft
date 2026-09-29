@@ -1,3 +1,8 @@
+/**
+ * @file Web-engine regression suite (web/test/runner-acceptance.test.mjs) for Repot provider, parser, server, runner, or test-transfer behavior.
+ *
+ * Verification note: distinguish synthetic/provider doubles from real external execution in assertions and evidence.
+ */
 // Gate-policy tests, NOT Jest/Vitest execution and NOT a substitute for the acceptance run.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,6 +13,10 @@ import { pathToFileURL } from 'node:url';
 import { verifyReport, discoverRunners } from '../acceptance/evidence.mjs';
 import { runnerFixture } from '../acceptance/fixtures.mjs';
 import { runProcess } from '../acceptance/process.mjs';
+/**
+ * @function report
+ * Test helper for report; keeps setup, doubles, or assertions explicit and reusable.
+ */
 function report(statuses = ['passed', 'passed']) {
   return { success: statuses.every(s => s === 'passed'), numTotalTests: 2,
     numPassedTests: statuses.filter(s => s === 'passed').length, numFailedTests: statuses.filter(s => s === 'failed').length,

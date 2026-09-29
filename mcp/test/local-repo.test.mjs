@@ -1,3 +1,8 @@
+/**
+ * @file MCP production/local contract regression module that guards Repot authorization, storage, and publication invariants.
+ *
+ * Evidence invariant: only record checks that actually executed; never promote a skipped or simulated result to verified.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, symlink, rm } from 'node:fs/promises';
@@ -6,6 +11,10 @@ import { join } from 'node:path';
 import { normalizeRoots, snapshotLocalRepository, applyReviewedChanges } from '../local-repo.mjs';
 import { createHash } from 'node:crypto';
 
+/**
+ * @function fixture
+ * Acceptance/test helper for fixture; preserves repeatable setup and explicit evidence boundaries.
+ */
 async function fixture(){
   const base=await mkdtemp(join(tmpdir(),'repot-mcp-')), source=join(base,'source'), destination=join(base,'destination');
   await mkdir(join(source,'src'),{recursive:true});await mkdir(join(source,'test'),{recursive:true});await mkdir(join(destination,'src'),{recursive:true});

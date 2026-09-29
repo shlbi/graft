@@ -1,3 +1,8 @@
+/**
+ * @file Automated Repot regression suite (test/changeset.test.mjs). It documents expected behavior and guards against silent contract drift.
+ *
+ * Test note: assertions should describe observed behavior; implementation details belong here only when they are explicit safety contracts.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseFeatureManifest } from '../dist/manifest.js';

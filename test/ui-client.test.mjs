@@ -1,3 +1,8 @@
+/**
+ * @file Automated Repot regression suite (test/ui-client.test.mjs) covering transfer, release, or UI behavior.
+ *
+ * Test note: keep fixtures deterministic and make safety/release assertions explicit.
+ */
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
@@ -5,7 +10,15 @@ import vm from 'node:vm';
 
 // Focused DOM-stub controller tests. These are not live browser integration tests.
 const source = await readFile(new URL('../ui/app.js', import.meta.url), 'utf8');
+/**
+ * @function harness
+ * Test helper for harness; centralizes repeatable setup or assertions for this suite.
+ */
 function harness() {
+  /**
+   * @function element
+   * Test helper for element; centralizes repeatable setup or assertions for this suite.
+   */
   function element() {
     return { children: [], handlers: {}, textContent: '', className: '', hidden: false, disabled: false,
       value: '', files: [], append(...items) { this.children.push(...items); },

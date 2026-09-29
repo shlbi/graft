@@ -1,8 +1,17 @@
+/**
+ * @file Automated Repot regression suite (test/http-upload.test.mjs). It documents expected behavior and guards against silent contract drift.
+ *
+ * Test note: assertions should describe observed behavior; implementation details belong here only when they are explicit safety contracts.
+ */
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { runHttpTransplantDemo } from '../demo/http-transplant.mjs';
 import { createUploadHttpServer } from '../demo/upload-server.mjs';
 
+/**
+ * @function waitForJob
+ * Test helper that prepares or verifies waitForJob behavior for this regression suite.
+ */
 async function waitForJob(base, pollPath) {
   for (let attempt = 0; attempt < 100; attempt++) {
     const response = await fetch(`${base}${pollPath}`);

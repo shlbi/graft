@@ -1,3 +1,8 @@
+/**
+ * @file Demo fixture/support module (demo/http-transplant.mjs). It exists to exercise Repot behavior against synthetic code rather than customer repositories.
+ *
+ * Demo invariant: keep examples deterministic and clearly separate illustrative behavior from production claims.
+ */
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -30,6 +35,10 @@ const compileMetadata = [
   },
 ];
 
+/**
+ * @function compile
+ * Implements compile for the deterministic Repot demo fixture.
+ */
 async function compile(root) {
   try {
     await execute(process.execPath, [compiler, '-p', 'tsconfig.json'], {
@@ -41,6 +50,10 @@ async function compile(root) {
   }
 }
 
+/**
+ * @function pollJob
+ * Implements poll job for the deterministic Repot demo fixture.
+ */
 async function pollJob(base, pollPath, { timeoutMs = 5_000, intervalMs = 10 } = {}) {
   const deadline = Date.now() + timeoutMs;
   let last;
@@ -56,6 +69,10 @@ async function pollJob(base, pollPath, { timeoutMs = 5_000, intervalMs = 10 } = 
 
 /** Build and compile a fresh reviewed transplant and return its backend feature.
  * The caller owns the returned runtime and must close it. */
+/**
+ * @function createCompiledTransplantFeature
+ * Implements create compiled transplant feature for the deterministic Repot demo fixture.
+ */
 export async function createCompiledTransplantFeature({ fixture: reviewedFixture } = {}) {
   const fixture = reviewedFixture ?? await prepareDemoTransplant({ integrate: false });
   assert.equal(fixture.prepared.ready, true, 'HTTP demo requires a blocker-free review plan');
@@ -86,6 +103,10 @@ export async function createCompiledTransplantFeature({ fixture: reviewedFixture
 }
 
 /** Expose the compiled transplanted feature through a bounded localhost server. */
+/**
+ * @function createTransplantedUploadRuntime
+ * Implements create transplanted upload runtime for the deterministic Repot demo fixture.
+ */
 export async function createTransplantedUploadRuntime({ host = '127.0.0.1', port = 0 } = {}) {
   const compiled = await createCompiledTransplantFeature();
   let server;
@@ -106,6 +127,10 @@ export async function createTransplantedUploadRuntime({ host = '127.0.0.1', port
   }
 }
 
+/**
+ * @function runHttpTransplantDemo
+ * Implements run http transplant demo for the deterministic Repot demo fixture.
+ */
 export async function runHttpTransplantDemo() {
   const runtime = await createTransplantedUploadRuntime();
   try {

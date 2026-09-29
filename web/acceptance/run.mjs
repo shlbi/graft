@@ -1,3 +1,8 @@
+/**
+ * @file Acceptance-harness module that records reproducible runner evidence for Repot test transfer.
+ *
+ * Evidence invariant: only record checks that actually executed; never promote a skipped or simulated result to verified.
+ */
 /** Real Jest -> Vitest acceptance, restricted to the authored fixtures in this directory. */
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -7,8 +12,16 @@ import { discoverRunners, digest, verifyReport } from './evidence.mjs';
 import { runnerFixture } from './fixtures.mjs';
 import { runProcess } from './process.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
+/**
+ * @function ensure
+ * Acceptance/test helper for ensure; preserves repeatable setup and explicit evidence boundaries.
+ */
 const ensure = (ok, message) => { if (!ok) throw new Error(message); };
 
+/**
+ * @function acceptancePreflight
+ * Acceptance/test helper for acceptancePreflight; preserves repeatable setup and explicit evidence boundaries.
+ */
 export async function acceptancePreflight() {
   const found = discoverRunners();
   // Require an isolated, locked dependency installation; do not reuse an unrelated/global runner.
@@ -30,6 +43,10 @@ export async function acceptancePreflight() {
   if (!['linux', 'darwin'].includes(process.platform)) found.blockers.push('This gate requires POSIX process-group cleanup; Windows is not verified.');
   return { ...found, status: found.blockers.length ? 'blocked' : 'ready', lockHash };
 }
+/**
+ * @function materialize
+ * Acceptance/test helper for materialize; preserves repeatable setup and explicit evidence boundaries.
+ */
 async function materialize(files, root) {
   for (const file of files) {
     const target = join(root, file.path);
@@ -37,6 +54,10 @@ async function materialize(files, root) {
     await mkdir(dirname(target), { recursive: true }); await writeFile(target, file.content);
   }
 }
+/**
+ * @function runnerResult
+ * Acceptance/test helper for runnerResult; preserves repeatable setup and explicit evidence boundaries.
+ */
 async function runnerResult(name, cwd, reportFile, runners, names, options = {}) {
   const entry = runners[name].entry;
   const args = name === 'jest'
@@ -50,6 +71,10 @@ async function runnerResult(name, cwd, reportFile, runners, names, options = {})
     runner: name, version: runners[name].version, reportHash: digest(JSON.stringify(report)),
     stdoutHash: digest(processResult.stdout), stderrHash: digest(processResult.stderr) };
 }
+/**
+ * @function oneCase
+ * Acceptance/test helper for oneCase; preserves repeatable setup and explicit evidence boundaries.
+ */
 async function oneCase(kind, scratch, runners, core) {
   const versions = Object.fromEntries(Object.entries(runners).map(([name, runner]) => [name, runner.version]));
   const fixture = runnerFixture(kind, versions), caseDir = join(scratch, kind);
@@ -59,6 +84,10 @@ async function oneCase(kind, scratch, runners, core) {
   const analysis = core.analyze(source, destination, 'greeting');
   const review = core.reviewProposal(fixture.proposal, source, destination, analysis.context, 'authored-runner-acceptance');
   ensure(review.exportable && review.patch, 'Graft blocked the authored runner case: ' + review.testTransfer?.blockers.join('; '));
+  /**
+   * @function reportPath
+   * Acceptance/test helper for reportPath; preserves repeatable setup and explicit evidence boundaries.
+   */
   const reportPath = label => join(caseDir, label + '.json');
   const sourceBaseline = await runnerResult('jest', sourceDir, reportPath('source'), runners, fixture.sourceTestNames);
   const destinationBaseline = await runnerResult('vitest', destinationDir, reportPath('baseline'), runners, fixture.destinationTestNames);
@@ -90,6 +119,10 @@ async function oneCase(kind, scratch, runners, core) {
     reviewId: review.id, patchHash: digest(review.patch), placements: review.testTransfer.placements,
     sourceBaseline, destinationBaseline, destinationAfter, brokenFeature, removedSetup, recovery };
 }
+/**
+ * @function runAcceptance
+ * Acceptance/test helper for runAcceptance; preserves repeatable setup and explicit evidence boundaries.
+ */
 export async function runAcceptance({ preflightOnly = false } = {}) {
   const preflight = await acceptancePreflight();
   const report = { schema: 'graft-real-runner-acceptance-v1', startedAt: new Date().toISOString(),

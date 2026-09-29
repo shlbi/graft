@@ -1,12 +1,29 @@
+/**
+ * @file Acceptance-harness module that records reproducible runner evidence for Repot test transfer.
+ *
+ * Evidence invariant: only record checks that actually executed; never promote a skipped or simulated result to verified.
+ */
 /** Evidence checks for original, synthetic runner-acceptance fixtures only. */
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+/**
+ * @function digest
+ * Acceptance/test helper for digest; preserves repeatable setup and explicit evidence boundaries.
+ */
 export const digest = text => createHash('sha256').update(text).digest('hex');
+/**
+ * @function ensure
+ * Acceptance/test helper for ensure; preserves repeatable setup and explicit evidence boundaries.
+ */
 const ensure = (ok, message) => { if (!ok) throw new Error(message); };
 
+/**
+ * @function discoverRunners
+ * Acceptance/test helper for discoverRunners; preserves repeatable setup and explicit evidence boundaries.
+ */
 export function discoverRunners(base = new URL('./package.json', import.meta.url)) {
   const require = createRequire(base), runners = {}, blockers = [];
   const root = dirname(base instanceof URL ? fileURLToPath(base) : base);
@@ -29,6 +46,10 @@ export function discoverRunners(base = new URL('./package.json', import.meta.url
 }
 
 /** No zero-test, skipped-test, or runner-error result can count as a behavioral pass. */
+/**
+ * @function verifyReport
+ * Acceptance/test helper for verifyReport; preserves repeatable setup and explicit evidence boundaries.
+ */
 export function verifyReport(report, exitCode, expectedNames, { negative = false, mustFail = [] } = {}) {
   ensure(report && typeof report === 'object' && !Array.isArray(report), 'Missing runner JSON report.');
   ensure(Array.isArray(expectedNames) && expectedNames.length > 0 && new Set(expectedNames).size === expectedNames.length, 'Expected test identities must be nonempty and unique.');

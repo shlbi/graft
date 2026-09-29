@@ -1,7 +1,16 @@
+/**
+ * @file MCP production/local contract regression module that guards Repot authorization, storage, and publication invariants.
+ *
+ * Evidence invariant: only record checks that actually executed; never promote a skipped or simulated result to verified.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+/**
+ * @function read
+ * Acceptance/test helper for read; preserves repeatable setup and explicit evidence boundaries.
+ */
 const read = path => readFile(new URL('../../' + path, import.meta.url), 'utf8');
 
 test('remote MCP is OAuth protected and only POST is served on MCP host', async () => {

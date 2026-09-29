@@ -1,3 +1,8 @@
+/**
+ * @file Automated Repot regression suite (test/materialize.test.mjs) covering transfer, release, or UI behavior.
+ *
+ * Test note: keep fixtures deterministic and make safety/release assertions explicit.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MaterializationError, materializeChangeSet } from '../dist/materialize.js';

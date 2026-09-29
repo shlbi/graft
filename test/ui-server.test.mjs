@@ -1,7 +1,16 @@
+/**
+ * @file Automated Repot regression suite (test/ui-server.test.mjs) covering transfer, release, or UI behavior.
+ *
+ * Test note: keep fixtures deterministic and make safety/release assertions explicit.
+ */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createReviewServer } from '../ui/server.mjs';
 
+/**
+ * @function waitForDemoJob
+ * Test helper for waitForDemoJob; centralizes repeatable setup or assertions for this suite.
+ */
 async function waitForDemoJob(base, token, poll) {
   for (let attempt = 0; attempt < 100; attempt++) {
     const response = await fetch(`${base}${poll}`, {

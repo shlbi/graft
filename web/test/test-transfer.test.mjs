@@ -1,3 +1,8 @@
+/**
+ * @file Web-engine regression suite (web/test/test-transfer.test.mjs) for Repot provider, parser, server, runner, or test-transfer behavior.
+ *
+ * Verification note: distinguish synthetic/provider doubles from real external execution in assertions and evidence.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
@@ -7,14 +12,34 @@ import { execFileSync } from 'node:child_process';
 import { snapshot, analyze, reviewProposal } from '../lib/core.mjs';
 import { discoverTests, references, isTestPath } from '../lib/test-transfer.mjs';
 import { demoInput, demoProposal, demoRun } from '../lib/demo.mjs';
+/**
+ * @function clone
+ * Test helper for clone; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const clone = () => structuredClone(demoInput);
+/**
+ * @function review
+ * Test helper for review; keeps setup, doubles, or assertions explicit and reusable.
+ */
 function review(input = clone(), proposal = demoProposal) {
   const source = snapshot(input.source), destination = snapshot(input.destination);
   const analysis = analyze(source, destination, 'CSV export');
   return reviewProposal(proposal, source, destination, analysis.context);
 }
+/**
+ * @function addSource
+ * Test helper for addSource; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const addSource = (input, path, content) => input.source.files.push({ path, content });
+/**
+ * @function editSource
+ * Test helper for editSource; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const editSource = (input, path, content) => input.source.files.find(f => f.path === path).content = content;
+/**
+ * @function assertBlocked
+ * Test helper for assertBlocked; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const assertBlocked = (result, message) => { assert.equal(result.exportable, false); assert.equal(result.patch, null); assert.equal(result.testTransfer.status, 'blocked'); assert.match(result.testTransfer.blockers.join('\n'), message); };
 
 test('discovers reverse references, required helpers and fixtures, not unrelated tests', () => {
@@ -160,6 +185,10 @@ test('actual sample source and destination baselines pass; applied patch carries
     for (const role of ['source', 'destination']) for (const f of demoInput[role].files) {
       const target = join(dir, role, f.path); await mkdir(dirname(target), { recursive: true }); await writeFile(target, f.content);
     }
+    /**
+     * @function options
+     * Test helper for options; keeps setup, doubles, or assertions explicit and reusable.
+     */
     const options = role => ({ cwd: join(dir, role), timeout: 10000, encoding: 'utf8', env: { PATH: process.env.PATH, SystemRoot: process.env.SystemRoot ?? '' } });
     const sourceBaseline = execFileSync(process.execPath, ['--test', 'test/csv.test.mjs', 'test/unrelated.test.mjs'], options('source'));
     const destinationBaseline = execFileSync(process.execPath, ['--test', 'tests/task-count.test.mjs'], options('destination'));

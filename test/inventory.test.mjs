@@ -1,9 +1,18 @@
+/**
+ * @file Automated Repot regression suite (test/inventory.test.mjs). It documents expected behavior and guards against silent contract drift.
+ *
+ * Test note: assertions should describe observed behavior; implementation details belong here only when they are explicit safety contracts.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseFeatureManifest } from '../dist/manifest.js';
 import { planTransplant } from '../dist/planner.js';
 import { InventoryError, parseDestinationInventory } from '../dist/inventory.js';
 
+/**
+ * @function manifest
+ * Test helper that prepares or verifies manifest behavior for this regression suite.
+ */
 const manifest = () => parseFeatureManifest({
   schemaVersion: 1,
   name: 'upload-jobs',

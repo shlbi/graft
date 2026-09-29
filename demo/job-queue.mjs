@@ -1,10 +1,23 @@
+/**
+ * @file Demo fixture/support module (demo/job-queue.mjs). It exists to exercise Repot behavior against synthetic code rather than customer repositories.
+ *
+ * Demo invariant: keep examples deterministic and clearly separate illustrative behavior from production claims.
+ */
 import { randomBytes } from 'node:crypto';
 
+/**
+ * @function unavailable
+ * Implements unavailable for the deterministic Repot demo fixture.
+ */
 const unavailable = message => Object.assign(new Error(message), { statusCode: 503 });
 
 /** Serial, bounded, in-memory demo queue. Reservations include bodies in flight.
  * close() rejects new work and waits for every accepted job, including work
  * submitted in the same tick. This is not a durable or untrusted worker runtime.
+ */
+/**
+ * @function createJobQueue
+ * Implements create job queue for the deterministic Repot demo fixture.
  */
 export function createJobQueue({ run, maxJobs = 64, ttlMs = 300_000 } = {}) {
   if (typeof run !== 'function') throw new TypeError('run must be a function');
@@ -18,12 +31,20 @@ export function createJobQueue({ run, maxJobs = 64, ttlMs = 300_000 } = {}) {
   let closePromise;
   let active = 0;
 
+  /**
+   * @function prune
+   * Implements prune for the deterministic Repot demo fixture.
+   */
   function prune() {
     const cutoff = Date.now() - ttlMs;
     for (const [id, job] of jobs) {
       if ((job.state === 'complete' || job.state === 'failed') && job.updatedAt <= cutoff) jobs.delete(id);
     }
   }
+  /**
+   * @function publicJob
+   * Implements public job for the deterministic Repot demo fixture.
+   */
   function publicJob(job) {
     if (!job) return undefined;
     const { id, name, size, state, createdAt, updatedAt } = job;
@@ -32,6 +53,10 @@ export function createJobQueue({ run, maxJobs = 64, ttlMs = 300_000 } = {}) {
     if (state === 'failed') value.error = job.error;
     return value;
   }
+  /**
+   * @function drain
+   * Implements drain for the deterministic Repot demo fixture.
+   */
   function drain() {
     if (draining) return draining;
     // Store the promise BEFORE invoking user work, even if the queue is empty.

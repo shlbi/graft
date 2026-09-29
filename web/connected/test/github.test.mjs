@@ -1,7 +1,16 @@
+/**
+ * @file Connected-web regression/fixture module (web/connected/test/github.test.mjs) covering Repot authentication, delivery, presentation, or storage contracts.
+ *
+ * Test invariant: simulated GitHub/AI/browser behavior must be labeled as simulated and must not be reported as live acceptance.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { config, fakeGitHub } from './fixtures.mjs';
 import { GitHubClient, boundedResponse } from '../github.mjs';
+/**
+ * @function json
+ * Test/fixture helper for json, keeping setup and expected security behavior reusable.
+ */
 const json = body => new Response(JSON.stringify(body));
 test('GitHub API sends credentials only to its fixed origin, disables redirects and uses bounded requests', async () => {
   const cfg = config(), gh = fakeGitHub(cfg); await gh.client.user('ghu_alice');

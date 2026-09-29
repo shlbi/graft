@@ -1,3 +1,8 @@
+/**
+ * @file Web-engine regression suite (web/test/core.test.mjs) for Repot provider, parser, server, runner, or test-transfer behavior.
+ *
+ * Verification note: distinguish synthetic/provider doubles from real external execution in assertions and evidence.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, mkdir, readFile, rm } from 'node:fs/promises';
@@ -8,10 +13,18 @@ import { pathToFileURL } from 'node:url';
 import { snapshot, analyze, reviewProposal, rank, stack, unifiedPatch, featureText, LIMITS } from '../lib/core.mjs';
 import { eligiblePath, looksSensitive } from '../lib/policy.mjs';
 import { demoInput, demoProposal, demoRun } from '../lib/demo.mjs';
+/**
+ * @function setup
+ * Test helper for setup; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const setup = () => {
   const source = snapshot(demoInput.source), destination = snapshot(demoInput.destination);
   return { source, destination, context: analyze(source, destination, 'CSV export').context };
 };
+/**
+ * @function draft
+ * Test helper for draft; keeps setup, doubles, or assertions explicit and reusable.
+ */
 const draft = proposal => { const x = setup(); return reviewProposal(proposal, x.source, x.destination, x.context); };
 test('snapshot fingerprint is independent of input file order', () => {
   assert.equal(snapshot(demoInput.source).fingerprint, snapshot({ ...demoInput.source, files: [...demoInput.source.files].reverse() }).fingerprint);

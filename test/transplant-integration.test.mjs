@@ -1,3 +1,8 @@
+/**
+ * @file Automated Repot regression suite (test/transplant-integration.test.mjs) covering transfer, release, or UI behavior.
+ *
+ * Test note: keep fixtures deterministic and make safety/release assertions explicit.
+ */
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { prepareDemoTransplant, uploadFeature, destinationInventory } from '../demo/graft-fixture.mjs';
@@ -8,6 +13,10 @@ const mount = {
   marker: '// graft:mount:upload-processing-progress',
   content: "import { uploadAndProcess } from './features/upload/service.js';\noutput = { ...baseline, hasUploadFeature: true, result: await uploadAndProcess('demo.txt', 'demo') };",
 };
+/**
+ * @function fixture
+ * Test helper for fixture; centralizes repeatable setup or assertions for this suite.
+ */
 async function fixture(mounts = [mount]) {
   const { sourceSnapshots: source, destinationSnapshots: destination } = await prepareDemoTransplant();
   const prepared = prepareTransplant(uploadFeature, destinationInventory, source, destination, [], mounts);
@@ -38,6 +47,10 @@ test('an invalid integration marker blocks the entire transplant, not just its i
 
 test('rejects stale source, integration targets, and destination adapters after review', async () => {
   const { prepared, source, destination } = await fixture();
+  /**
+   * @function changed
+   * Test helper for changed; centralizes repeatable setup or assertions for this suite.
+   */
   const changed = (files, path) => files.map(file => file.path === path ? { ...file, content: `${file.content}\n// changed` } : file);
   assert.throws(() => applyPreparedTransplant(prepared, changed(source, 'features/upload/service.ts'), destination), /source changed after review/u);
   for (const path of ['entry.ts', 'platform/blob-store.ts', 'platform/task-runner.ts']) {

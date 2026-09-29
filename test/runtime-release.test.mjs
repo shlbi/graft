@@ -1,3 +1,8 @@
+/**
+ * @file Automated Repot regression suite (test/runtime-release.test.mjs) covering transfer, release, or UI behavior.
+ *
+ * Test note: keep fixtures deterministic and make safety/release assertions explicit.
+ */
 import assert from 'node:assert/strict';
 import { request as httpRequest } from 'node:http';
 import test from 'node:test';
@@ -8,11 +13,19 @@ import { createCompiledTransplantFeature } from '../demo/http-transplant.mjs';
 import { prepareDemoTransplant, uploadFeature, destinationInventory } from '../demo/graft-fixture.mjs';
 import { prepareTransplant } from '../dist/transplant.js';
 
+/**
+ * @function deferred
+ * Test helper for deferred; centralizes repeatable setup or assertions for this suite.
+ */
 function deferred() {
   let resolve;
   const promise = new Promise(done => { resolve = done; });
   return { promise, resolve };
 }
+/**
+ * @function upload
+ * Test helper for upload; centralizes repeatable setup or assertions for this suite.
+ */
 const upload = name => ({ name, content: 'hello', size: 5 });
 
 test('queue reservations bound concurrent receiving bodies, not just accepted jobs', async () => {
@@ -86,6 +99,10 @@ test('shutdown revokes outstanding reservations rather than accepting post-close
   assert.equal(queue.stats().receivingJobs, 0);
 });
 
+/**
+ * @function statusWithHeaders
+ * Test helper for statusWithHeaders; centralizes repeatable setup or assertions for this suite.
+ */
 function statusWithHeaders(url, headers) {
   return new Promise((resolve, reject) => {
     const req = httpRequest(url, { headers }, response => {
@@ -97,6 +114,10 @@ function statusWithHeaders(url, headers) {
   });
 }
 
+/**
+ * @function slowPost
+ * Test helper for slowPost; centralizes repeatable setup or assertions for this suite.
+ */
 function slowPost(base) {
   const response = deferred();
   const request = httpRequest(`${base}/api/upload?name=slow.txt`, {

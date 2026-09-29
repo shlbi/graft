@@ -1,3 +1,8 @@
+/**
+ * @file Connected-web regression/fixture module (web/connected/test/branding.test.mjs) covering Repot authentication, delivery, presentation, or storage contracts.
+ *
+ * Test invariant: simulated GitHub/AI/browser behavior must be labeled as simulated and must not be reported as live acceptance.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -10,7 +15,15 @@ import { buildSite } from '../../../scripts/build-site.mjs';
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const assets = join(root, 'web/connected/public');
 const html = await readFile(join(assets, 'index.html'), 'utf8');
+/**
+ * @function sha
+ * Test/fixture helper for sha, keeping setup and expected security behavior reusable.
+ */
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+/**
+ * @function gitBlob
+ * Test/fixture helper for gitBlob, keeping setup and expected security behavior reusable.
+ */
 const gitBlob = bytes => createHash('sha1').update(`blob ${Buffer.byteLength(bytes)}\0`).update(bytes).digest('hex');
 
 test('header and footer replace R with the uploaded mark, without a duplicate emblem or letter', () => {

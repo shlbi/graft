@@ -1,3 +1,8 @@
+/**
+ * @file Demo fixture/support module (demo/destination-app/platform/task-runner.ts). It exists to exercise Repot behavior against synthetic code rather than customer repositories.
+ *
+ * Demo invariant: keep examples deterministic and clearly separate illustrative behavior from production claims.
+ */
 import { readUpload } from './blob-store.js';
 
 export interface ProcessingMetrics {
@@ -14,6 +19,10 @@ export interface ProgressUpdate {
   metrics?: ProcessingMetrics;
 }
 
+/**
+ * @function checksum
+ * Implements checksum for the deterministic Repot demo fixture.
+ */
 function checksum(content: string): string {
   let hash = 0x811c9dc5;
   for (const byte of new TextEncoder().encode(content)) {
@@ -23,6 +32,10 @@ function checksum(content: string): string {
   return hash.toString(16).padStart(8, '0');
 }
 
+/**
+ * @function runProcessingJob
+ * Implements run processing job for the deterministic Repot demo fixture.
+ */
 export async function runProcessingJob(fileId: string): Promise<ProgressUpdate[]> {
   const updates: ProgressUpdate[] = [{ progress: 0, stage: 'queued' }];
   await Promise.resolve();

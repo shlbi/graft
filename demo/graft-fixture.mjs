@@ -1,3 +1,8 @@
+/**
+ * @file Demo fixture/support module (demo/graft-fixture.mjs). It exists to exercise Repot behavior against synthetic code rather than customer repositories.
+ *
+ * Demo invariant: keep examples deterministic and clearly separate illustrative behavior from production claims.
+ */
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,6 +43,10 @@ const destinationPaths = [
   'platform/task-runner.ts',
 ];
 
+/**
+ * @function snapshots
+ * Implements snapshots for the deterministic Repot demo fixture.
+ */
 async function snapshots(root, paths) {
   return Promise.all(paths.map(async path => ({ path, content: await readFile(join(root, path), 'utf8') })));
 }
@@ -54,10 +63,18 @@ export const uploadMount = {
   ].join('\n'),
 };
 
+/**
+ * @function readSourceDemoSnapshots
+ * Implements read source demo snapshots for the deterministic Repot demo fixture.
+ */
 export async function readSourceDemoSnapshots() {
   return snapshots(join(here, 'source-app'), [...sourcePaths, 'app.ts', 'entry.ts']);
 }
 
+/**
+ * @function prepareDemoTransplant
+ * Implements prepare demo transplant for the deterministic Repot demo fixture.
+ */
 export async function prepareDemoTransplant({ integrate = false } = {}) {
   const sourceSnapshots = await snapshots(join(here, 'source-app'), sourcePaths);
   const destinationSnapshots = await snapshots(join(here, 'destination-app'), destinationPaths);
@@ -68,6 +85,10 @@ export async function prepareDemoTransplant({ integrate = false } = {}) {
   return { prepared, sourceSnapshots, destinationSnapshots };
 }
 
+/**
+ * @function runDemoTransplant
+ * Implements run demo transplant for the deterministic Repot demo fixture.
+ */
 export async function runDemoTransplant(options) {
   const fixture = await prepareDemoTransplant(options);
   const applied = applyPreparedTransplant(fixture.prepared, fixture.sourceSnapshots, fixture.destinationSnapshots);

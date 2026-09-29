@@ -1,3 +1,8 @@
+/**
+ * @file Synthetic Repot demo source/support module (demo/upload-server.mjs) used by repeatable transfer and verification examples.
+ *
+ * Demo invariant: do not confuse fixture behavior with production guarantees.
+ */
 import { createServer } from 'node:http';
 import { createJobQueue } from './job-queue.mjs';
 import { assertLoopbackHost, decodeUploadText, isLocalRequest } from './http-boundary.mjs';
@@ -6,6 +11,10 @@ const DEFAULT_MAX_UPLOAD_BYTES = 1024 * 1024;
 const DEFAULT_JOB_TTL_MS = 5 * 60 * 1000;
 const DEFAULT_MAX_JOBS = 64;
 
+/**
+ * @function sendJson
+ * Implements send json for this synthetic demo.
+ */
 function sendJson(response, status, value) {
   if (response.destroyed || response.writableEnded) return;
   const payload = JSON.stringify(value);
@@ -18,6 +27,10 @@ function sendJson(response, status, value) {
   response.end(payload);
 }
 
+/**
+ * @function normalizeUploadName
+ * Implements normalize upload name for this synthetic demo.
+ */
 export function normalizeUploadName(raw) {
   const name = String(raw ?? '').trim();
   if (!name || name.length > 160) throw Object.assign(new Error('upload name must be 1-160 characters'), { statusCode: 400 });
@@ -27,6 +40,10 @@ export function normalizeUploadName(raw) {
   return name;
 }
 
+/**
+ * @function readBoundedUploadBody
+ * Implements read bounded upload body for this synthetic demo.
+ */
 export async function readBoundedUploadBody(request, maxBytes, { allowEmpty = false } = {}) {
   const chunks = [];
   let size = 0;
@@ -49,6 +66,10 @@ export async function readBoundedUploadBody(request, maxBytes, { allowEmpty = fa
  * Upload acceptance is decoupled from processing through an explicit bounded
  * in-memory job queue. This is a demo transport boundary, not a claim that the
  * transplanted feature itself provides durable queueing.
+ */
+/**
+ * @function createUploadHttpServer
+ * Implements create upload http server for this synthetic demo.
  */
 export function createUploadHttpServer({
   uploadAndProcess,

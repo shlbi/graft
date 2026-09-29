@@ -1,3 +1,8 @@
+/**
+ * @file Automated Repot regression suite (test/review-model.test.mjs) covering transfer, release, or UI behavior.
+ *
+ * Test note: keep fixtures deterministic and make safety/release assertions explicit.
+ */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { buildDemoReview } from '../demo/review-model.mjs';

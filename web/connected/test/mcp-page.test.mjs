@@ -1,3 +1,8 @@
+/**
+ * @file Connected-web regression/fixture module (web/connected/test/mcp-page.test.mjs) covering Repot authentication, delivery, presentation, or storage contracts.
+ *
+ * Test invariant: simulated GitHub/AI/browser behavior must be labeled as simulated and must not be reported as live acceptance.
+ */
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
 const html=await readFile(new URL('../public/mcp/index.html',import.meta.url),'utf8'),css=await readFile(new URL('../public/mcp/mcp.css',import.meta.url),'utf8');
 test('MCP page is the remote one-link experience',()=>{assert.match(html,/https:\/\/mcp\.getrepot\.com\/mcp/);assert.match(html,/Copy MCP URL/);assert.match(html,/STREAMABLE HTTP/);assert.match(html,/OAUTH 2\.1/);assert.doesNotMatch(html,/git clone|npm install|--allow-root|LOCAL STDIO ALPHA/);});

@@ -1,3 +1,8 @@
+/**
+ * @file Connected-web regression/fixture module (web/connected/test/client.test.mjs) covering Repot authentication, delivery, presentation, or storage contracts.
+ *
+ * Test invariant: simulated GitHub/AI/browser behavior must be labeled as simulated and must not be reported as live acceptance.
+ */
 // Actual frontend code + explicit DOM/HTTP doubles. Not live GitHub or AI execution.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -15,7 +20,15 @@ class Element {
   focus() {} remove() {} scrollIntoView() {}
   set innerHTML(_) { throw new Error('Never render untrusted repository text as HTML'); }
 }
+/**
+ * @function settle
+ * Test/fixture helper for settle, keeping setup and expected security behavior reusable.
+ */
 async function settle(fn) { for (let n=0;n<200;n++) { if(fn())return; await new Promise(r=>setImmediate(r)); } assert.fail('Controller did not settle'); }
+/**
+ * @function harness
+ * Test/fixture helper for harness, keeping setup and expected security behavior reusable.
+ */
 async function harness({signedIn=true,writes=true,ai=true,offline=false,htmlFallback=false,malformed=false}={}) {
   const html=await readFile(new URL('../public/index.html',import.meta.url),'utf8'),code=await readFile(new URL('../public/app.mjs',import.meta.url),'utf8');
   const ids=Object.fromEntries([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],new Element()]));
@@ -24,6 +37,10 @@ async function harness({signedIn=true,writes=true,ai=true,offline=false,htmlFall
   const job={id:'a'.repeat(43),state:'review_ready',feature:'CSV <script>evil</script>',digest:'abc',message:'Draft ready',
     review:{exportable:true,patch:'authored patch\n',changes:[{action:'add',path:'src/csv.js',content:'<img src=x onerror=evil()>',reason:'Test fixture',before:null}],testTransfer:{placements:[{sourcePath:'test/csv.js',destinationPath:'tests/csv.js'}],blockers:[]},risks:[]}};
   class ObjectURL extends URL {static createObjectURL(b){downloads.push(b);return 'blob:test';}static revokeObjectURL(){}}
+  /**
+   * @function api
+   * Test/fixture helper for api, keeping setup and expected security behavior reusable.
+   */
   const api = async(path,opts)=>{calls.push({path,opts});if(offline)throw new Error('Network unavailable');let data,status=200;
     if(expiry){status=401;data={error:'Expired',code:'session'};}
     else if(path==='/api/session'){status=signedIn?200:401;data=malformed?{}:signedIn?{user:{id:1,login:'alice'},csrf:'test-csrf',writesEnabled:writes,aiConfigured:ai,userDailyDraftLimit:3}:{error:'Sign in',code:'session'};}
@@ -40,8 +57,20 @@ async function harness({signedIn=true,writes=true,ai=true,offline=false,htmlFall
   await settle(()=>offline||htmlFallback||malformed||!signedIn?ids.account.children.length:ids.jobs.children.length);
   return {ids,calls,job,created,downloads,tabs,expire(){expiry=true;},blockDraft(){block=true;}};
 }
+/**
+ * @function review
+ * Test/fixture helper for review, keeping setup and expected security behavior reusable.
+ */
 async function review(h){h.ids.jobs.children[0].click();await settle(()=>h.ids['review-title'].textContent===h.job.feature);}
+/**
+ * @function fill
+ * Test/fixture helper for fill, keeping setup and expected security behavior reusable.
+ */
 function fill(h){h.ids.source.value='10';h.ids.destination.value='20';h.ids.feature.value='Move the CSV export';h.ids.consent.checked=true;h.ids.feature.dispatchEvent({type:'input'});}
+/**
+ * @function submit
+ * Test/fixture helper for submit, keeping setup and expected security behavior reusable.
+ */
 function submit(h){h.ids['transfer-form'].dispatchEvent({type:'submit',preventDefault(){}});}
 test('unauthenticated bootstrap keeps a read-only workspace and offers real sign-in',async()=>{const h=await harness({signedIn:false});assert.equal(h.ids.composer.disabled,true);assert.equal(h.ids.workspace.hidden,false);assert.equal(h.ids.welcome.hidden,false);assert.equal(h.calls.length,1);assert.equal(h.ids.connect.href,'/auth/github');});
 test('read-only destination and unconfigured drafting remain disabled',async()=>{const h=await harness({ai:false});assert.equal(h.ids.destination.children[0].disabled,true);assert.equal(h.ids.destination.children[1].disabled,false);fill(h);assert.equal(h.ids['create-draft'].disabled,true);});
