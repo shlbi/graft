@@ -1,3 +1,8 @@
+/**
+ * @file Core Repot transfer-engine module for imports. This deterministic layer analyzes or transforms repository snapshots without hidden network access.
+ *
+ * Engine invariant: identical snapshots and options should produce identical results.
+ */
 import ts from 'typescript';
 import type { ModuleRecord, ImportRef } from './analyzer.js';
 import { projectPath } from './manifest.js';
@@ -27,19 +32,39 @@ export interface ParsedModuleGraph {
   ready: boolean;
 }
 
+/**
+ * @function isSupportedSource
+ * Implements is supported source within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function isSupportedSource(pathname: string): boolean {
   return SOURCE_EXTENSIONS.some(extension => pathname.endsWith(extension));
 }
 
+/**
+ * @function collectModuleSpecifiers
+ * Implements collect module specifiers within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function collectModuleSpecifiers(sourceFile: ts.SourceFile): { staticSpecifiers: string[]; blockers: ImportParseBlocker[] } {
   const staticSpecifiers: string[] = [];
   const blockers: ImportParseBlocker[] = [];
   const sourcePath = projectPath(sourceFile.fileName, 'source.path');
 
+  /**
+   * @function addStatic
+   * Implements add static within the deterministic transfer engine.
+   * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+   */
   function addStatic(node: ts.StringLiteralLike): void {
     staticSpecifiers.push(node.text);
   }
 
+  /**
+   * @function visit
+   * Implements visit within the deterministic transfer engine.
+   * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+   */
   function visit(node: ts.Node): void {
     if (ts.isImportDeclaration(node) && ts.isStringLiteralLike(node.moduleSpecifier)) {
       addStatic(node.moduleSpecifier);
@@ -69,6 +94,11 @@ function collectModuleSpecifiers(sourceFile: ts.SourceFile): { staticSpecifiers:
   return { staticSpecifiers, blockers };
 }
 
+/**
+ * @function relativeCandidates
+ * Implements relative candidates within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function relativeCandidates(importer: string, specifier: string): string[] {
   const parent = importer.includes('/') ? importer.slice(0, importer.lastIndexOf('/')) : '';
   const stack = parent ? parent.split('/') : [];
@@ -99,6 +129,11 @@ function relativeCandidates(importer: string, specifier: string): string[] {
   ];
 }
 
+/**
+ * @function resolveSpecifier
+ * Implements resolve specifier within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function resolveSpecifier(importer: string, specifier: string, knownPaths: Set<string>): ImportRef | null {
   if (!specifier.startsWith('.')) return { kind: 'package', package: specifier };
   const matches = relativeCandidates(importer, specifier).filter(candidate => knownPaths.has(candidate));
@@ -109,6 +144,11 @@ function resolveSpecifier(importer: string, specifier: string, knownPaths: Set<s
 /**
  * Parses the deliberately narrow v0.1 TypeScript module subset. It supports
  * static ESM import/export edges and refuses dynamic/CommonJS dependencies.
+ */
+/**
+ * @function parseTypeScriptModules
+ * Implements parse type script modules within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
  */
 export function parseTypeScriptModules(snapshots: TypeScriptSnapshot[]): ParsedModuleGraph {
   const knownPaths = new Set<string>();

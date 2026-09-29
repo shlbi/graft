@@ -1,3 +1,8 @@
+/**
+ * @file Core Repot transfer-engine module for changeset. This deterministic layer analyzes or transforms repository snapshots without hidden network access.
+ *
+ * Engine invariant: identical snapshots and options should produce identical results.
+ */
 import type { FeatureClosure } from './analyzer.js';
 import type { FeatureManifest } from './manifest.js';
 import { projectPath } from './manifest.js';
@@ -41,6 +46,11 @@ export class ChangeSetError extends Error {
 /**
  * Builds a deterministic, review-only change set. It never overwrites an
  * existing destination path; collision resolution must be explicit later.
+ */
+/**
+ * @function buildReviewableChangeSet
+ * Implements build reviewable change set within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
  */
 export function buildReviewableChangeSet(
   feature: FeatureManifest,

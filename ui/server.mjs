@@ -1,3 +1,8 @@
+/**
+ * @file Legacy Repot local UI asset retained for demos and regression coverage.
+ *
+ * Legacy note: preserve compatibility for tests/demos; production product behavior lives under app/, remote/, and web/connected/public/.
+ */
 import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
@@ -26,6 +31,10 @@ const staticRoutes = new Map([
   ['/upload.css', ['upload.css', 'text/css; charset=utf-8']],
 ]);
 
+/**
+ * @function sendJson
+ * Implements send json for this legacy interface.
+ */
 function sendJson(response, status, value) {
   if (response.destroyed || response.writableEnded) return;
   const payload = JSON.stringify(value);
@@ -37,10 +46,18 @@ function sendJson(response, status, value) {
   response.end(payload);
 }
 
+/**
+ * @function sendError
+ * Implements send error for this legacy interface.
+ */
 function sendError(response, status, message) {
   sendJson(response, status, { error: message });
 }
 
+/**
+ * @function readJson
+ * Implements read json for this legacy interface.
+ */
 async function readJson(request) {
   const bytes = await readBoundedUploadBody(request, MAX_BODY_BYTES, { allowEmpty: true });
   if (!bytes.length) return {};
@@ -51,6 +68,10 @@ async function readJson(request) {
   }
 }
 
+/**
+ * @function summarizeApply
+ * Implements summarize apply for this legacy interface.
+ */
 function summarizeApply(applied) {
   return {
     created: applied.created.map(file => file.path),
@@ -67,10 +88,18 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
   let busy = false;
   let demoRuntime = null;
 
+  /**
+   * @function pruneSessions
+   * Implements prune sessions for this legacy interface.
+   */
   function pruneSessions(now = Date.now()) {
     for (const [id, session] of sessions) if (session.expiresAt <= now || session.consumed) sessions.delete(id);
   }
 
+  /**
+   * @function closeDemoRuntime
+   * Implements close demo runtime for this legacy interface.
+   */
   async function closeDemoRuntime(expected = demoRuntime) {
     if (!expected || expected !== demoRuntime) return;
     demoRuntime = null; // Revoke new uploads before awaiting accepted jobs.
@@ -79,10 +108,18 @@ export function createReviewServer({ host = '127.0.0.1', port = 4173 } = {}) {
     await expected.runtime.close();
   }
 
+  /**
+   * @function pruneDemoRuntime
+   * Implements prune demo runtime for this legacy interface.
+   */
   async function pruneDemoRuntime(now = Date.now()) {
     if (demoRuntime && demoRuntime.expiresAt <= now) await closeDemoRuntime();
   }
 
+  /**
+   * @function handle
+   * Implements handle for this legacy interface.
+   */
   async function handle(request, response) {
     try {
       if (closing) { sendError(response, 503, 'server is closing'); return; }

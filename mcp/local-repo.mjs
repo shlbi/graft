@@ -1,11 +1,26 @@
+/**
+ * @file Local stdio Repot MCP development module (local-repo.mjs). The hosted remote MCP is the production product; this code remains a reference and local fallback.
+ *
+ * Safety note: local repository access must remain confined to explicit roots, and writes stay opt-in.
+ */
 import { lstat, readdir, readFile, realpath, writeFile, mkdir, unlink } from 'node:fs/promises';
 import { basename, dirname, relative, resolve, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import { eligiblePath, LIMITS, looksSensitive } from '../web/lib/policy.mjs';
 import { snapshot, Fault } from '../web/lib/core-base.mjs';
 const SKIP_DIR = /^(?:\.git|\.github|node_modules|vendor|dist|build|target|coverage|\.next|\.venv|venv|__pycache__)$/i;
+/**
+ * @function within
+ * Implements within for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 const within = (root, target) => target === root || target.startsWith(root.endsWith(sep) ? root : root + sep);
 
+/**
+ * @function assertNoSymlinkParents
+ * Implements assert no symlink parents for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 async function assertNoSymlinkParents(root, target) {
   const rel=relative(root,target);
   let cursor=root;
@@ -17,6 +32,11 @@ async function assertNoSymlinkParents(root, target) {
   }
 }
 
+/**
+ * @function normalizeRoots
+ * Implements normalize roots for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 export async function normalizeRoots(values) {
   if (!Array.isArray(values) || !values.length) throw new Fault('Repot MCP needs at least one --allow-root directory.');
   const roots=[];
@@ -27,6 +47,11 @@ export async function normalizeRoots(values) {
   }
   return [...new Set(roots)];
 }
+/**
+ * @function resolveAllowedRepository
+ * Implements resolve allowed repository for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 export async function resolveAllowedRepository(input, roots) {
   if(typeof input!=='string'||!input.trim()||input.length>1000) throw new Fault('Repository path is required.');
   const repo=await realpath(resolve(input)), st=await lstat(repo);
@@ -34,8 +59,18 @@ export async function resolveAllowedRepository(input, roots) {
   if(!roots.some(root=>within(root,repo))) throw new Fault('Repository is outside Repot MCP allowed roots.',403);
   return repo;
 }
+/**
+ * @function snapshotLocalRepository
+ * Implements snapshot local repository for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 export async function snapshotLocalRepository(input, roots) {
   const repo=await resolveAllowedRepository(input,roots), inventory=[], files=[]; let total=0;
+  /**
+   * @function walk
+   * Implements walk for the local MCP workflow.
+   * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+   */
   async function walk(dir){
     const entries=await readdir(dir,{withFileTypes:true});
     for(const entry of entries.sort((a,b)=>a.name.localeCompare(b.name))){
@@ -59,6 +94,11 @@ export async function snapshotLocalRepository(input, roots) {
   await walk(repo);
   return {root:repo,snapshot:snapshot({name:basename(repo),files,inventory})};
 }
+/**
+ * @function applyReviewedChanges
+ * Implements apply reviewed changes for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 export async function applyReviewedChanges({destinationRoot, review, expectedFingerprint, roots}) {
   const current=await snapshotLocalRepository(destinationRoot,roots);
   if(current.snapshot.fingerprint!==expectedFingerprint) throw new Fault('Destination changed since this review was created. Draft again before applying.',409);

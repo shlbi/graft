@@ -1,3 +1,8 @@
+/**
+ * @file Legacy/connected Repot service module retained for the authenticated web workflow and its acceptance tests.
+ *
+ * Security note: this layer handles repository or session data; preserve authorization, input bounds, and explicit write gates.
+ */
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, chmodSync } from 'node:fs';
 import { dirname } from 'node:path';

@@ -1,20 +1,45 @@
+/**
+ * @file Repot web-engine module for syntax. It supports bounded transfer analysis, provider integration, syntax adaptation, or test preservation used by the web and MCP products.
+ *
+ * Boundary note: keep repository context bounded and never claim execution/verification that this module did not actually perform.
+ */
 /** Parse repository text without importing it, evaluating configs, or reading the host filesystem. */
 import ts from 'typescript';
 import path from 'node:path';
 export { ts };
+/**
+ * @function isCode
+ * Implements is code for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export const isCode = p => /\.[cm]?[jt]sx?$/i.test(p);
+/**
+ * @function walk
+ * Implements walk for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function walk(node, visit) { visit(node); ts.forEachChild(node, child => walk(child, visit)); }
+/**
+ * @function unwrap
+ * Implements unwrap for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function unwrap(node) {
   while (node && (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isSatisfiesExpression(node) || ts.isTypeAssertionExpression(node))) node = node.expression;
   return node;
 }
 const parsedCache = new WeakMap();
+/**
+ * @function parse
+ * Implements parse for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function parse(file) {
   const cached = parsedCache.get(file);
   if (cached?.path === file.path && cached.content === file.content) return cached.parsed;
   const ast = ts.createSourceFile(file.path, file.content, ts.ScriptTarget.Latest, true);
   const issues = (ast.parseDiagnostics ?? []).map(d => `syntax: ${ts.flattenDiagnosticMessageText(d.messageText, ' ')}`);
   const declarations = new Map(), constants = new Map();
+  /**
+   * @function bind
+   * Implements bind for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+   */
   const bind = name => {
     if (!name) return;
     if (ts.isIdentifier(name)) declarations.set(name.text, (declarations.get(name.text) ?? 0) + 1);
@@ -31,6 +56,10 @@ export function parse(file) {
   parsedCache.set(file, { path: file.path, content: file.content, parsed });
   return parsed;
 }
+/**
+ * @function staticString
+ * Implements static string for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function staticString(node, parsed, seen = new Set()) {
   node = unwrap(node);
   if (!node || seen.size > 24) return null;
@@ -47,6 +76,10 @@ export function staticString(node, parsed, seen = new Set()) {
   }
   return null;
 }
+/**
+ * @function literalEdit
+ * Implements literal edit for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function literalEdit(node, ast, value) {
   if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
     const raw = node.getText(ast), q = raw[0];
@@ -55,6 +88,10 @@ export function literalEdit(node, ast, value) {
   }
   return { start: node.getStart(ast), end: node.end, value: JSON.stringify(value) };
 }
+/**
+ * @function applyEdits
+ * Implements apply edits for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function applyEdits(text, edits) {
   const sorted = [...edits].sort((a, b) => b.start - a.start || b.end - a.end);
   let last = text.length;
@@ -64,11 +101,19 @@ export function applyEdits(text, edits) {
   }
   return text;
 }
+/**
+ * @function candidates
+ * Implements candidates for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 function candidates(base, files, resource) {
   if (files.has(base)) return [base];
   if (resource) return [];
   return [...new Set([base.replace(/\.js$/, '.ts'), base.replace(/\.jsx$/, '.tsx'), base.replace(/\.mjs$/, '.mts'), base.replace(/\.cjs$/, '.cts'), ...['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.mts', '.cts', '/index.ts', '/index.tsx', '/index.js', '/index.mjs'].map(ext => base + ext)].filter(p => files.has(p)))];
 }
+/**
+ * @function aliasTarget
+ * Implements alias target for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 function aliasTarget(specifier, file, files) {
   const configs = [...files.keys()].filter(p => /(?:^|\/)tsconfig\.json$/.test(p) && (path.posix.dirname(p) === '.' || file.path.startsWith(path.posix.dirname(p) + '/'))).sort((a, b) => b.length - a.length);
   if (!configs.length) return null;
@@ -94,10 +139,18 @@ function aliasTarget(specifier, file, files) {
   if (base.startsWith('../')) return { configPath, issues: ['alias escapes the repository'], targets: [] };
   return { configPath, issues: [], targets: candidates(base, files, false) };
 }
+/**
+ * @function parsedReferences
+ * Implements parsed references for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function parsedReferences(file, files) {
   const refs = [], configPaths = new Set();
   if (!isCode(file.path)) { Object.defineProperty(refs, 'issues', { value: [] }); return refs; }
   const p = parse(file), { ast } = p, issues = [...p.issues];
+  /**
+   * @function add
+   * Implements add for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+   */
   const add = (node, resource = false) => {
     const specifier = staticString(node, p);
     if (specifier === null) { issues.push(resource ? 'dynamic fixture path cannot be resolved statically' : 'dynamic import/require cannot be resolved statically'); return; }
@@ -114,6 +167,10 @@ export function parsedReferences(file, files) {
       offset: node.getStart(ast) + (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) ? 1 : 0), nodeStart: node.getStart(ast),
       edit: value => literalEdit(node, ast, value) });
   };
+  /**
+   * @function isURL
+   * Implements is url for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+   */
   const isURL = n => n && ts.isNewExpression(n) && n.expression.getText(ast) === 'URL' && !p.declarations.has('URL') && n.arguments?.length === 2 && n.arguments[1].getText(ast).replace(/\s/g, '') === 'import.meta.url';
   const readerNames = new Set(['readFile', 'readFileSync', 'readdir', 'readdirSync']);
   for (const s of ast.statements) if (ts.isImportDeclaration(s) && ['node:fs', 'fs', 'node:fs/promises', 'fs/promises'].includes(s.moduleSpecifier.text)) {

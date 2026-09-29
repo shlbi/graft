@@ -1,3 +1,8 @@
+/**
+ * @file Core Repot transfer-engine module for inventory. This deterministic layer analyzes or transforms repository snapshots without hidden network access.
+ *
+ * Engine invariant: identical snapshots and options should produce identical results.
+ */
 import type { CapabilityKind } from './manifest.js';
 import { projectPath } from './manifest.js';
 import type { DestinationCapability } from './planner.js';
@@ -16,6 +21,11 @@ export class InventoryError extends Error {
 
 type JsonObject = Record<string, unknown>;
 
+/**
+ * @function object
+ * Implements object within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function object(value: unknown, field: string, allowed: readonly string[]): JsonObject {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new InventoryError(field, 'expected an object');
@@ -26,6 +36,11 @@ function object(value: unknown, field: string, allowed: readonly string[]): Json
   return value as JsonObject;
 }
 
+/**
+ * @function text
+ * Implements text within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function text(value: unknown, field: string, max = 256): string {
   if (typeof value !== 'string' || !value.trim() || value.length > max) {
     throw new InventoryError(field, `expected a nonempty string of at most ${max} characters`);
@@ -33,6 +48,11 @@ function text(value: unknown, field: string, max = 256): string {
   return value;
 }
 
+/**
+ * @function kind
+ * Implements kind within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function kind(value: unknown, field: string): CapabilityKind {
   const supported: CapabilityKind[] = ['storage', 'jobs', 'database', 'auth', 'events'];
   if (typeof value !== 'string' || !supported.includes(value as CapabilityKind)) {
@@ -44,6 +64,11 @@ function kind(value: unknown, field: string): CapabilityKind {
 /**
  * Parses an explicit destination capability inventory. Discovery remains
  * conservative: Graft only maps capabilities the destination declares here.
+ */
+/**
+ * @function parseDestinationInventory
+ * Implements parse destination inventory within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
  */
 export function parseDestinationInventory(input: unknown): DestinationInventory {
   const root = object(input, 'inventory', ['schemaVersion', 'capabilities']);

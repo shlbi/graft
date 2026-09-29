@@ -1,3 +1,8 @@
+/**
+ * @file Repot web-engine module for test-transfer. It supports bounded transfer analysis, provider integration, syntax adaptation, or test preservation used by the web and MCP products.
+ *
+ * Boundary note: keep repository context bounded and never claim execution/verification that this module did not actually perform.
+ */
 /** Test transplant with parser-backed references and bounded, audited runner/setup adaptation. */
 import path from 'node:path';
 import { isBuiltin } from 'node:module';
@@ -8,13 +13,41 @@ import { inspectConfiguration, inspectSetupFile } from './test-config.mjs';
 export { references };
 const code = /\.[cm]?[jt]sx?$/i;
 const testDir = /(?:^|\/)(?:tests?|__tests__|spec)\//i;
+/**
+ * @function isTestPath
+ * Implements is test path for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export const isTestPath = p => /(?:^|\/)(?:test_[^/]+\.py|[^/]+_test\.(?:py|go)|[^/]+\.(?:test|spec)\.[cm]?[jt]sx?)$/i.test(p) || (/\.[cm]?[jt]sx?$/.test(p) && /(?:^|\/)__tests__\//.test(p));
+/**
+ * @function isTestSupport
+ * Implements is test support for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export const isTestSupport = p => testDir.test(p) || /(?:^|\/)(?:__mocks__|fixtures?|test-utils|testing)\//i.test(p);
+/**
+ * @function isTestConfig
+ * Implements is test config for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export const isTestConfig = p => /(?:^|\/)(?:(?:jest|vitest|vite|playwright|cypress)\.config\.(?:[cm]?[jt]s|json)|(?:test[-.]?setup|setupTests|conftest)\.[cm]?[jt]sx?|conftest\.py)$/i.test(p);
+/**
+ * @function isTestFile
+ * Implements is test file for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 const isTestFile = f => isTestPath(f.path) || (code.test(f.path) && testDir.test(f.path) && /\b(?:test|it|describe)\s*\(/.test(f.content));
+/**
+ * @function stem
+ * Implements stem for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 const stem = p => path.posix.basename(p).replace(/\.(?:test|spec)(?=\.[^.]+$)/, '').replace(/^test_|_test(?=\.[^.]+$)/g, '').replace(/\.[^.]+$/, '');
+/**
+ * @function rootOf
+ * Implements root of for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 const rootOf = p => p.match(/^(.*?(?:^|\/)(?:tests?|__tests__|spec)\/)/i)?.[1];
 
+/**
+ * @function environment
+ * Implements environment for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 function environment(repo) {
   const frameworks = new Set(), dependencies = new Set(), configs = [], packages = [];
   const fileMap = new Map(repo.files.map(f => [f.path, f]));
@@ -46,6 +79,10 @@ function environment(repo) {
     layout: roots.length === 1 ? roots[0] : null, marker: markers.length === 1 ? markers[0] : null,
     examples: tests.slice(0, 4).map(f => f.path) };
 }
+/**
+ * @function discoverTests
+ * Implements discover tests for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function discoverTests(source, destination, featurePaths) {
   const sf = environment(source), df = environment(destination);
   const files = new Map(source.files.map(f => [f.path, f]));
@@ -83,7 +120,15 @@ export function discoverTests(source, destination, featurePaths) {
       ...(!complete ? ['Partial source inspection: use a complete local snapshot to establish test coverage.'] : []),
       ...(unreadTests.length ? [`${unreadTests.length} known test file(s) were not inspected.`] : [])] };
 }
+/**
+ * @function packageName
+ * Implements package name for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 function packageName(spec) { return spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0]; }
+/**
+ * @function relativeSpecifier
+ * Implements relative specifier for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 function relativeSpecifier(from, to, original, resource) {
   let result = path.posix.relative(path.posix.dirname(from), to);
   if (!resource && !path.posix.extname(original)) result = result.replace(/\.[cm]?[jt]sx?$/, '');
@@ -91,9 +136,17 @@ function relativeSpecifier(from, to, original, resource) {
   return result.startsWith('.') ? result : './' + result;
 }
 /** Preserve assertion logic; audit resolved path, runner import, and setup-import edits. */
+/**
+ * @function transplantTests
+ * Implements transplant tests for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function transplantTests(changes, source, destination, plan, context) {
   const blockers = [...plan.issues], placements = [], additions = [], adaptations = [];
   const pair = frameworkPair(plan.source, plan.destination), hooksByPath = new Map();
+  /**
+   * @function done
+   * Implements done for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+   */
   const done = () => ({ changes: [...changes, ...additions], report: { status: blockers.length ? 'blocked' : plan.tests.length ? 'included' : 'none_found',
     discovered: plan.tests.length, placements, adaptations, framework: { from: pair.from ?? null, to: pair.to ?? null, conversion: pair.cross, runtimeVerification: 'not_run' }, blockers: [...new Set(blockers)], warnings: plan.warnings,
     assertionPolicy: 'Assertion text preserved. Audited edits are limited to resolved dependency arguments, framework imports, and explicit setup imports. No tests executed.',
@@ -102,6 +155,10 @@ export function transplantTests(changes, source, destination, plan, context) {
   if (plan.scope === 'partial-snapshot') blockers.push('Test coverage is incomplete in this snapshot. Supply a complete feature-focused local directory including tests.');
   for (const c of changes) if (isTestPath(c.path) || isTestSupport(c.path) || isTestConfig(c.path) || c.sourcePaths.some(p => plan.requiredSource.includes(p))) blockers.push(`${c.path}: provider-authored test changes require review; automatic copies preserve original assertions.`);
   for (const c of changes.filter(c => /(?:^|\/)package\.json$/.test(c.path))) {
+    /**
+     * @function contract
+     * Implements contract for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+     */
     const contract = text => { const p = JSON.parse(text ?? '{}'); return { type: p.type, jest: p.jest, scripts: Object.fromEntries(Object.entries(p.scripts ?? {}).filter(([k]) => /test|coverage/.test(k))), devDependencies: p.devDependencies }; };
     try { if (JSON.stringify(contract(c.before)) !== JSON.stringify(contract(c.content))) blockers.push(`${c.path}: changing the test environment requires review.`); } catch { blockers.push(`${c.path}: unreadable package configuration.`); }
   }

@@ -1,3 +1,8 @@
+/**
+ * @file Core Repot transfer-engine module for integration. This deterministic layer analyzes or transforms repository snapshots without hidden network access.
+ *
+ * Engine invariant: identical snapshots and options should produce identical results.
+ */
 import { projectPath } from './manifest.js';
 
 export interface FileSnapshot {
@@ -48,6 +53,11 @@ export class IntegrationError extends Error {
   }
 }
 
+/**
+ * @function validateId
+ * Implements validate id within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function validateId(value: string): string {
   if (!/^[a-z][a-z0-9-]{0,63}$/u.test(value)) {
     throw new IntegrationError(`invalid integration id: ${value}`);
@@ -55,6 +65,11 @@ function validateId(value: string): string {
   return value;
 }
 
+/**
+ * @function validateMarker
+ * Implements validate marker within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function validateMarker(value: string): string {
   if (!value || value.length > 256 || /[\r\n]/u.test(value)) {
     throw new IntegrationError('integration marker must be one nonempty line of at most 256 characters');
@@ -62,6 +77,11 @@ function validateMarker(value: string): string {
   return value;
 }
 
+/**
+ * @function validateContent
+ * Implements validate content within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function validateContent(value: string): string {
   if (!value.trim() || value.length > 32_768 || /\x00/u.test(value)) {
     throw new IntegrationError('integration content must be nonempty UTF-8 text of at most 32768 characters');
@@ -69,6 +89,11 @@ function validateContent(value: string): string {
   return value.endsWith('\n') ? value : `${value}\n`;
 }
 
+/**
+ * @function occurrences
+ * Implements occurrences within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function occurrences(haystack: string, needle: string): number {
   let count = 0;
   let from = 0;
@@ -85,6 +110,11 @@ function occurrences(haystack: string, needle: string): number {
  * Prepares exact marker replacements without mutating the destination. A mount
  * is reviewable because both before/after snapshots are retained, and it is
  * safe-by-default because zero or multiple marker matches block application.
+ */
+/**
+ * @function prepareIntegrationPlan
+ * Implements prepare integration plan within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
  */
 export function prepareIntegrationPlan(
   mounts: IntegrationMount[],
@@ -155,6 +185,11 @@ export function prepareIntegrationPlan(
 }
 
 /** Applies only the exact before/after patches that were previously reviewed. */
+/**
+ * @function applyIntegrationPlan
+ * Implements apply integration plan within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 export function applyIntegrationPlan(
   plan: IntegrationPlan,
   destinationSnapshots: FileSnapshot[],

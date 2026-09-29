@@ -1,3 +1,8 @@
+/**
+ * @file Local stdio Repot MCP development module (review-store.mjs). The hosted remote MCP is the production product; this code remains a reference and local fallback.
+ *
+ * Safety note: local repository access must remain confined to explicit roots, and writes stay opt-in.
+ */
 import { randomBytes } from 'node:crypto';
 export class ReviewStore {
   constructor({ttlMs=30*60*1000,now=Date.now}={}){this.ttlMs=ttlMs;this.now=now;this.items=new Map();}

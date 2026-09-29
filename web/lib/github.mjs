@@ -1,5 +1,14 @@
+/**
+ * @file Repot web-engine module for github. It supports bounded transfer analysis, provider integration, syntax adaptation, or test preservation used by the web and MCP products.
+ *
+ * Boundary note: keep repository context bounded and never claim execution/verification that this module did not actually perform.
+ */
 import { Fault, requireThat, snapshot, rank } from './core.mjs';
 import { eligiblePath, LIMITS } from './policy.mjs';
+/**
+ * @function repositoryName
+ * Implements repository name for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function repositoryName(input) {
   requireThat(typeof input === 'string' && input.length <= 250, 'Enter a GitHub owner/repo or repository URL.');
   let value = input.trim();
@@ -12,6 +21,10 @@ export function repositoryName(input) {
   requireThat(/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})\/[A-Za-z0-9_.-]{1,100}$/.test(value) && !value.split('/').some(p => p === '.' || p === '..'), 'Use owner/repo, without branches, credentials, or extra URL paths.');
   return value;
 }
+/**
+ * @function boundedJSON
+ * Implements bounded json for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export async function boundedJSON(response, max = 2000000) {
   const reader = response.body.getReader(); const chunks = []; let size = 0;
   try {
@@ -24,8 +37,16 @@ export async function boundedJSON(response, max = 2000000) {
   try { return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks))); }
   catch { throw new Fault('Upstream returned invalid JSON.', 502); }
 }
+/**
+ * @function readPublicRepository
+ * Implements read public repository for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export async function readPublicRepository(input, feature, { fetchImpl = fetch, signal } = {}) {
   const name = repositoryName(input);
+  /**
+   * @function api
+   * Implements api for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+   */
   const api = async suffix => {
     const response = await fetchImpl(`https://api.github.com/repos/${name}${suffix}`, {
       headers: { accept: 'application/vnd.github+json', 'user-agent': 'graft-web-preview', 'x-github-api-version': '2022-11-28' },

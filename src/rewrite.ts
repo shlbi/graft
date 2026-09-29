@@ -1,3 +1,8 @@
+/**
+ * @file Core Repot transfer-engine module for rewrite. This deterministic layer plans or materializes repository changes.
+ *
+ * Engine invariant: identical snapshots and options should produce identical results.
+ */
 import ts from 'typescript';
 import type { CapabilityBinding } from './changeset.js';
 import { projectPath } from './manifest.js';
@@ -6,7 +11,17 @@ const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts'] as const;
 export interface RewriteResult { content: string; rewritten: { from: string; to: string }[]; }
 export class RewriteError extends Error { constructor(message: string) { super(message); this.name = 'RewriteError'; } }
 
+/**
+ * @function dirname
+ * Implements dirname within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function dirname(path: string): string { const i = path.lastIndexOf('/'); return i < 0 ? '' : path.slice(0, i); }
+/**
+ * @function joined
+ * Implements joined within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function joined(base: string, specifier: string): string | null {
   if (!specifier.startsWith('.')) return null;
   const stack = base ? base.split('/') : [];
@@ -16,6 +31,11 @@ function joined(base: string, specifier: string): string | null {
   }
   return stack.join('/');
 }
+/**
+ * @function boundaryCandidates
+ * Implements boundary candidates within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function boundaryCandidates(importer: string, specifier: string): string[] {
   const base = joined(dirname(importer), specifier); if (!base) return [];
   const leaf = base.slice(base.lastIndexOf('/') + 1); const dot = leaf.lastIndexOf('.'); const extension = dot > 0 ? leaf.slice(dot) : '';
@@ -28,7 +48,17 @@ function boundaryCandidates(importer: string, specifier: string): string[] {
   if (extension) return [];
   return [...SOURCE_EXTENSIONS.map(ext => `${base}${ext}`), ...SOURCE_EXTENSIONS.map(ext => `${base}/index${ext}`)];
 }
+/**
+ * @function runtimePath
+ * Implements runtime path within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function runtimePath(path: string): string { return path.replace(/\.mts$/u, '.mjs').replace(/\.cts$/u, '.cjs').replace(/\.tsx?$/u, '.js'); }
+/**
+ * @function relativeSpecifier
+ * Implements relative specifier within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function relativeSpecifier(from: string, to: string): string {
   const a = dirname(from).split('/').filter(Boolean); const b = runtimePath(to).split('/').filter(Boolean); let i = 0;
   while (i < a.length && i < b.length && a[i] === b[i]) i++;
@@ -40,6 +70,11 @@ function relativeSpecifier(from: string, to: string): string {
  * Rewrite only static ESM edges that resolve to a declared adapter boundary.
  * Resolution uses the original source path; emitted specifiers are relative to
  * outputPath so a reviewed relocation cannot accidentally preserve stale paths.
+ */
+/**
+ * @function rewriteAdapterImports
+ * Implements rewrite adapter imports within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
  */
 export function rewriteAdapterImports(
   sourcePath: string,
@@ -58,6 +93,11 @@ export function rewriteAdapterImports(
   }
   const sourceFile = ts.createSourceFile(sourcePath, content, ts.ScriptTarget.Latest, true, sourcePath.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
   const edits: { start: number; end: number; text: string; from: string; to: string }[] = [];
+  /**
+   * @function consider
+   * Implements consider within the deterministic transfer engine.
+   * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+   */
   function consider(literal: ts.StringLiteralLike): void {
     const matches = boundaryCandidates(sourcePath, literal.text).filter(candidate => bySource.has(candidate));
     if (matches.length > 1) throw new RewriteError(`ambiguous adapter import ${literal.text} from ${sourcePath}`);
@@ -65,6 +105,11 @@ export function rewriteAdapterImports(
     const binding = bySource.get(matches[0]!)!; const to = relativeSpecifier(outputPath, binding.destinationModule);
     edits.push({ start: literal.getStart(sourceFile) + 1, end: literal.getEnd() - 1, text: to, from: literal.text, to });
   }
+  /**
+   * @function visit
+   * Implements visit within the deterministic transfer engine.
+   * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+   */
   function visit(node: ts.Node): void {
     if (ts.isImportDeclaration(node) && ts.isStringLiteralLike(node.moduleSpecifier)) consider(node.moduleSpecifier);
     else if (ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteralLike(node.moduleSpecifier)) consider(node.moduleSpecifier);

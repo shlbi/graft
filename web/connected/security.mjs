@@ -1,14 +1,44 @@
+/**
+ * @file Legacy/connected Repot service module retained for the authenticated web workflow and its acceptance tests.
+ *
+ * Security note: this layer handles repository or session data; preserve authorization, input bounds, and explicit write gates.
+ */
 import { randomBytes, createHash, createCipheriv, createDecipheriv, timingSafeEqual, createHmac } from 'node:crypto';
 
 export class HttpError extends Error {
   constructor(status, code, message) { super(message); this.status = status; this.code = code; }
 }
+/**
+ * @function ensure
+ * Implements ensure for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function ensure(ok, status, code, message) { if (!ok) throw new HttpError(status, code, message); }
+/**
+ * @function sha256
+ * Implements sha256 for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
+/**
+ * @function opaque
+ * Implements opaque for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export const opaque = () => randomBytes(32).toString('base64url');
+/**
+ * @function equal
+ * Implements equal for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function equal(a, b) {
   return typeof a === 'string' && typeof b === 'string' && Buffer.byteLength(a) === Buffer.byteLength(b) && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
+/**
+ * @function cryptoBox
+ * Implements crypto box for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function cryptoBox(key) {
   ensure(typeof key === 'string' && /^[a-f0-9]{64}$/i.test(key), 500, 'configuration', 'GRAFT_DATA_KEY must contain 64 hexadecimal characters.');
   const bytes = Buffer.from(key, 'hex');
@@ -27,6 +57,11 @@ export function cryptoBox(key) {
     }
   };
 }
+/**
+ * @function readConfig
+ * Implements read config for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function readConfig(env = process.env) {
   const development = env.GRAFT_ENV === 'development';
   const url = new URL(env.GRAFT_PUBLIC_URL || (development ? 'http://127.0.0.1:4319' : 'https://invalid.invalid'));
@@ -38,6 +73,11 @@ export function readConfig(env = process.env) {
   ensure(/^[1-9]\d{0,14}$/.test(env.GRAFT_GITHUB_APP_ID || ''), 500, 'configuration', 'GitHub App numeric ID is required.');
   ensure((env.GRAFT_WEBHOOK_SECRET || '').length >= 32, 500, 'configuration', 'Use a webhook secret of at least 32 characters.');
   cryptoBox(env.GRAFT_DATA_KEY);
+  /**
+   * @function number
+   * Implements number for the connected web workflow.
+   * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+   */
   const number = (key, fallback, max) => { const n = Number(env[key] ?? fallback); ensure(Number.isInteger(n) && n >= 1 && n <= max, 500, 'configuration', `Invalid ${key}.`); return n; };
   const providerKey = env.OPENAI_API_KEY || '', model = env.GRAFT_AI_MODEL || '';
   ensure(Boolean(providerKey) === Boolean(model), 500, 'configuration', 'Configure both OPENAI_API_KEY and GRAFT_AI_MODEL, or neither.');
@@ -48,15 +88,35 @@ export function readConfig(env = process.env) {
     userDailyLimit: number('GRAFT_USER_DAILY_DRAFTS', 3, 100), globalDailyLimit: number('GRAFT_GLOBAL_DAILY_DRAFTS', 20, 1000),
     maxActive: 2, retentionMs: 24 * 60 * 60 * 1000, sessionMs: 8 * 60 * 60 * 1000 });
 }
+/**
+ * @function cookieName
+ * Implements cookie name for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function cookieName(config, kind) { return `${config.development ? '' : '__Host-'}graft-${kind}`; }
+/**
+ * @function cookie
+ * Implements cookie for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function cookie(config, kind, value, seconds) {
   return `${cookieName(config, kind)}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${seconds}${config.development ? '' : '; Secure'}`;
 }
+/**
+ * @function readCookie
+ * Implements read cookie for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function readCookie(req, name) {
   const hits = (req.headers.cookie || '').split(';').map(s => s.trim()).filter(s => s.startsWith(name + '='));
   if (hits.length !== 1) return null;
   const value = hits[0].slice(name.length + 1); return /^[A-Za-z0-9_-]{43}$/.test(value) ? value : null;
 }
+/**
+ * @function checkOrigin
+ * Implements check origin for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function checkOrigin(req, config, mutation = false) {
   ensure(req.headers.host === config.host, 403, 'host', 'Unexpected Host header.');
   if (mutation) {
@@ -64,12 +124,22 @@ export function checkOrigin(req, config, mutation = false) {
     ensure(!['cross-site', 'same-site'].includes(req.headers['sec-fetch-site']), 403, 'origin', 'Cross-site request denied.');
   }
 }
+/**
+ * @function bodyBytes
+ * Implements body bytes for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export async function bodyBytes(req, limit = 16_384) {
   ensure(!req.headers['content-encoding'] || req.headers['content-encoding'] === 'identity', 415, 'encoding', 'Compressed request bodies are not accepted.');
   const chunks = []; let size = 0;
   for await (const part of req) { size += part.length; ensure(size <= limit, 413, 'body_limit', 'Request is too large.'); chunks.push(part); }
   return Buffer.concat(chunks);
 }
+/**
+ * @function jsonBody
+ * Implements json body for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export async function jsonBody(req) {
   ensure(req.headers['content-type']?.split(';')[0].trim() === 'application/json', 415, 'content_type', 'Use application/json.');
   try {
@@ -77,10 +147,25 @@ export async function jsonBody(req) {
     ensure(value && typeof value === 'object' && !Array.isArray(value), 400, 'body', 'Expected a JSON object.'); return value;
   } catch (e) { if (e instanceof HttpError) throw e; throw new HttpError(400, 'body', 'Invalid JSON.'); }
 }
+/**
+ * @function exactKeys
+ * Implements exact keys for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function exactKeys(obj, keys) { ensure(Object.keys(obj).sort().join('|') === [...keys].sort().join('|'), 400, 'fields', 'Unexpected or missing request fields.'); }
+/**
+ * @function verifyWebhook
+ * Implements verify webhook for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function verifyWebhook(bytes, signature, secret) {
   return equal(signature, 'sha256=' + createHmac('sha256', secret).update(bytes).digest('hex'));
 }
+/**
+ * @function limiter
+ * Implements limiter for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function limiter({ windowMs = 60_000, max = 60, capacity = 5000, now = Date.now } = {}) {
   const buckets = new Map();
   return key => {

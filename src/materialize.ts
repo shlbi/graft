@@ -1,3 +1,8 @@
+/**
+ * @file Core Repot transfer-engine module for materialize. This deterministic layer plans or materializes repository changes.
+ *
+ * Engine invariant: identical snapshots and options should produce identical results.
+ */
 import type { ReviewableChangeSet } from './changeset.js';
 import { projectPath } from './manifest.js';
 import { rewriteAdapterImports } from './rewrite.js';
@@ -27,6 +32,11 @@ export class MaterializationError extends Error {
   }
 }
 
+/**
+ * @function snapshotMap
+ * Implements snapshot map within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function snapshotMap(snapshots: FileSnapshot[], label: string): Map<string, string> {
   const map = new Map<string, string>();
   for (const [index, snapshot] of snapshots.entries()) {
@@ -42,6 +52,11 @@ function snapshotMap(snapshots: FileSnapshot[], label: string): Map<string, stri
  * Applies an already-reviewed change set to immutable synthetic snapshots.
  * Copied TypeScript modules are rewritten only at declared adapter boundaries;
  * assets are copied byte-for-byte (as UTF-8 text in this v0.1 snapshot model).
+ */
+/**
+ * @function materializeChangeSet
+ * Implements materialize change set within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
  */
 export function materializeChangeSet(
   changeSet: ReviewableChangeSet,

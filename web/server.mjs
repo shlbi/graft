@@ -1,3 +1,8 @@
+/**
+ * @file Repot local web-preview server used for bounded development/demo workflows.
+ *
+ * Security note: this layer handles repository or session data; preserve authorization, input bounds, and explicit write gates.
+ */
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -11,6 +16,11 @@ const files = new Map([
   ['/style.css', ['public/style.css', 'text/css; charset=utf-8']],
   ['/policy.mjs', ['lib/policy.mjs', 'text/javascript; charset=utf-8']]
 ]);
+/**
+ * @function readBody
+ * Implements read body for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 async function readBody(req) {
   requireThat(req.headers['content-type']?.split(';')[0] === 'application/json', 'Use application/json.', 415);
   const chunks = []; let size = 0;
@@ -18,12 +28,22 @@ async function readBody(req) {
   try { return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks))); }
   catch { throw new Fault('Request body must be valid UTF-8 JSON.'); }
 }
+/**
+ * @function createApp
+ * Implements create app for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function createApp({ apiKey = '', model = '', repositoryReader = readPublicRepository, aiProvider = proposeWithAI } = {}) {
   let active = 0;
   const server = http.createServer(async (req, res) => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(new Error('Request deadline exceeded.')), 110000);
     res.on('close', () => { clearTimeout(timeout); if (!res.writableEnded) controller.abort(); });
+    /**
+     * @function send
+     * Implements send for the connected web workflow.
+     * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+     */
     const send = (status, body, type = 'application/json; charset=utf-8') => {
       if (res.destroyed || res.writableEnded) return;
       clearTimeout(timeout); res.writeHead(status, { 'content-type': type, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff',
@@ -52,6 +72,11 @@ export function createApp({ apiKey = '', model = '', repositoryReader = readPubl
         requireThat(body.consent === true, 'Confirm code sharing before using AI.', 403);
         requireThat(apiKey && model, 'AI is not configured. Repository discovery and the sample work without an API key.', 503);
       }
+      /**
+       * @function resolve
+       * Implements resolve for the connected web workflow.
+       * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+       */
       const resolve = async input => {
         requireThat(input && ['github', 'folder'].includes(input.kind), 'Choose a public GitHub repo or local folder.');
         if (input.kind === 'folder') return snapshot({ ...input.snapshot, revision: null });
@@ -77,6 +102,11 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('PORT must be an integer from 1024 through 65535.');
   const server = createApp({ apiKey: process.env.OPENAI_API_KEY, model: process.env.GRAFT_AI_MODEL });
   server.listen(port, '127.0.0.1', () => console.log(`Graft local web preview: http://127.0.0.1:${port}`));
+  /**
+   * @function close
+   * Implements close for the connected web workflow.
+   * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+   */
   const close = () => { server.close(); server.closeAllConnections(); };
   process.once('SIGINT', close); process.once('SIGTERM', close);
 }

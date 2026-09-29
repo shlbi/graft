@@ -1,7 +1,17 @@
+/**
+ * @file Legacy/connected Repot service module retained for the authenticated web workflow and its acceptance tests.
+ *
+ * Security note: this layer handles repository or session data; preserve authorization, input bounds, and explicit write gates.
+ */
 import { featureText } from '../lib/core-base.mjs';
 import { ensure, HttpError, exactKeys, sha256 } from './security.mjs';
 import { reviewDigest, deliver } from './delivery.mjs';
 
+/**
+ * @function buildDraft
+ * Implements build draft for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 async function buildDraft(source, destination, feature, config, signal) {
   // Reuse the shipped parser, test postprocessor and consent-gated provider; no second transfer engine.
   const { analyze } = await import('../lib/core.mjs');

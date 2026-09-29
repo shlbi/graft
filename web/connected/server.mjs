@@ -1,3 +1,8 @@
+/**
+ * @file Legacy/connected Repot service module retained for the authenticated web workflow and its acceptance tests.
+ *
+ * Security note: this layer handles repository or session data; preserve authorization, input bounds, and explicit write gates.
+ */
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -8,7 +13,17 @@ import { GitHubClient } from './github.mjs';
 import { Service } from './service.mjs';
 import { readConfig, opaque, sha256, equal, HttpError, ensure, cookie, cookieName, readCookie, checkOrigin, jsonBody, bodyBytes, limiter, verifyWebhook } from './security.mjs';
 import { staticFiles } from './public-assets.mjs';
+/**
+ * @function identity
+ * Implements identity for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 const identity = x => typeof x === 'string' && /^[A-Za-z0-9_-]{43}$/.test(x);
+/**
+ * @function createConnectedApp
+ * Implements create connected app for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function createConnectedApp({ config, store = new Store(config.database, config.dataKey), github = new GitHubClient(config), draft } = {}) {
   const service = new Service(store, github, config, { draft });
   const limit = limiter({ max: 120 }), loginLimit = limiter({ max: 10, windowMs: 600_000 });
@@ -16,8 +31,18 @@ export function createConnectedApp({ config, store = new Store(config.database, 
   const server = http.createServer({ maxHeaderSize: 16_384 }, async (req, res) => {
     const requestId = opaque().slice(0, 12), abort = new AbortController();
     const timer = setTimeout(() => { abort.abort(); req.destroy(); res.destroy(); }, 125_000);
+    /**
+     * @function disconnected
+     * Implements disconnected for the connected web workflow.
+     * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+     */
     const disconnected = () => { if (!res.writableEnded) abort.abort(); };
     res.on('close', disconnected);
+    /**
+     * @function send
+     * Implements send for the connected web workflow.
+     * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+     */
     const send = (status, body, headers = {}) => {
       if (res.destroyed || res.writableEnded) return;
       res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store',
@@ -117,6 +142,11 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   app.server.listen(port, process.env.GRAFT_LISTEN_HOST || '127.0.0.1', () => console.log('Graft connected beta is listening. Public launch gates remain open.'));
   const cleanup = setInterval(() => app.store.purge(), 60_000); cleanup.unref();
   let closing = false;
+  /**
+   * @function close
+   * Implements close for the connected web workflow.
+   * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+   */
   const close = async () => { if (closing) return; closing = true; clearInterval(cleanup); await app.close(); };
   process.once('SIGINT', close); process.once('SIGTERM', close);
 }

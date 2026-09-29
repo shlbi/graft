@@ -1,3 +1,13 @@
+/**
+ * @file Local stdio Repot MCP development module (config.mjs). The hosted remote MCP is the production product; this code remains a reference and local fallback.
+ *
+ * Safety note: local repository access must remain confined to explicit roots, and writes stay opt-in.
+ */
+/**
+ * @function parseArgs
+ * Implements parse args for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 export function parseArgs(argv=process.argv.slice(2),env=process.env){
   const roots=[];let writes=env.REPOT_MCP_ALLOW_WRITES==='1';
   for(let i=0;i<argv.length;i++){

@@ -1,11 +1,28 @@
+/**
+ * @file Repot web-engine module for core. It supports bounded transfer analysis, provider integration, syntax adaptation, or test preservation used by the web and MCP products.
+ *
+ * Boundary note: keep repository context bounded and never claim execution/verification that this module did not actually perform.
+ */
 // Snapshot/patch primitives remain unchanged; this layer makes tests part of every transfer.
 import { analyze as analyzeBase, reviewProposal as reviewBase, rank, hash, unifiedPatch, LIMITS } from './core-base.mjs';
 import { discoverTests, transplantTests, references, isTestPath, isTestSupport, isTestConfig } from './test-transfer.mjs';
 export * from './core-base.mjs';
+/**
+ * @function bytes
+ * Implements bytes for Repot's bounded web transfer pipeline.
+ */
 const bytes = text => Buffer.byteLength(text, 'utf8');
+/**
+ * @function contextFiles
+ * Implements context files for Repot's bounded web transfer pipeline.
+ */
 function contextFiles(repo, feature, priority) {
   const ranked = rank(repo.files, feature), files = new Map(repo.files.map(f => [f.path, f]));
   const chosen = new Map(); let used = 0;
+  /**
+   * @function add
+   * Implements add for Repot's bounded web transfer pipeline.
+   */
   const add = file => {
     if (!file || chosen.has(file.path) || chosen.size >= 36 || used + bytes(file.content) > LIMITS.contextBytes / 2) return;
     chosen.set(file.path, file); used += bytes(file.content);
@@ -17,6 +34,10 @@ function contextFiles(repo, feature, priority) {
   ranked.slice(0, 8).forEach(add);
   return [...chosen.values()].map(({ path, content, hash }) => ({ path, content, hash }));
 }
+/**
+ * @function analyze
+ * Implements analyze for Repot's bounded web transfer pipeline.
+ */
 export function analyze(source, destination, feature) {
   const base = analyzeBase(source, destination, feature);
   const ranked = rank(source.files.filter(f => !isTestPath(f.path) && !isTestSupport(f.path) && !isTestConfig(f.path) && /\.(?:[cm]?[jt]sx?|py|go|rs|java|cs|rb|php|cpp)$/.test(f.path)), base.feature);
@@ -27,6 +48,10 @@ export function analyze(source, destination, feature) {
     destination: contextFiles(destination, base.feature, testPlan.requiredDestination) };
   return { ...base, testPlan, context, contextManifest: { source: context.source.map(f => f.path), destination: context.destination.map(f => f.path) } };
 }
+/**
+ * @function reviewProposal
+ * Implements review proposal for Repot's bounded web transfer pipeline.
+ */
 export function reviewProposal(proposal, source, destination, context, provider = 'ai') {
   // Validate the provider's production draft before interpreting any mapping/provenance.
   const base = reviewBase(proposal, source, destination, context, provider);

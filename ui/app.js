@@ -1,4 +1,17 @@
+/**
+ * @file Legacy Repot local UI asset retained for demos and regression coverage.
+ *
+ * Legacy note: preserve compatibility for tests/demos; production product behavior lives under app/, remote/, and web/connected/public/.
+ */
+/**
+ * @function $
+ * Implements $ for this legacy interface.
+ */
 const $ = selector => document.querySelector(selector);
+/**
+ * @function el
+ * Implements el for this legacy interface.
+ */
 const el = (tag, className, text) => {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -8,9 +21,25 @@ const el = (tag, className, text) => {
 const state = { reviewId: null, review: null, token: null, maxBytes: 0, expires: 0, file: null, busy: false };
 const sampleText = 'Graft moves behavior, not infrastructure.\nThe destination owns storage and processing.\nReview. Approve. Verify. Repeat.\n';
 
+/**
+ * @function status
+ * Implements status for this legacy interface.
+ */
 function status(text, kind = '') { $('#statusPill').textContent = text; $('#statusPill').className = `pill ${kind}`; }
+/**
+ * @function metric
+ * Implements metric for this legacy interface.
+ */
 function metric(value, label) { const node = el('div', 'metric'); node.append(el('strong', '', String(value)), el('span', '', label)); return node; }
+/**
+ * @function nodeCard
+ * Implements node card for this legacy interface.
+ */
 function nodeCard(item) { const card = el('div', `node ${item.kind}`); card.append(el('code', '', item.path), el('small', '', item.kind.replaceAll('-', ' '))); return card; }
+/**
+ * @function renderGraph
+ * Implements render graph for this legacy interface.
+ */
 function renderGraph(review) {
   const source = el('div', 'lane'); const destination = el('div', 'lane'); const bridge = el('div', 'connector');
   for (const [lane, side, title, sub] of [[source,'source','SOURCE FEATURE','copy boundary'],[destination,'destination','DESTINATION APP','reuse infrastructure']]) {
@@ -22,6 +51,10 @@ function renderGraph(review) {
   source.append(relations); bridge.append(el('span','','BOUNDARY'),el('b','','⇢'),el('span','','REMAP'));
   $('#graph').replaceChildren(source,bridge,destination);
 }
+/**
+ * @function renderReview
+ * Implements render review for this legacy interface.
+ */
 function renderReview(review) {
   state.review = review;
   $('#metrics').replaceChildren(metric(review.dependencies.files.length,'feature modules'),metric(review.dependencies.adapterBoundaries.length,'adapter boundaries'),metric(review.mappings.length,'capability grafts'),metric(review.touchedTargets.length,'destination paths'));
@@ -42,6 +75,10 @@ function renderReview(review) {
   $('#blockers').hidden=blockers.length===0; $('#blockers').replaceChildren(...blockers.map(item=>el('p','',`${item.reason ?? 'blocked'} · ${item.path ?? item.targetPath ?? item.source ?? ''}`)));
   status(review.ready?'READY FOR REVIEW':'BLOCKED',review.ready?'ready':''); $('#approveButton').disabled=!review.ready; $('#exportButton').disabled=false;
 }
+/**
+ * @function renderProof
+ * Implements render proof for this legacy interface.
+ */
 function renderProof(payload) {
   const verification=payload.verification, run=verification.runs[0]; const grid=el('div','proof-grid');
   for (const [tag,title,progress,note] of [
@@ -61,6 +98,10 @@ function renderProof(payload) {
   $('#approvalCopy').textContent=`Created ${payload.applied.created.length}, updated ${payload.applied.updated.length}, preserved ${payload.applied.preserved.length}. Compile, execution and clean reset passed.`;
   status('TRANSPLANT VERIFIED','verified');
 }
+/**
+ * @function renderJob
+ * Implements render job for this legacy interface.
+ */
 function renderJob(job) {
   const root=$('#uploadResult'); root.className='upload-result'; root.replaceChildren();
   root.append(el('span','tag','destination job · complete'),el('strong','',`${job.name} · ${job.result.fileId}`));
@@ -72,12 +113,20 @@ function renderJob(job) {
     root.append(grid);
   }
 }
+/**
+ * @function requestJson
+ * Implements request json for this legacy interface.
+ */
 async function requestJson(path, options = {}) {
   const response=await fetch(path,{...options,signal:AbortSignal.timeout(120_000)});
   const payload=await response.json();
   if (!response.ok) throw new Error(payload.error ?? `Request failed (${response.status})`);
   return {response,payload};
 }
+/**
+ * @function syncControls
+ * Implements sync controls for this legacy interface.
+ */
 function syncControls() {
   const approved=Boolean(state.token) && Date.now()<state.expires;
   $('#refreshButton').disabled=state.busy;
@@ -85,6 +134,10 @@ function syncControls() {
   $('#sampleButton').disabled=state.busy || !approved;
   $('#uploadButton').disabled=state.busy || !approved || !state.file || state.file.size<1 || state.file.size>state.maxBytes;
 }
+/**
+ * @function loadReview
+ * Implements load review for this legacy interface.
+ */
 async function loadReview() {
   if(state.busy) return;
   state.busy=true; state.review=null; state.reviewId=null; state.token=null; state.file=null;
@@ -112,6 +165,10 @@ $('#approveButton').addEventListener('click',async()=>{
   } catch(error) { state.reviewId=null; $('#approvalCopy').className='error'; $('#approvalCopy').textContent=`${error.message}. Prepare a New review before retrying approval.`; $('#approveButton').textContent='Approval failed'; }
   finally { state.busy=false; syncControls(); }
 });
+/**
+ * @function selectFile
+ * Implements select file for this legacy interface.
+ */
 function selectFile(file) {
   state.file=file; $('#fileLabel').textContent=file?`${file.name} · ${file.size} bytes`:'Choose a local file or use the original sample.';
   if(file && (file.size<1 || file.size>state.maxBytes)) { $('#uploadResult').className='upload-result upload-error'; $('#uploadResult').textContent=`Choose a nonempty UTF-8 file of at most ${state.maxBytes} bytes.`; }

@@ -1,7 +1,20 @@
+/**
+ * @file Repot web-engine module for test-config. It supports bounded transfer analysis, provider integration, syntax adaptation, or test preservation used by the web and MCP products.
+ *
+ * Boundary note: keep repository context bounded and never claim execution/verification that this module did not actually perform.
+ */
 /** Read a bounded declarative configuration subset. No eval, dynamic imports, or require. */
 import path from 'node:path';
 import { ts, parse, unwrap, walk } from './syntax.mjs';
+/**
+ * @function own
+ * Implements own for Repot's bounded web transfer pipeline.
+ */
 const own = (obj, key) => Object.hasOwn(obj, key);
+/**
+ * @function value
+ * Implements value for Repot's bounded web transfer pipeline.
+ */
 function value(node, parsed, seen = new Set()) {
   node = unwrap(node);
   if (!node || seen.size > 24) throw new Error('configuration value is not a bounded literal');
@@ -24,6 +37,10 @@ function value(node, parsed, seen = new Set()) {
   }
   throw new Error('dynamic configuration expression requires review');
 }
+/**
+ * @function staticConfig
+ * Implements static config for Repot's bounded web transfer pipeline.
+ */
 export function staticConfig(file) {
   if (/\.json$/.test(file.path)) {
     const json = ts.parseConfigFileTextToJson(file.path, file.content);
@@ -55,7 +72,15 @@ export function staticConfig(file) {
   if (!config || Array.isArray(config) || typeof config !== 'object') throw new Error('configuration must be a literal object');
   return config;
 }
+/**
+ * @function runnerConfig
+ * Implements runner config for Repot's bounded web transfer pipeline.
+ */
 const runnerConfig = p => /(?:^|\/)(?:jest|vitest|vite|playwright|cypress)\.config\.(?:[cm]?[jt]s|json)$/.test(p);
+/**
+ * @function inspectConfiguration
+ * Implements inspect configuration for Repot's bounded web transfer pipeline.
+ */
 export function inspectConfiguration(repo, frameworks, packages) {
   const setup = [], issues = [], configPaths = repo.files.filter(f => runnerConfig(f.path)).map(f => f.path);
   const runner = frameworks.length === 1 ? frameworks[0] : null;
@@ -108,6 +133,10 @@ export function inspectConfiguration(repo, frameworks, packages) {
   return { setup: [...new Set(setup)], issues: [...new Set(issues)], configPaths, globals, environment };
 }
 /** Setup relocation only supports imports/declarations and synchronous registration of block-bodied hooks. */
+/**
+ * @function inspectSetupFile
+ * Implements inspect setup file for Repot's bounded web transfer pipeline.
+ */
 export function inspectSetupFile(file) {
   const p = parse(file), issues = [...p.issues], hooks = [];
   const aliases = new Map();

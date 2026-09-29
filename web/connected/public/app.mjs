@@ -1,8 +1,33 @@
+/**
+ * @file Current Repot public product interface asset used by the production Next.js deployment.
+ *
+ * UI invariant: user-visible status must reflect observed backend state; never imply unexecuted verification succeeded.
+ */
 // Repot presentation layer. API routes, session/CSRF and review-digest contracts stay unchanged.
+/**
+ * @function $
+ * Implements $ for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 const $ = id => document.getElementById(id);
 const state = { session: null, job: null, poll: null, busy: false, selection: 0, epoch: 0, online: false };
+/**
+ * @function el
+ * Implements el for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 const el = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
+/**
+ * @function notice
+ * Implements notice for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 function notice(text) { $('status').textContent = text; $('status').hidden = !text; }
+/**
+ * @function clearReview
+ * Implements clear review for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 function clearReview() {
   $('review-title').textContent = 'Every change, considered.';
   $('review-message').textContent = 'Choose a saved transfer to inspect its files, related tests, and proposed changes.';
@@ -11,12 +36,22 @@ function clearReview() {
   $('publish-controls').hidden = true; $('cancel').hidden = true; $('pr-link').hidden = true; $('pr-link').removeAttribute('href');
   $('acknowledge').checked = false; $('workflows').checked = false; $('download').disabled = true;
 }
+/**
+ * @function connectLink
+ * Implements connect link for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 function connectLink(available) {
   const label = available ? 'Connect GitHub ↗︎' : 'MCP ↗︎';
   const a = el('a', label, 'button secondary'); a.href = available ? '/auth/github' : '/mcp/'; $('account').replaceChildren(a);
   $('connect').textContent = available ? 'Connect GitHub ↗︎' : 'Connection unavailable';
   $('connect').href = available ? '/auth/github' : '#desk'; $('connect').setAttribute('aria-disabled', String(!available));
 }
+/**
+ * @function loggedOut
+ * Implements logged out for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 function loggedOut(available = state.online) {
   clearTimeout(state.poll); state.epoch++; state.selection++; state.session = null; state.job = null; state.busy = false; state.online = available;
   // Remove private review content and repository names on logout, expiry and account deletion.
@@ -32,6 +67,11 @@ function loggedOut(available = state.online) {
   $('welcome-copy').textContent = available ? 'The connected beta is invite-only. Sign in to select repositories and prepare a draft.' : 'The connected backend is unavailable on this deployment. Repository actions are disabled; no code is uploaded or changed.';
   connectLink(available); gate();
 }
+/**
+ * @function request
+ * Implements request for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 async function request(path, body) {
   const response = await fetch(path, { method: body === undefined ? 'GET' : 'POST', credentials: 'same-origin',
     headers: body === undefined ? { accept: 'application/json' } : { accept: 'application/json', 'content-type': 'application/json', 'x-csrf-token': state.session?.csrf || '' },
@@ -43,11 +83,21 @@ async function request(path, body) {
   }
   return result;
 }
+/**
+ * @function gate
+ * Implements gate for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 function gate() {
   const valid = $('source').value && $('destination').value && $('source').value !== $('destination').value && $('feature').value.trim().length >= 3 && $('feature').value.length <= 1500 && $('consent').checked;
   $('create-draft').disabled = state.busy || !state.session?.aiConfigured || !valid;
   $('publish').disabled = state.busy || !state.session?.writesEnabled || !state.job?.review?.exportable || !['review_ready', 'delivery_uncertain'].includes(state.job?.state) || !$('acknowledge').checked || !$('workflows').checked;
 }
+/**
+ * @function loadJobs
+ * Implements load jobs for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 async function loadJobs() {
   if (!state.session) return; const epoch = state.epoch;
   const { jobs } = await request('/api/jobs'); if (epoch !== state.epoch) return;
@@ -60,9 +110,19 @@ async function loadJobs() {
     b.addEventListener('click', () => select(j.id, true).catch(e => notice(e.message))); $('jobs').append(b);
   }
 }
+/**
+ * @function safePR
+ * Implements safe pr for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 function safePR(url) {
   try { const u = new URL(url); return u.protocol === 'https:' && u.hostname === 'github.com' && !u.port && !u.username && !u.password && !u.search && !u.hash && /^\/[^/]+\/[^/]+\/pull\/\d+$/.test(u.pathname); } catch { return false; }
 }
+/**
+ * @function render
+ * Implements render for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 function render(job) {
   state.job = job; $('review-title').textContent = job.feature; $('review-message').textContent = job.message;
   $('review-state').textContent = job.state.replaceAll('_', ' ').toUpperCase();
@@ -92,6 +152,11 @@ function render(job) {
   }
   gate();
 }
+/**
+ * @function select
+ * Implements select for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 async function select(id, focus = false) {
   clearTimeout(state.poll); const version = ++state.selection;
   $('acknowledge').checked = false; $('workflows').checked = false; gate();
@@ -140,6 +205,11 @@ for (const button of document.querySelectorAll('[data-layer]')) button.addEventL
   for (const b of document.querySelectorAll('[data-layer]')) b.setAttribute('aria-pressed', String(b === button));
   $('anatomy-source').textContent = layer[0]; $('anatomy-destination').textContent = layer[1]; $('anatomy-note').textContent = layer[2];
 });
+/**
+ * @function init
+ * Implements init for the Repot interface.
+ * UX/security: keep state transitions explicit and render repository/user text as text rather than executable HTML.
+ */
 async function init() {
   try {
     const session = await request('/api/session');

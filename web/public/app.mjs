@@ -1,9 +1,34 @@
+/**
+ * @file Legacy Repot web-preview asset retained for development and regression coverage.
+ *
+ * Legacy note: preserve compatibility for tests/demos; production product behavior lives under app/, remote/, and web/connected/public/.
+ */
 import { eligiblePath, looksSensitive, LIMITS } from '/policy.mjs';
+/**
+ * @function $
+ * Implements $ for this legacy interface.
+ */
 const $ = id => document.getElementById(id);
 const state = { folders: { source: null, destination: null }, result: null, controller: null, configured: false };
+/**
+ * @function node
+ * Implements node for this legacy interface.
+ */
 const node = (tag, text, className) => { const el = document.createElement(tag); if (text !== undefined) el.textContent = text; if (className) el.className = className; return el; };
+/**
+ * @function notify
+ * Implements notify for this legacy interface.
+ */
 function notify(text, kind = '') { const el = $('status'); el.textContent = text; el.className = 'notice ' + kind; el.hidden = false; }
+/**
+ * @function clearResult
+ * Implements clear result for this legacy interface.
+ */
 function clearResult() { state.result = null; $('results').hidden = true; $('review-confirmation').checked = false; $('download-patch').disabled = true; }
+/**
+ * @function busy
+ * Implements busy for this legacy interface.
+ */
 function busy(value) {
   $('analyze').disabled = value; $('try-demo').disabled = value; $('cancel').hidden = !value;
   for (const id of ['source-url', 'destination-url', 'source-folder', 'destination-folder', 'feature', 'consent']) $(id).disabled = value;
@@ -11,12 +36,24 @@ function busy(value) {
   document.querySelectorAll('[data-feature]').forEach(b => b.disabled = value);
   $('analyze').textContent = value ? 'Reading your projects…' : $('use-ai').checked ? 'Draft my transfer →' : 'Find my feature →';
 }
+/**
+ * @function urlValue
+ * Implements url value for this legacy interface.
+ */
 function urlValue(value) { return value.trim().startsWith('github.com/') ? 'https://' + value.trim() : value.trim(); }
+/**
+ * @function selection
+ * Implements selection for this legacy interface.
+ */
 function selection(role) {
   if (state.folders[role]) return { kind: 'folder', snapshot: state.folders[role] };
   const url = urlValue($(role + '-url').value); if (!url) throw new Error(`Choose a ${role} repository or local folder.`);
   return { kind: 'github', url };
 }
+/**
+ * @function resetFolder
+ * Implements reset folder for this legacy interface.
+ */
 function resetFolder(role) { state.folders[role] = null; $(role + '-folder').value = ''; $(role + '-hint').textContent = 'Public URL or local code'; clearResult(); }
 for (const role of ['source', 'destination']) {
   $(role + '-url').addEventListener('input', () => resetFolder(role));
@@ -55,6 +92,10 @@ $('feature').addEventListener('input', () => { $('character-count').textContent 
 document.querySelectorAll('[data-feature]').forEach(b => b.addEventListener('click', () => { $('feature').value = b.dataset.feature; $('feature').dispatchEvent(new Event('input')); $('feature').focus(); }));
 $('use-ai').addEventListener('change', () => { busy(false); clearResult(); });
 $('cancel').addEventListener('click', () => state.controller?.abort());
+/**
+ * @function run
+ * Implements run for this legacy interface.
+ */
 async function run(path, payload) {
   if (state.controller) return;
   const controller = new AbortController(); state.controller = controller;
@@ -77,6 +118,10 @@ $('transfer-form').addEventListener('submit', event => {
   } catch (e) { notify(e.message, 'error'); }
 });
 $('try-demo').addEventListener('click', () => run('/api/demo', {}));
+/**
+ * @function render
+ * Implements render for this legacy interface.
+ */
 function render({ mode, analysis, review }) {
   $('results').hidden = false;
   $('result-mode').textContent = mode === 'synthetic-demo' ? 'AUTHORED SAMPLE · NO AI CALL' : mode === 'ai-draft' ? 'AI-GENERATED DRAFT · HUMAN REVIEW REQUIRED' : 'READ-ONLY REPOSITORY DISCOVERY';
@@ -118,6 +163,10 @@ function render({ mode, analysis, review }) {
     const details = node('details', undefined, 'change'); details.open = review.changes.length <= 2;
     details.append(node('summary', `${change.action === 'add' ? '+' : '~'} ${change.path}`), node('p', change.reason, 'reason'), node('p', 'Source: ' + change.sourcePaths.join(', '), 'reason'));
     const pre = node('pre');
+    /**
+     * @function lines
+     * Implements lines for this legacy interface.
+     */
     const lines = text => text ? text.split('\n').slice(0, text.endsWith('\n') ? -1 : undefined) : [];
     for (const text of lines(change.before)) pre.append(node('span', '- ' + text, 'diff-line remove'));
     for (const text of lines(change.content)) pre.append(node('span', '+ ' + text, 'diff-line add'));
@@ -126,6 +175,10 @@ function render({ mode, analysis, review }) {
   $('risks').replaceChildren(...[review.notice, ...review.risks].map(t => node('p', t, 'plain-item')));
   $('suggested-checks').replaceChildren(...review.suggestedChecks.map(t => node('p', t, 'plain-item')));
 }
+/**
+ * @function download
+ * Implements download for this legacy interface.
+ */
 function download(filename, content, type) {
   const url = URL.createObjectURL(new Blob([content], { type })); const a = node('a'); a.href = url; a.download = filename; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

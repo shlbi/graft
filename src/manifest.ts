@@ -1,3 +1,8 @@
+/**
+ * @file Core Repot transfer-engine module for manifest. This deterministic layer plans or materializes repository changes.
+ *
+ * Engine invariant: identical snapshots and options should produce identical results.
+ */
 /** Versioned, explicit boundaries for the supported Graft feature subset. */
 export type Role = 'frontend' | 'backend' | 'shared';
 export type CapabilityKind = 'storage' | 'jobs' | 'database' | 'auth' | 'events';
@@ -16,11 +21,21 @@ export class ManifestError extends Error {
   }
 }
 type RecordValue = Record<string, unknown>;
+/**
+ * @function record
+ * Implements record within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function record(value: unknown, field: string, allowed: string[]): RecordValue {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new ManifestError(field, 'expected an object');
   for (const key of Object.keys(value)) if (!allowed.includes(key)) throw new ManifestError(`${field}.${key}`, 'unknown field');
   return value as RecordValue;
 }
+/**
+ * @function textValue
+ * Implements text value within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function textValue(value: unknown, field: string): string {
   if (typeof value !== 'string' || !value.trim() || value.length > 512) throw new ManifestError(field, 'expected a nonempty string of at most 512 characters');
   return value;
@@ -29,14 +44,29 @@ function choice<T extends string>(value: unknown, field: string, choices: readon
   if (typeof value !== 'string' || !choices.includes(value as T)) throw new ManifestError(field, `expected one of: ${choices.join(', ')}`);
   return value as T;
 }
+/**
+ * @function list
+ * Implements list within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function list(value: unknown, field: string, max: number): unknown[] {
   if (!Array.isArray(value) || value.length > max) throw new ManifestError(field, `expected an array with at most ${max} items`);
   return value;
 }
+/**
+ * @function unique
+ * Implements unique within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function unique(values: string[], field: string): void {
   if (new Set(values).size !== values.length) throw new ManifestError(field, 'duplicate values');
 }
 /** Lexical check only: filesystem callers must also enforce realpath containment. */
+/**
+ * @function projectPath
+ * Implements project path within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 export function projectPath(value: unknown, field = 'path'): string {
   const result = textValue(value, field);
   const parts = result.split('/');
@@ -48,6 +78,11 @@ export function projectPath(value: unknown, field = 'path'): string {
   }
   return result;
 }
+/**
+ * @function parseFeatureManifest
+ * Implements parse feature manifest within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 export function parseFeatureManifest(input: unknown): FeatureManifest {
   const root = record(input, 'manifest', ['schemaVersion','name','entrypoints','capabilities','assets','environment']);
   if (root.schemaVersion !== 1) throw new ManifestError('schemaVersion', 'only version 1 is supported');

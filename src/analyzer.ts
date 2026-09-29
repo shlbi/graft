@@ -1,3 +1,8 @@
+/**
+ * @file Core Repot transfer-engine module for analyzer. This deterministic layer analyzes or transforms repository snapshots without hidden network access.
+ *
+ * Engine invariant: identical snapshots and options should produce identical results.
+ */
 import type { FeatureManifest } from './manifest.js';
 import { projectPath } from './manifest.js';
 
@@ -31,6 +36,11 @@ export class AnalysisError extends Error {
   }
 }
 
+/**
+ * @function packageName
+ * Implements package name within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
+ */
 function packageName(value: string): string {
   const normalized = value.trim();
   if (!normalized || normalized.length > 214 || normalized.startsWith('.') || normalized.startsWith('/')) {
@@ -49,6 +59,11 @@ function packageName(value: string): string {
  * Computes the deterministic file closure for a normalized module graph.
  * Capability modules are adapter boundaries: they are recorded but never
  * copied or traversed into the destination feature.
+ */
+/**
+ * @function analyzeFeatureClosure
+ * Implements analyze feature closure within the deterministic transfer engine.
+ * Determinism: keep ordering and inputs explicit; do not add hidden I/O.
  */
 export function analyzeFeatureClosure(
   feature: FeatureManifest,

@@ -1,3 +1,8 @@
+/**
+ * @file Core Repot transfer-engine module for transplant. This deterministic layer plans or materializes repository changes.
+ *
+ * Engine invariant: identical snapshots and options should produce identical results.
+ */
 import { buildReviewableChangeSet, type ReviewableChangeSet } from './changeset.js';
 import { parseDestinationInventory, type DestinationInventory } from './inventory.js';
 import { parseFeatureManifest, projectPath, type FeatureManifest } from './manifest.js';
@@ -32,6 +37,11 @@ export class TransplantError extends Error {
   }
 }
 
+/**
+ * @function indexSnapshots
+ * Implements index snapshots within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function indexSnapshots(snapshots: FileSnapshot[], label: string): Map<string, string> {
   const files = new Map<string, string>();
   for (const snapshot of snapshots) {
@@ -43,6 +53,11 @@ function indexSnapshots(snapshots: FileSnapshot[], label: string): Map<string, s
   return files;
 }
 
+/**
+ * @function assertUnchanged
+ * Implements assert unchanged within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function assertUnchanged(reviewed: FileSnapshot[], actual: Map<string, string>, label: string): void {
   for (const snapshot of reviewed) {
     if (actual.get(snapshot.path) !== snapshot.content) {
@@ -55,6 +70,11 @@ function assertUnchanged(reviewed: FileSnapshot[], actual: Map<string, string>, 
  * Read-only preparation of BOTH feature copies and explicit integration edits.
  * The last argument supplies user-reviewed mount points; omitted mounts retain
  * the original copy-only behavior. No scripts or destination files are run.
+ */
+/**
+ * @function prepareTransplant
+ * Implements prepare transplant within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
  */
 export function prepareTransplant(
   featureInput: unknown,
@@ -109,6 +129,11 @@ export function prepareTransplant(
  * All checks and transformations use immutable snapshots. Rejection returns no
  * partial result; unrelated destination changes made after review are preserved.
  * This API is not an authorization boundary for an untrusted serialized plan.
+ */
+/**
+ * @function applyPreparedTransplant
+ * Implements apply prepared transplant within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
  */
 export function applyPreparedTransplant(
   prepared: PreparedTransplant,

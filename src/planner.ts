@@ -1,3 +1,8 @@
+/**
+ * @file Core Repot transfer-engine module for planner. This deterministic layer plans or materializes repository changes.
+ *
+ * Engine invariant: identical snapshots and options should produce identical results.
+ */
 import type { CapabilityKind, FeatureManifest } from './manifest.js';
 
 export interface DestinationCapability {
@@ -37,6 +42,11 @@ export class PlanError extends Error {
   }
 }
 
+/**
+ * @function duplicates
+ * Implements duplicates within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
+ */
 function duplicates(values: string[]): string[] {
   const seen = new Set<string>();
   const duplicate = new Set<string>();
@@ -50,6 +60,11 @@ function duplicates(values: string[]): string[] {
 /**
  * Plans only declared adapter boundaries. Graft refuses to guess when a
  * destination has zero or multiple contract-compatible capabilities.
+ */
+/**
+ * @function planTransplant
+ * Implements plan transplant within the deterministic transfer engine.
+ * Reviewability: preserve explicit inputs, stable ordering, and auditable outputs.
  */
 export function planTransplant(
   feature: FeatureManifest,

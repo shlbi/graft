@@ -1,3 +1,8 @@
+/**
+ * @file Local stdio Repot MCP development module (server.mjs). The hosted remote MCP is the production product; this code remains a reference and local fallback.
+ *
+ * Safety note: local repository access must remain confined to explicit roots, and writes stay opt-in.
+ */
 #!/usr/bin/env node
 import { McpServer } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
@@ -18,9 +23,24 @@ const transferInput=z.object({
   destination:z.string().min(1).describe('Destination repository directory inside an allowed root'),
   feature:z.string().min(3).max(1500).describe('Behavior to move and constraints that must remain unchanged')
 });
+/**
+ * @function result
+ * Implements result for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 const result=value=>({content:[{type:'text',text:typeof value==='string'?value:JSON.stringify(value,null,2)}]});
+/**
+ * @function failure
+ * Implements failure for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 const failure=error=>({content:[{type:'text',text:error instanceof Fault?error.message:'Repot MCP failed without changing either repository.'}],isError:true});
 
+/**
+ * @function inspect
+ * Implements inspect for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 async function inspect(args){
   const [source,destination]=await Promise.all([
     snapshotLocalRepository(args.source,roots),
@@ -31,6 +51,11 @@ async function inspect(args){
   return{source,destination,analysis,publicAnalysis};
 }
 
+/**
+ * @function buildServer
+ * Implements build server for the local MCP workflow.
+ * Safety: preserve allowed-root confinement, stale-review checks, and the default read-only posture.
+ */
 function buildServer(){
   const server=new McpServer({
     name:'repot',

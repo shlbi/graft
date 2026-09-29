@@ -1,1 +1,6 @@
+/**
+ * @file Repot remote-MCP documentation/onboarding interface asset.
+ *
+ * UI invariant: user-visible status must reflect observed backend state; never imply unexecuted verification succeeded.
+ */
 const url='https://mcp.getrepot.com/mcp';async function copy(){try{await navigator.clipboard.writeText(url);const s=document.getElementById('copy-status');if(s)s.textContent='COPIED — PASTE THIS URL INTO YOUR MCP CLIENT.';}catch{const s=document.getElementById('copy-status');if(s)s.textContent='COPY FAILED — SELECT THE URL ABOVE MANUALLY.';}}document.getElementById('copy-mcp')?.addEventListener('click',copy);document.querySelectorAll('[data-copy-mcp]').forEach(b=>b.addEventListener('click',copy));

@@ -1,14 +1,27 @@
+/**
+ * @file Repot web-engine module for runner-adapter. It supports bounded transfer analysis, provider integration, syntax adaptation, or test preservation used by the web and MCP products.
+ *
+ * Boundary note: keep repository context bounded and never claim execution/verification that this module did not actually perform.
+ */
 /** Deliberately small Jest/Vitest adapter. Never edits an assertion or synthesizes a passing test. */
 import { ts, parse, walk, literalEdit } from './syntax.mjs';
 const common = new Set(['describe', 'test', 'it', 'expect', 'beforeEach', 'afterEach', 'beforeAll', 'afterAll']);
 const runners = new Map([['jest', '@jest/globals'], ['vitest', 'vitest']]);
 const matchers = new Set(['not', 'resolves', 'rejects', 'toBe', 'toEqual', 'toStrictEqual', 'toBeDefined', 'toBeUndefined', 'toBeNull', 'toBeTruthy', 'toBeFalsy', 'toBeGreaterThan', 'toBeGreaterThanOrEqual', 'toBeLessThan', 'toBeLessThanOrEqual', 'toContain', 'toContainEqual', 'toHaveLength', 'toHaveProperty', 'toMatch', 'toThrow', 'toBeInstanceOf']);
+/**
+ * @function identifierRead
+ * Implements identifier read for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 function identifierRead(n) {
   const p = n.parent;
   if ((ts.isPropertyAccessExpression(p) && p.name === n) || ts.isImportSpecifier(p) || ts.isImportClause(p) || ts.isNamespaceImport(p)) return false;
   if ((ts.isVariableDeclaration(p) || ts.isParameter(p) || ts.isFunctionDeclaration(p) || ts.isClassDeclaration(p) || ts.isPropertyAssignment(p) || ts.isMethodDeclaration(p)) && p.name === n) return false;
   return !ts.isTypeReferenceNode(p) && !ts.isQualifiedName(p);
 }
+/**
+ * @function adaptRunner
+ * Implements adapt runner for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function adaptRunner(file, from, to) {
   const edits = [], issues = [], hooks = [];
   if (!runners.has(from) || !runners.has(to)) return { edits, issues, hooks, mode: 'same-runner' };
@@ -36,6 +49,10 @@ export function adaptRunner(file, from, to) {
       if (crossing && ['jest', 'vi'].includes(n.text) && !declarations.has(n.text)) issues.push(`framework API ${n.text} requires a specific mock/timer adapter`);
     }
   });
+  /**
+   * @function rootAPI
+   * Implements root api for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+   */
   const rootAPI = expression => {
     if (ts.isIdentifier(expression)) return aliases.get(expression.text);
     if (ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) return rootAPI(expression.expression);
@@ -77,6 +94,10 @@ export function adaptRunner(file, from, to) {
   }
   return { edits, issues: [...new Set(issues)], hooks, mode: crossing ? `${from}-to-${to}` : 'explicit-framework-imports' };
 }
+/**
+ * @function frameworkPair
+ * Implements framework pair for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export function frameworkPair(source, destination) {
   const from = source.frameworks[0], to = destination.frameworks[0];
   const valid = source.frameworks.length === 1 && destination.frameworks.length === 1 && (from === to ? ['node:test', 'vitest', 'jest', 'mocha'].includes(from) : from === 'jest' && to === 'vitest');

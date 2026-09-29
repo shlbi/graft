@@ -1,3 +1,8 @@
+/**
+ * @file Legacy/connected Repot service module retained for the authenticated web workflow and its acceptance tests.
+ *
+ * Security note: this layer handles repository or session data; preserve authorization, input bounds, and explicit write gates.
+ */
 // Shared, explicit allowlist for the Next.js public sync and connected server.
 // Never serve/copy an entire directory: it may contain operator secrets or data.
 export const PUBLIC_ASSETS = Object.freeze([

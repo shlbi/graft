@@ -1,3 +1,8 @@
+/**
+ * @file Repot web-engine module for ai. It supports bounded transfer analysis, provider integration, syntax adaptation, or test preservation used by the web and MCP products.
+ *
+ * Boundary note: keep repository context bounded and never claim execution/verification that this module did not actually perform.
+ */
 import { Fault, requireThat, reviewProposal } from './core.mjs';
 import { boundedJSON } from './github.mjs';
 const string = { type: 'string' }, stringArray = { type: 'array', items: string };
@@ -12,6 +17,10 @@ export const proposalSchema = {
     } }
   }
 };
+/**
+ * @function proposeWithAI
+ * Implements propose with ai for Repot's bounded web transfer pipeline. Preserve bounded inputs, explicit uncertainty, and fail-closed behavior.
+ */
 export async function proposeWithAI({ source, destination, context, consent, apiKey, model, signal, fetchImpl = fetch }) {
   requireThat(consent === true, 'Explicit code-sharing consent is required before using the AI provider.', 403);
   requireThat(typeof apiKey === 'string' && apiKey && typeof model === 'string' && /^[a-zA-Z0-9_.:-]{1,100}$/.test(model), 'Configure OPENAI_API_KEY and GRAFT_AI_MODEL on the server before using AI.', 503);

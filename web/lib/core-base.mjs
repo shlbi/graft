@@ -1,3 +1,8 @@
+/**
+ * @file Repot web-engine module for core-base. It supports bounded transfer analysis, provider integration, syntax adaptation, or test preservation used by the web and MCP products.
+ *
+ * Boundary note: keep repository context bounded and never claim execution/verification that this module did not actually perform.
+ */
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { LIMITS, eligiblePath, pathShape, looksSensitive } from './policy.mjs';
@@ -5,14 +10,34 @@ export { LIMITS };
 export class Fault extends Error {
   constructor(message, status = 400) { super(message); this.status = status; }
 }
+/**
+ * @function hash
+ * Implements hash for Repot's bounded web transfer pipeline.
+ */
 export const hash = value => createHash('sha256').update(value).digest('hex');
+/**
+ * @function requireThat
+ * Implements require that for Repot's bounded web transfer pipeline.
+ */
 export function requireThat(ok, message, status = 400) { if (!ok) throw new Fault(message, status); }
+/**
+ * @function bytes
+ * Implements bytes for Repot's bounded web transfer pipeline.
+ */
 const bytes = text => Buffer.byteLength(text, 'utf8');
+/**
+ * @function featureText
+ * Implements feature text for Repot's bounded web transfer pipeline.
+ */
 export function featureText(value) {
   requireThat(typeof value === 'string' && value.trim().length >= 3 && value.length <= 1500, 'Describe a feature in 3–1500 characters.');
   requireThat(!looksSensitive(value), 'The feature description appears to contain a credential. Remove it before continuing.');
   return value.trim();
 }
+/**
+ * @function snapshot
+ * Implements snapshot for Repot's bounded web transfer pipeline.
+ */
 export function snapshot(input) {
   requireThat(input && typeof input === 'object' && typeof input.name === 'string' && input.name.length > 0 && input.name.length <= 120, 'A repository needs a short name.');
   requireThat(Array.isArray(input.files) && input.files.length > 0 && input.files.length <= LIMITS.files, `Choose 1–${LIMITS.files} eligible text files per repository.`);
@@ -42,9 +67,17 @@ export function snapshot(input) {
     coverage: { inspected: files.length, knownPaths: paths.length, completeTextSnapshot: files.length === paths.length } };
 }
 const stop = new Set('a an the and or to from into in of with for it its this that move copy feature add my please make'.split(' '));
+/**
+ * @function words
+ * Implements words for Repot's bounded web transfer pipeline.
+ */
 export function words(text) {
   return [...new Set(text.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 1 && !stop.has(w)))];
 }
+/**
+ * @function rank
+ * Implements rank for Repot's bounded web transfer pipeline.
+ */
 export function rank(files, feature) {
   const tokens = words(feature);
   return files.map(file => {
@@ -54,6 +87,10 @@ export function rank(files, feature) {
     return { ...file, score, matched };
   }).sort((a, b) => b.score - a.score || (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 }
+/**
+ * @function stack
+ * Implements stack for Repot's bounded web transfer pipeline.
+ */
 export function stack(repo) {
   const counts = new Map();
   const names = { ts: 'TypeScript', tsx: 'TypeScript', js: 'JavaScript', jsx: 'JavaScript', mjs: 'JavaScript', cjs: 'JavaScript', py: 'Python', rs: 'Rust', go: 'Go', java: 'Java', cs: 'C#', swift: 'Swift', rb: 'Ruby', php: 'PHP', cpp: 'C++' };
@@ -67,9 +104,17 @@ export function stack(repo) {
   }
   return { languages, frameworks: [...frameworks] };
 }
+/**
+ * @function contextFiles
+ * Implements context files for Repot's bounded web transfer pipeline.
+ */
 function contextFiles(repo, feature, budget) {
   const ranked = rank(repo.files, feature), byPath = new Map(repo.files.map(f => [f.path, f]));
   const chosen = new Map(); let used = 0;
+  /**
+   * @function add
+   * Implements add for Repot's bounded web transfer pipeline.
+   */
   const add = f => {
     if (!f || chosen.has(f.path) || chosen.size >= 18 || used + bytes(f.content) > budget) return false;
     chosen.set(f.path, f); used += bytes(f.content); return true;
@@ -88,10 +133,18 @@ function contextFiles(repo, feature, budget) {
   ranked.slice(0, 8).forEach(add);
   return [...chosen.values()].map(({ path, content, hash }) => ({ path, content, hash }));
 }
+/**
+ * @function analyze
+ * Implements analyze for Repot's bounded web transfer pipeline.
+ */
 export function analyze(source, destination, feature) {
   feature = featureText(feature);
   requireThat(source.fingerprint !== destination.fingerprint, 'Source and destination snapshots are identical. Choose two different projects.');
   const context = { feature, source: contextFiles(source, feature, LIMITS.contextBytes / 2), destination: contextFiles(destination, feature, LIMITS.contextBytes / 2) };
+  /**
+   * @function summary
+   * Implements summary for Repot's bounded web transfer pipeline.
+   */
   const summary = repo => ({ name: repo.name, revision: repo.revision, fingerprint: repo.fingerprint, coverage: repo.coverage, skipped: repo.skipped, stack: stack(repo) });
   return { feature, source: summary(source), destination: summary(destination),
     candidates: rank(source.files, feature).filter(f => f.score > 0).slice(0, 8).map(f => ({ path: f.path, matched: f.matched })),
@@ -100,16 +153,36 @@ export function analyze(source, destination, feature) {
       'Only selected text is inspected. Missing assets, database migrations, packages, and framework wiring require review.',
       'Use source code you have permission to reuse; preserve its license and attribution.'], context };
 }
+/**
+ * @function exactKeys
+ * Implements exact keys for Repot's bounded web transfer pipeline.
+ */
 const exactKeys = (obj, keys) => obj && typeof obj === 'object' && !Array.isArray(obj) && Object.keys(obj).sort().join('|') === [...keys].sort().join('|');
+/**
+ * @function strings
+ * Implements strings for Repot's bounded web transfer pipeline.
+ */
 function strings(values, max, label) {
   requireThat(Array.isArray(values) && values.length <= max && values.every(v => typeof v === 'string' && v.length > 0 && v.length <= 600), `Invalid ${label} list.`); return values;
 }
+/**
+ * @function patchLines
+ * Implements patch lines for Repot's bounded web transfer pipeline.
+ */
 function patchLines(text, prefix) {
   if (!text) return '';
   const lines = text.split('\n'), finalNewline = text.endsWith('\n'); if (finalNewline) lines.pop();
   return lines.map((line, i) => prefix + line + '\n' + (!finalNewline && i === lines.length - 1 ? '\\ No newline at end of file\n' : '')).join('');
 }
+/**
+ * @function lineCount
+ * Implements line count for Repot's bounded web transfer pipeline.
+ */
 function lineCount(text) { return text ? text.split('\n').length - (text.endsWith('\n') ? 1 : 0) : 0; }
+/**
+ * @function unifiedPatch
+ * Implements unified patch for Repot's bounded web transfer pipeline.
+ */
 export function unifiedPatch(changes) {
   return changes.map(c => {
     const a = lineCount(c.before ?? ''), b = lineCount(c.content);
@@ -118,6 +191,10 @@ export function unifiedPatch(changes) {
       `@@ -${a ? 1 : 0},${a} +${b ? 1 : 0},${b} @@\n` + patchLines(c.before ?? '', '-') + patchLines(c.content, '+');
   }).join('');
 }
+/**
+ * @function reviewProposal
+ * Implements review proposal for Repot's bounded web transfer pipeline.
+ */
 export function reviewProposal(proposal, source, destination, context, provider = 'ai') {
   requireThat(exactKeys(proposal, ['summary', 'changes', 'risks', 'suggestedChecks']), 'Provider returned an invalid proposal envelope.', 422);
   requireThat(typeof proposal.summary === 'string' && proposal.summary.length > 0 && proposal.summary.length <= 1500, 'Invalid proposal summary.', 422);

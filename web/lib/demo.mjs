@@ -1,3 +1,8 @@
+/**
+ * @file Repot web-engine module for demo. It supports bounded transfer analysis, provider integration, syntax adaptation, or test preservation used by the web and MCP products.
+ *
+ * Boundary note: keep repository context bounded and never claim execution/verification that this module did not actually perform.
+ */
 import { snapshot, analyze, reviewProposal } from './core.mjs';
 // Authored, deterministic fixtures. This is not an AI response and never pretends to use real repositories.
 const csv = `export function toCSV(rows) {\n  const cell = value => {\n    let text = String(value ?? '');\n    if (/^[=+@\\-\\t\\r]/.test(text)) text = "'" + text;\n    return '"' + text.replaceAll('"', '""') + '"';\n  };\n  return rows.map(row => row.map(cell).join(',')).join('\\r\\n') + '\\r\\n';\n}\n`;
@@ -39,6 +44,10 @@ export const demoProposal = { summary: 'Move CSV export into the task board, ada
   risks: ['This synthetic example exports a string, not a wired browser download button.', 'Spreadsheet handling varies by application; review the supported input policy for your use case.'],
   suggestedChecks: ['Verify taskCount still returns the original result.', 'Test CSV commas, quotes, newlines, empty values, and formula-like cells.', 'Verify the destination task schema and wire the intended UI separately.']
 };
+/**
+ * @function demoRun
+ * Implements demo run for Repot's bounded web transfer pipeline.
+ */
 export function demoRun() {
   const source = snapshot(demoInput.source), destination = snapshot(demoInput.destination);
   const analysis = analyze(source, destination, 'CSV export');

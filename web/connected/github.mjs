@@ -1,9 +1,29 @@
+/**
+ * @file Legacy/connected Repot service module retained for the authenticated web workflow and its acceptance tests.
+ *
+ * Security note: this layer handles repository or session data; preserve authorization, input bounds, and explicit write gates.
+ */
 import { createHash } from 'node:crypto';
 import { ensure, HttpError } from './security.mjs';
 import { snapshot } from '../lib/core-base.mjs';
 import { eligiblePath, LIMITS } from '../lib/policy.mjs';
+/**
+ * @function sha
+ * Implements sha for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 const sha = value => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value);
+/**
+ * @function nameOK
+ * Implements name ok for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 const nameOK = name => typeof name === 'string' && /^[A-Za-z0-9-]{1,39}\/[A-Za-z0-9_.-]{1,100}$/.test(name) && !name.split('/').some(p => p === '.' || p === '..');
+/**
+ * @function boundedResponse
+ * Implements bounded response for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export async function boundedResponse(response, limit = 2_000_000) {
   const chunks = []; let size = 0;
   for await (const b of response.body) { size += b.length; ensure(size <= limit, 502, 'upstream_size', 'GitHub response exceeded the size limit.'); chunks.push(b); }

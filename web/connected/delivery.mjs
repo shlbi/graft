@@ -1,8 +1,28 @@
+/**
+ * @file Legacy/connected Repot service module retained for the authenticated web workflow and its acceptance tests.
+ *
+ * Security note: this layer handles repository or session data; preserve authorization, input bounds, and explicit write gates.
+ */
 import { ensure, sha256 } from './security.mjs';
 import { eligiblePath, looksSensitive, LIMITS } from '../lib/policy.mjs';
+/**
+ * @function validSha
+ * Implements valid sha for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 const validSha = x => typeof x === 'string' && /^[a-f0-9]{40}$/.test(x);
+/**
+ * @function reviewDigest
+ * Implements review digest for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export const reviewDigest = review => sha256(JSON.stringify(review));
 /** Validate the exact stored draft, never a browser-provided patch. No writes to the default branch. */
+/**
+ * @function validateDelivery
+ * Implements validate delivery for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export function validateDelivery(job) {
   const { review, destination } = job;
   ensure(review?.exportable === true && typeof review.patch === 'string' && review.patch.length > 0 && review.testTransfer?.status !== 'blocked', 409, 'blocked_draft', 'The test-transfer gate blocks this draft.');
@@ -20,11 +40,21 @@ export function validateDelivery(job) {
   }
   ensure(bytes <= 120000, 422, 'patch_limit', 'Combined patch is too large.');
 }
+/**
+ * @function deliver
+ * Implements deliver for the connected web workflow.
+ * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+ */
 export async function deliver({ job, token, github, save, signal }) {
   validateDelivery(job);
   const { destination: d, review } = job, root = '/repos/' + d.name, branch = `graft/${job.id}`;
   const authorized = await github.authorize(token, job.input.sourceId, d.id, signal);
   ensure(authorized.destination.name === d.name, 409, 'repo_changed', 'Repository was renamed; analyze again.');
+  /**
+   * @function head
+   * Implements head for the connected web workflow.
+   * Security: keep ownership checks, CSRF/session boundaries, and write gating explicit where applicable.
+   */
   const head = () => github.api(token, `${root}/git/ref/heads/${encodeURIComponent(d.branch)}`, { signal });
   const branchPath = `${root}/git/ref/heads/${encodeURIComponent(branch)}`;
   let existing = await github.api(token, branchPath, { signal, allow404: true });
