@@ -1,3 +1,8 @@
+/**
+ * @file Repository automation script for build.mjs used by Repot's build, evidence, migration, or validation workflow.
+ *
+ * Operator note: this script is tooling, not a request handler; failures should stop the workflow rather than be silently ignored.
+ */
 import { execFileSync } from 'node:child_process';
 import { rmSync } from 'node:fs';
 import { createRequire } from 'node:module';

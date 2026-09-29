@@ -1,8 +1,17 @@
+/**
+ * @file Repository automation script for build-site.mjs used by Repot's build, evidence, migration, or validation workflow.
+ *
+ * Operator note: this script is tooling, not a request handler; failures should stop the workflow rather than be silently ignored.
+ */
 // Static Repot frontend only. Never copy backend source, secrets, SQLite or test fixtures.
 import { copyFile, mkdir, readdir, rm, lstat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
 import { PUBLIC_ASSETS } from '../web/connected/public-assets.mjs';
+/**
+ * @function buildSite
+ * Performs the buildSite step for this repository utility. Keep filesystem/network side effects explicit and bounded.
+ */
 export async function buildSite(root = fileURLToPath(new URL('../', import.meta.url))) {
   const output = resolve(root, '.repot-site');
   const existing = await lstat(output).catch(error => { if (error.code !== 'ENOENT') throw error; });

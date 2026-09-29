@@ -1,3 +1,8 @@
+/**
+ * @file Central Better Auth configuration for GitHub identity, OAuth 2.1, MCP authorization, CIMD, scopes, and token lifetimes.
+ *
+ * Production invariant: never log secrets, repository file bodies, OAuth tokens, or GitHub access tokens from this module.
+ */
 import {betterAuth} from 'better-auth';
 import {jwt} from 'better-auth/plugins';
 import {mcp} from '@better-auth/mcp';
@@ -6,6 +11,11 @@ import {fetchClientMetadataResource} from '@better-auth/cimd/node';
 import {db} from './db.mjs';
 import {env,resource} from './env.mjs';
 let instance;
+/**
+ * @function getAuth
+ * Retrieves get auth data while enforcing the module's authorization and validation boundaries.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 export function getAuth(){
   if(instance)return instance;
   instance=betterAuth({

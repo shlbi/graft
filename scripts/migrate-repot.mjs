@@ -1,3 +1,8 @@
+/**
+ * @file Repository automation script for migrate-repot.mjs used by Repot's build, evidence, migration, or validation workflow.
+ *
+ * Operator note: this script is tooling, not a request handler; failures should stop the workflow rather than be silently ignored.
+ */
 import {db} from '../remote/db.mjs';
 await db().query(`
 CREATE TABLE IF NOT EXISTS repot_review (

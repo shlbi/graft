@@ -14,6 +14,7 @@ from playwright.sync_api import sync_playwright
 
 
 def main() -> None:
+    """Performs the main step for this repository utility. Keep filesystem/network side effects explicit and bounded."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--chromium", help="Path to an installed Chromium executable")
     args = parser.parse_args()

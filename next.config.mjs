@@ -1,3 +1,8 @@
+/**
+ * @file Next.js production configuration, including security headers and framework-level deployment behavior.
+ *
+ * Production invariant: never log secrets, repository file bodies, OAuth tokens, or GitHub access tokens from this module.
+ */
 const nextConfig={
   poweredByHeader:false,
   reactStrictMode:true,

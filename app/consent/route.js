@@ -1,7 +1,17 @@
+/**
+ * @file OAuth consent route that presents or records the user authorization decision for Repot MCP.
+ *
+ * Security-sensitive route: keep authentication, redirects, and response caching explicit.
+ */
 import {getAuth} from '../../remote/auth.mjs';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 
+/**
+ * @function GET
+ * Handles this HTTP method for the route and returns a bounded Next.js Response.
+ * Security: preserve authentication and redirect validation before changing request handling.
+ */
 export async function GET(request){
   const auth=getAuth();
   const session=await auth.api.getSession({headers:request.headers});

@@ -1,3 +1,8 @@
+/**
+ * @file Repository automation script for capture-evidence.mjs used by Repot's build, evidence, migration, or validation workflow.
+ *
+ * Operator note: this script is tooling, not a request handler; failures should stop the workflow rather than be silently ignored.
+ */
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';

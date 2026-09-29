@@ -1,3 +1,8 @@
+/**
+ * @file GitHub integration layer for user-token delegation, repository snapshots, and atomic draft-PR publication.
+ *
+ * Production invariant: never log secrets, repository file bodies, OAuth tokens, or GitHub access tokens from this module.
+ */
 import {Readable,Transform} from 'node:stream';
 import {createGunzip} from 'node:zlib';
 import tar from 'tar-stream';
@@ -7,8 +12,23 @@ import {snapshot,Fault,requireThat} from '../web/lib/core-base.mjs';
 import {eligiblePath,LIMITS,looksSensitive} from '../web/lib/policy.mjs';
 
 const API='https://api.github.com';
+/**
+ * @function headers
+ * Implements headers for this production module; preserve its documented security and side-effect contract.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 const headers=token=>({accept:'application/vnd.github+json',authorization:`Bearer ${token}`,'user-agent':'repot-mcp','x-github-api-version':'2026-03-10'});
+/**
+ * @function repoName
+ * Implements repo name for this production module; preserve its documented security and side-effect contract.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 function repoName(value){if(typeof value!=='string'||!/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})\/[A-Za-z0-9_.-]{1,100}$/.test(value))throw new Fault('Use a GitHub repository as owner/repo.');return value;}
+/**
+ * @function gh
+ * Implements gh for this production module; preserve its documented security and side-effect contract.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 async function gh(token,path,{method='GET',body,raw=false}={}){
   const response=await fetch(API+path,{method,headers:{...headers(token),...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,redirect:raw?'follow':'error',signal:AbortSignal.timeout(30000)});
   if(!response.ok){const text=await response.text().catch(()=> '');throw new Fault(`GitHub returned ${response.status}${text?' for this operation':''}.`,response.status===404?404:502);}
@@ -16,6 +36,11 @@ async function gh(token,path,{method='GET',body,raw=false}={}){
   if(response.status===204)return null;
   return response.json();
 }
+/**
+ * @function githubTokenForUser
+ * Implements github token for user for this production module; preserve its documented security and side-effect contract.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 export async function githubTokenForUser(userId){
   const {rows}=await db().query('SELECT id FROM account WHERE "userId"=$1 AND "providerId"=$2 ORDER BY "updatedAt" DESC LIMIT 1',[userId,'github']);
   if(!rows[0])throw new Fault('Your Repot account is not linked to GitHub.',403);
@@ -23,6 +48,11 @@ export async function githubTokenForUser(userId){
   if(!token?.accessToken)throw new Fault('Repot could not obtain a current GitHub user token. Reconnect GitHub.',403);
   return token.accessToken;
 }
+/**
+ * @function listRepositories
+ * Retrieves list repositories data while enforcing the module's authorization and validation boundaries.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 export async function listRepositories(token){
   const installs=await gh(token,'/user/installations?per_page=100');
   const repos=[];
@@ -33,6 +63,11 @@ export async function listRepositories(token){
   const unique=new Map(repos.map(r=>[r.name.toLowerCase(),r]));
   return [...unique.values()].sort((a,b)=>a.name.localeCompare(b.name)).slice(0,500);
 }
+/**
+ * @function snapshotRepository
+ * Implements snapshot repository for this production module; preserve its documented security and side-effect contract.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 export async function snapshotRepository(token,input){
   const name=repoName(input),meta=await gh(token,`/repos/${name}`);
   requireThat(typeof meta.default_branch==='string'&&meta.default_branch,'Repository has no default branch.',422);
@@ -59,6 +94,11 @@ export async function snapshotRepository(token,input){
   await done;if(failure)throw failure;
   return{meta:{name,defaultBranch:meta.default_branch,private:meta.private,permissions:meta.permissions??{}},snapshot:snapshot({name,revision:commit.sha,files,inventory})};
 }
+/**
+ * @function publishDraft
+ * Performs publish draft; this path may mutate durable state and must remain failure-aware and idempotent where documented.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 export async function publishDraft(token,{reviewId,destinationRepo,destinationRevision,review}){
   const name=repoName(destinationRepo),meta=await gh(token,`/repos/${name}`);
   const baseBranch=meta.default_branch,base=await gh(token,`/repos/${name}/git/ref/heads/${encodeURIComponent(baseBranch)}`);

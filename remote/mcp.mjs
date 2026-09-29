@@ -1,3 +1,8 @@
+/**
+ * @file Production Repot MCP tool surface for repository discovery, inspection, AI drafting, review, and explicit publication.
+ *
+ * Production invariant: never log secrets, repository file bodies, OAuth tokens, or GitHub access tokens from this module.
+ */
 import {createMcpHandler,McpServer} from '@modelcontextprotocol/server';
 import * as z from 'zod/v4';
 import {analyze} from '../web/lib/core.mjs';
@@ -12,10 +17,30 @@ const transfer=z.object({
   destinationRepo:z.string().min(3).max(140).describe('Destination GitHub repository as owner/repo'),
   feature:z.string().min(3).max(1500).describe('Feature behavior to move and destination constraints')
 });
+/**
+ * @function ok
+ * Implements ok for this production module; preserve its documented security and side-effect contract.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 const ok=value=>({content:[{type:'text',text:JSON.stringify(value,null,2)}]});
+/**
+ * @function fail
+ * Implements fail for this production module; preserve its documented security and side-effect contract.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 const fail=error=>({content:[{type:'text',text:error instanceof Fault?error.message:(error?.message||'Repot failed without changing a repository.')}],isError:true});
+/**
+ * @function userId
+ * Implements user id for this production module; preserve its documented security and side-effect contract.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 const userId=authInfo=>{const id=authInfo?.extra?.userId;if(typeof id!=='string'||!id)throw new Fault('Repot could not resolve the authenticated user.',401);return id;};
 
+/**
+ * @function createRepotServer
+ * Constructs create repot server for downstream callers without weakening configured security defaults.
+ * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ */
 export function createRepotServer(authInfo){
   const server=new McpServer({name:'repot',version:'0.2.0',description:'Move reviewed features and related tests between GitHub repositories.'});
   server.registerTool('repot_repositories',{

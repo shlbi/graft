@@ -1,3 +1,13 @@
+/**
+ * @file Authentication route used by the Repot GitHub and MCP authorization flow.
+ *
+ * Security-sensitive route: keep authentication, redirects, and response caching explicit.
+ */
+/**
+ * @function GET
+ * Handles this HTTP method for the route and returns a bounded Next.js Response.
+ * Security: preserve authentication and redirect validation before changing request handling.
+ */
 export async function GET(request){
   const next=new URL(request.url).searchParams.get('next')||'';
   const safe=next.startsWith('/')&&!next.startsWith('//')?next:'/';

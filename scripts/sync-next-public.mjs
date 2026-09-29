@@ -1,3 +1,8 @@
+/**
+ * @file Repository automation script for sync-next-public.mjs used by Repot's build, evidence, migration, or validation workflow.
+ *
+ * Operator note: this script is tooling, not a request handler; failures should stop the workflow rather than be silently ignored.
+ */
 import {copyFile,mkdir,rm} from 'node:fs/promises';
 import {dirname,resolve} from 'node:path';
 import {PUBLIC_ASSETS} from '../web/connected/public-assets.mjs';
