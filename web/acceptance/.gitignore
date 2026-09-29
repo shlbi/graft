@@ -1,2 +1,3 @@
+# Acceptance-harness ignore rules. Local dependency/install artifacts are reproducible and should not be committed.
 node_modules/
 .runner-acceptance-*/

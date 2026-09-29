@@ -1,3 +1,4 @@
+# Local web-preview ignore rules. Generated state belongs outside version control.
 .env
 .env.*
 node_modules/
