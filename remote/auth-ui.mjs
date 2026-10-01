@@ -6,8 +6,8 @@
 const ORIGIN = 'https://getrepot.com';
 export const SIGNED_IN_PATH = '/connected';
 const ERRORS = Object.freeze({
-  email_not_found: 'GitHub did not provide an email address. The Repot GitHub App needs Account permissions → Email addresses: Read-only. After the app owner saves that permission, approve the updated authorization and retry. You do not need to make your email public.',
-  email_not_verified: 'GitHub did not provide a verified email address. Verify your email in GitHub settings, then start a new sign-in attempt.',
+  email_not_found: 'Repot does not require your email. This error indicates an older or misconfigured sign-in flow. Start a fresh attempt; if it repeats, the app owner must check the GitHub identity adapter.',
+  email_not_verified: 'Repot signs in with your GitHub account, not email verification. Start a fresh attempt; if this repeats, the app owner must check the deployed GitHub-only auth configuration.',
   unable_to_get_user_info: 'Repot could not read your GitHub profile. The app owner should check its account permissions and GitHub availability, then retry. This message alone does not identify which upstream check failed.',
   state_not_found: 'This sign-in attempt expired or its verification cookie is missing. Start a new attempt in this browser and allow cookies for Repot.',
   state_mismatch: 'The sign-in verification did not match. Start a new attempt in the same browser instead of reusing a previous GitHub authorization link.',

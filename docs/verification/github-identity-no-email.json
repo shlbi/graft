@@ -1,0 +1,71 @@
+{
+  "baseCommit": "2aa50b3ae60926726e430a28fb08a415d752c32d",
+  "scope": "GitHub-only sign-in without collecting a user email",
+  "runtimeObserved": {
+    "node": "22.16.0",
+    "platform": "Linux"
+  },
+  "validation": {
+    "command": "npm run test:auth",
+    "tests": 96,
+    "passed": 96,
+    "failed": 0,
+    "skipped": 0,
+    "existingHandlerTests": 52,
+    "identityAndConfigTests": 44,
+    "syntheticDependencies": [
+      "GitHub HTTP responses",
+      "Better Auth package modules for configuration/route tests"
+    ],
+    "syntaxChecksPassed": [
+      "remote/github-identity.mjs",
+      "remote/auth.mjs",
+      "remote/auth-ui.mjs",
+      "remote/test/github-identity.test.mjs",
+      "app/sign-in/route.js",
+      "app/auth/github/route.test.mjs"
+    ],
+    "previousConfigRegression": {
+      "configBlob": "1b67ce254524a3e1799d7fc1e6a1f38fb8349366",
+      "tests": 44,
+      "passed": 42,
+      "failed": 2,
+      "skipped": 0
+    }
+  },
+  "notObserved": [
+    "Installed Better Auth 1.7.6 runtime integration",
+    "Full Next.js build in this session",
+    "Node 24 runtime test",
+    "Live GitHub authorization callback and session",
+    "Real browser or MCP-client end-to-end login"
+  ],
+  "dependencyBlocker": "npm view better-auth@1.7.6 failed with EAI_AGAIN for registry.npmjs.org; public git clone also failed DNS. No credentials transferred or networking bypass attempted.",
+  "identityContract": {
+    "provider": "github",
+    "subject": "authenticated GET /user numeric id",
+    "providerDataFields": [
+      "id",
+      "login"
+    ],
+    "privateEmailEndpointCalled": false,
+    "returnedPublicEmailStored": false,
+    "emailField": "non-deliverable github-<id>@users.repot.invalid alias",
+    "emailVerified": false,
+    "emailLoginEnabled": false,
+    "accountLinkingEnabled": false,
+    "schemaMigrationRequired": false
+  },
+  "changesToSecretsPermissionsOrDatabase": "none; no direct deployment action",
+  "testedBlobShas": {
+    "remote/github-identity.mjs": "08c319b466d70bb3a0204175c041337276bd3d79",
+    "remote/auth.mjs": "f71881ccf6c9f4c88d18efe173e93e6f5b2c7241",
+    "remote/auth-ui.mjs": "e6dc1c78035adac6b2e0410d8133138be7d79e66",
+    "remote/test/github-identity.test.mjs": "a392f2741f2b79b5090b074c1de4ce595aff10c1",
+    "app/sign-in/route.js": "69897f1691e3146f9b1e569ef820bcf39d5d26fa",
+    "app/auth/github/route.test.mjs": "333a2e8e0079723b0ec97de1b6e9c84a91f918f2",
+    "package.json": "0eca687498874c9c9ed3c4c2e8c243c15ebede4e",
+    "docs/AUTH-TROUBLESHOOTING.md": "af5bb8d7fa3297a506bda4fc29e27071b27a2c08",
+    "docs/GITHUB-IDENTITY.md": "91cc7c651f0c9b6f523115fe7a050d7b61cf6f58"
+  }
+}

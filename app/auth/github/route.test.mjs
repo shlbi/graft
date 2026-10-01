@@ -178,7 +178,8 @@ test('real callback error is shown even for older attempts containing error=gith
   const response = await route.GET(new Request('https://getrepot.com/sign-in?error=github&error=email_not_found'));
   const html = await response.text();
   assert.match(html, /role="alert"/); assert.match(html, /email_not_found/);
-  assert.match(html, /Email addresses: Read-only/); assert.match(html, /do not need to make your email public/);
+  assert.match(html, /Repot does not require your email/); assert.match(html, /GitHub identity adapter/);
+  assert.doesNotMatch(html, /Email addresses: Read-only|make your email public/);
   assert.equal(response.headers.get('cache-control'), 'no-store');
 });
 

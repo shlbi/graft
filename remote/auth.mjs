@@ -10,11 +10,15 @@ import {cimd} from '@better-auth/cimd';
 import {fetchClientMetadataResource} from '@better-auth/cimd/node';
 import {db} from './db.mjs';
 import {authBaseUrl,env,resource} from './env.mjs';
+import {githubIdentity} from './github-identity.mjs';
 let instance;
 /**
  * @function getAuth
- * Retrieves get auth data while enforcing the module's authorization and validation boundaries.
- * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
+ * Constructs Repot's GitHub-only auth service; the provider's numeric subject
+ * identifies an account, not its current handle or email address. The internal
+ * .invalid alias exists only for Better Auth's required schema field.
+ * OAuth state, PKCE, token exchange, account binding and sessions remain owned
+ * by Better Auth. Never mark the alias verified or enable email-based linking.
  */
 export function getAuth(){
   if(instance)return instance;
@@ -26,11 +30,23 @@ export function getAuth(){
     database:db(),
     trustedOrigins:['https://getrepot.com','https://mcp.getrepot.com'],
     advanced:{database:{joins:true}},
+    // GitHub OAuth is the only identity proof. Email-shaped aliases are not
+    // contact addresses, recovery channels, or proof that accounts should merge.
+    emailAndPassword:{enabled:false},
+    emailVerification:{sendOnSignUp:false,sendOnSignIn:false},
+    user:{changeEmail:{enabled:false}},
+    account:{accountLinking:{enabled:false}},
     socialProviders:{
       github:{
         clientId:env('GITHUB_CLIENT_ID'),
         clientSecret:env('GITHUB_CLIENT_SECRET'),
-        redirectURI:'https://getrepot.com/auth/callback'
+        redirectURI:'https://getrepot.com/auth/callback',
+        disableDefaultScope:true,
+        scope:[],
+        getUserInfo:githubIdentity,
+        // Refresh the handle/alias on a returning login using the SAME GitHub
+        // subject. A renamed GitHub account must not create a second identity.
+        overrideUserInfoOnSignIn:true
       }
     },
     plugins:[

@@ -2,7 +2,7 @@
 
 GitHub displaying its authorization screen is not evidence that Repot created a
 user or session. The callback can still fail while exchanging the code, reading
-a profile/email, validating state, linking the account, or creating a session.
+the GitHub identity, validating state, linking the account, or creating a session.
 
 ## What the browser now does
 
@@ -24,6 +24,15 @@ The existing `/auth/callback` adapter is unchanged. Better Auth still owns the c
 exchange, state/PKCE checks, user creation and session cookie. No validation has been
 disabled and no users/sessions are created by the presentation helpers.
 
+## GitHub identity without email
+
+Repot reads the numeric GitHub subject and handle from authenticated `GET /user`.
+It does not request `user:email`, call `/user/emails`, or store a public email that
+GitHub happens to include. Better Auth's required email-shaped field contains an
+unverified, non-deliverable `.invalid` ID; it is not the user's address. Email login,
+mail sending, email changes and account merging are disabled. See
+[GITHUB-IDENTITY.md](GITHUB-IDENTITY.md) for invariants and compatibility notes.
+
 ## Read the code, not private callback data
 
 The error panel uses a fixed allowlist. Unknown codes display `auth_failed`; raw
@@ -34,7 +43,7 @@ than a success message or raw database exception.
 
 | Error | Next diagnostic |
 | --- | --- |
-| `email_not_found` | Check **GitHub App → Permissions & events → Account permissions → Email addresses: Read-only**. Save and approve the updated authorization. Do not make users' email public or fabricate an email to bypass the failure. |
+| `email_not_found`, `email_not_verified` | Repot no longer needs the user's email. Check that the no-email GitHub identity adapter is deployed, then begin a fresh attempt. Do not grant email access or ask the user to publish/verify an email to resolve this flow. |
 | `unable_to_get_user_info` | Check the GitHub App's profile/account permissions and provider availability. This is not proof of a particular missing permission. |
 | `state_not_found`, `state_mismatch`, `state_invalid` | Begin a fresh attempt in the same browser; do not reuse old authorization URLs. Check cookie persistence and canonical host configuration. |
 | `invalid_code` | Start a fresh attempt. If repeated, check the actual GitHub App client credentials and callback URL in the secret-management interface. Never paste them into issues/chat. |
