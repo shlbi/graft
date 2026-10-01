@@ -38,7 +38,8 @@
     "test:frontend": "node --test web/connected/test/client.test.mjs web/connected/test/presentation.test.mjs web/connected/test/branding.test.mjs web/connected/test/mcp-page.test.mjs",
     "test:mcp": "node --experimental-vm-modules --test mcp/test/*.test.mjs remote/test/*.test.mjs",
     "test:auth": "node --experimental-vm-modules --test app/auth/github/route.test.mjs remote/test/github-identity.test.mjs remote/test/oauth-continuation.test.mjs remote/test/oauth-consent-client.test.mjs",
-    "test:oauth": "node --experimental-vm-modules --test remote/test/oauth-continuation.test.mjs remote/test/oauth-consent-client.test.mjs"
+    "test:oauth": "node --experimental-vm-modules --test remote/test/oauth-continuation.test.mjs remote/test/oauth-consent-client.test.mjs",
+    "test:timeouts": "node --experimental-vm-modules --test remote/test/draft-timeout.test.mjs remote/test/github-read-cancellation.test.mjs"
   },
   "devDependencies": {
     "@types/node": "24.10.1",

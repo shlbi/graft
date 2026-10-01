@@ -11,6 +11,7 @@ import {Fault} from '../web/lib/core-base.mjs';
 import {githubTokenForUser,listRepositories,snapshotRepository,publishDraft} from './github.mjs';
 import {saveReview,getReview,publishStoredReview,incrementUsage,cleanupExpired} from './reviews.mjs';
 import {env} from './env.mjs';
+import {createDraftExecution,DRAFT_AI_TIMEOUT_MS} from './draft-execution.mjs';
 
 const transfer=z.object({
   sourceRepo:z.string().min(3).max(140).describe('Source GitHub repository as owner/repo'),
@@ -41,7 +42,7 @@ const userId=authInfo=>{const id=authInfo?.extra?.userId;if(typeof id!=='string'
  * Constructs create repot server for downstream callers without weakening configured security defaults.
  * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
  */
-export function createRepotServer(authInfo){
+export function createRepotServer(authInfo,requestSignal){
   const server=new McpServer({name:'repot',version:'0.2.0',description:'Move reviewed features and related tests between GitHub repositories.'});
   server.registerTool('repot_repositories',{
     title:'List Repot repositories',
@@ -65,19 +66,42 @@ export function createRepotServer(authInfo){
 
   server.registerTool('repot_draft',{
     title:'Draft feature transfer',
-    description:'Create a bounded AI-assisted transfer from the authenticated user’s GitHub repositories. Selected repository code is sent to Repot’s configured OpenAI model. Uses GPT-6.1 Sol to return an encrypted durable review ID and exact patch; does not write GitHub or execute generated code.',
+    description:'Create a bounded AI-assisted transfer from the authenticated user’s GitHub repositories. Selected repository code is sent to Repot’s configured OpenAI model. Uses GPT-6.1 Sol to return an encrypted durable review ID and exact patch; does not write GitHub or execute generated code. May take up to 240 seconds. Do not automatically retry failed drafts or bypass the review step.',
     inputSchema:transfer.extend({allowAI:z.literal(true).describe('Explicitly confirm selected code may be sent to Repot’s configured OpenAI model for this draft')}),
     annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:false,openWorldHint:true}
-  },async args=>{try{
-    const uid=userId(authInfo);await incrementUsage(uid,'drafts');await cleanupExpired().catch(()=>{});
-    if(args.sourceRepo.toLowerCase()===args.destinationRepo.toLowerCase())throw new Fault('Choose two different repositories.');
-    const token=await githubTokenForUser(uid);
-    const [source,destination]=await Promise.all([snapshotRepository(token,args.sourceRepo),snapshotRepository(token,args.destinationRepo)]);
-    const analysis=analyze(source.snapshot,destination.snapshot,args.feature);
-    const review=await proposeWithAI({source:source.snapshot,destination:destination.snapshot,context:analysis.context,consent:true,apiKey:env('OPENAI_API_KEY')});
-    const stored=await saveReview({userId:uid,sourceRepo:source.meta.name,destinationRepo:destination.meta.name,destinationRevision:destination.snapshot.revision,review});
-    return ok({reviewId:stored.id,expiresAt:stored.expiresAt,model:REPOT_AI_MODEL,summary:review.summary,exportable:review.exportable,changes:review.changes.map(c=>({path:c.path,action:c.action,reason:c.reason,sourcePaths:c.sourcePaths})),testTransfer:review.testTransfer,risks:review.risks,suggestedChecks:review.suggestedChecks,verification:review.verification,patch:review.patch,notice:review.notice});
-  }catch(e){return fail(e);}});
+  },async (args,context)=>{
+    const execution=createDraftExecution(context,requestSignal);
+    try{
+      // Validate consent, identity and configuration before spending an allowance.
+      const uid=userId(authInfo);
+      if(args.allowAI!==true)throw new Fault('Explicit code-sharing consent is required.',403);
+      if(args.sourceRepo.toLowerCase()===args.destinationRepo.toLowerCase())throw new Fault('Choose two different repositories.');
+      const apiKey=env('OPENAI_API_KEY');
+      const token=await execution.run('github_access',()=>githubTokenForUser(uid));
+      const [source,destination]=await execution.run('reading',signal=>Promise.all([
+        snapshotRepository(token,args.sourceRepo,{signal}),
+        snapshotRepository(token,args.destinationRepo,{signal})
+      ]));
+      const analysis=await execution.run('analyzing',()=>analyze(source.snapshot,destination.snapshot,args.feature));
+      await execution.run('quota',async signal=>{
+        await cleanupExpired().catch(()=>{});
+        signal.throwIfAborted();
+        return incrementUsage(uid,'drafts');
+      });
+      const review=await execution.run('generating',signal=>proposeWithAI({
+        source:source.snapshot,destination:destination.snapshot,context:analysis.context,
+        consent:true,apiKey,signal,timeoutMs:DRAFT_AI_TIMEOUT_MS
+      }));
+      const stored=await execution.run('saving',()=>saveReview({userId:uid,sourceRepo:source.meta.name,destinationRepo:destination.meta.name,destinationRevision:destination.snapshot.revision,review}));
+      return ok({reviewId:stored.id,expiresAt:stored.expiresAt,model:REPOT_AI_MODEL,summary:review.summary,exportable:review.exportable,changes:review.changes.map(c=>({path:c.path,action:c.action,reason:c.reason,sourcePaths:c.sourcePaths})),testTransfer:review.testTransfer,risks:review.risks,suggestedChecks:review.suggestedChecks,verification:review.verification,patch:review.patch,notice:review.notice});
+    }catch(error){
+      const code=execution.timedOut?'draft_timeout':execution.cancelled?'draft_cancelled':error?.code==='ai_timeout'?'ai_timeout':'draft_failed';
+      const message=code==='draft_timeout'?'The draft reached its 240-second application deadline.':code==='draft_cancelled'?'The requesting client cancelled or disconnected.':error instanceof Fault?error.message:'Repot could not finish this draft. Check server configuration and service availability.';
+      // Never reflect raw database/provider errors, credentials, or abort reasons.
+      return {...ok({error:{code,stage:execution.stage,message},retryAutomatically:false,
+        notice:'No repository files were changed. Do not publish or bypass review without a successful review ID. A timed-out database save may still finish; no successful draft is claimed.'}),isError:true};
+    }finally{execution.dispose();}
+  });
 
   server.registerTool('repot_review',{
     title:'Read stored Repot review',
@@ -104,4 +128,4 @@ export function createRepotServer(authInfo){
   return server;
 }
 
-export const mcpHandler=createMcpHandler(({authInfo})=>createRepotServer(authInfo),{legacy:'stateless',maxRequestBodySize:1_000_000});
+export const mcpHandler=createMcpHandler(({authInfo,requestInfo})=>createRepotServer(authInfo,requestInfo?.signal),{legacy:'stateless',maxRequestBodySize:1_000_000});

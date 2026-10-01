@@ -7,7 +7,9 @@ import {requireMcpAuth} from '@better-auth/mcp';
 import {getAuth} from '../../remote/auth.mjs';
 import {mcpHandler} from '../../remote/mcp.mjs';
 import {resource} from '../../remote/env.mjs';
-export const runtime='nodejs';export const dynamic='force-dynamic';export const maxDuration=60;
+export const runtime='nodejs';export const dynamic='force-dynamic';export const maxDuration=300;
+// Static Next.js export: the host must outlive the 240s draft and 180s AI budgets.
+// Hobby requires Fluid compute for 300s; do not increase this above plan limits.
 function bearer(request){const value=request.headers.get('authorization')||'';return value.startsWith('Bearer ')?value.slice(7):'';}
 /**
  * @function POST

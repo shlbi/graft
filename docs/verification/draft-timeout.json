@@ -1,0 +1,49 @@
+{
+  "baseCommit": "4f4ef4baabe4c553268b85e500920340ec7cc9af",
+  "scope": "Foreground MCP draft duration/cancellation hotfix",
+  "runtime": {
+    "node": "22.16.0",
+    "platform": "Linux"
+  },
+  "observed": {
+    "command": "npm run test:timeouts",
+    "tests": {
+      "passed": 28,
+      "failed": 0,
+      "skipped": 0
+    },
+    "javascriptSyntaxChecks": 7,
+    "virtualAIResponsesSeconds": [
+      61.2,
+      95,
+      150
+    ],
+    "virtualAITimeoutSeconds": 180,
+    "virtualDraftDeadlineSeconds": 240,
+    "priorRouteRegression": {
+      "failed": 1,
+      "command": "node --experimental-vm-modules --test --test-name-pattern=\"host budget\" remote/test/draft-timeout.test.mjs"
+    },
+    "publishDraftBody": "byte-for-byte unchanged"
+  },
+  "notObserved": [
+    "Full Next.js build: dependencies unavailable; npm ping failed with EAI_AGAIN",
+    "Installed MCP SDK/tar parser integration",
+    "Node 24 or Windows execution",
+    "Live ChatGPT transport/timeout behavior",
+    "Production function effective duration/Fluid compute setting",
+    "Paid OpenAI generation and real Pomodoro transfer"
+  ],
+  "sideEffects": "No customer repository writes, paid API calls, credential reads, database migrations, account changes or direct deployment. GitHub push triggers the existing Vercel integration.",
+  "fileBlobSHAs": {
+    "package.json": "9109e774b0694fd4a8dffb6cd6a258e50f486f79",
+    "docs/DRAFT-TIMEOUTS.md": "12dc27d6a3755690365ed7130891301d4bf79cd6",
+    "remote/draft-execution.mjs": "7241997696f8e1f0df39994009d587ae4d29b86b",
+    "remote/github.mjs": "c6aa15077a637caa9d99c84ceef927379c263a57",
+    "remote/mcp.mjs": "91c17e98eb9040eacabc9775c7845a34ba5b62c9",
+    "app/mcp/route.js": "85a7292a2c1a8827d42b6f26f36313b8552c2868",
+    "remote/test/github-read-cancellation.test.mjs": "690b9d263bf875681cc84331ecec8135a121ce1b",
+    "remote/test/draft-timeout.test.mjs": "3d47f1f60f5e23987a9890777af64ca40f804dd6",
+    "web/lib/ai.mjs": "439ad2d6ed016df8c265111289e95b45116b38d2"
+  }
+}
