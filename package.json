@@ -21,7 +21,7 @@
     "zod": "4.6.5"
   },
   "scripts": {
-    "build": "node scripts/sync-next-public.mjs && next build",
+    "build": "node scripts/migrate-auth.mjs && node scripts/sync-next-public.mjs && next build",
     "dev": "node scripts/sync-next-public.mjs && next dev",
     "start": "next start",
     "auth:migrate": "node scripts/migrate-auth.mjs",
