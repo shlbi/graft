@@ -1,20 +1,32 @@
 /**
- * @file OAuth consent route that presents or records the user authorization decision for Repot MCP.
- *
- * Security-sensitive route: keep authentication, redirects, and response caching explicit.
+ * @file Session-checked MCP consent screen. Each form carries the exact verified
+ * signed authorization query, including client state, PKCE and resource values.
+ * This page never grants consent on GET or keeps a shared last-request cookie.
  */
-import {getAuth} from '../../remote/auth.mjs';
-export const runtime='nodejs';
-export const dynamic='force-dynamic';
+import { getAuth } from '../../remote/auth.mjs';
+import { authPage, escapeHtml, readBrowserSession } from '../../remote/auth-ui.mjs';
+import { OAuthFlowError, oauthHiddenInput, oauthProblem, readOAuthRequest } from '../../remote/oauth-flow.mjs';
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-/**
- * @function GET
- * Handles this HTTP method for the route and returns a bounded Next.js Response.
- * Security: preserve authentication and redirect validation before changing request handling.
- */
-export async function GET(request){
-  const auth=getAuth();
-  const session=await auth.api.getSession({headers:request.headers});
-  if(!session)return Response.redirect(new URL('/sign-in',request.url),302);
-  return new Response(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Authorize Repot</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/brand.css"></head><body><div class="page-frame"><header class="masthead"><a class="wordmark" href="/" aria-label="Repot home"><img class="wordmark-logo" src="/assets/repot-mark-c7217cca.png" width="64" height="64" alt=""><span class="wordmark-text">epot</span></a></header><main class="closing"><p class="eyebrow">REPOT / MCP CONSENT</p><h2>Let this agent<br><em>use Repot?</em></h2><p class="muted">Repot can inspect repositories you authorized through the GitHub App. AI drafting sends only Repot-selected bounded code context to Repot's configured model. Publishing requires a separate explicit tool call and creates a new <code>repot/*</code> branch plus a draft pull request. Repot never auto-merges.</p><div class="hero-actions"><form method="post" action="/consent/decision"><input type="hidden" name="accept" value="true"><button class="button primary" type="submit">Authorize ↗︎</button></form><form method="post" action="/consent/decision"><input type="hidden" name="accept" value="false"><button class="button secondary" type="submit">Deny</button></form></div></main></div></body></html>`,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
+/** Verify request and session before showing the real client/scope request and both decisions. */
+export async function GET(request) {
+  try {
+    const auth = getAuth();
+    const flow = await readOAuthRequest(new URL(request.url).search, auth);
+    if (!flow) throw new OAuthFlowError();
+    const state = await readBrowserSession(request, options => auth.api.getSession(options));
+    if (!state.signedIn) {
+      // Keep the provider's request through login rather than dropping it at /sign-in.
+      state.headers.set('location', '/sign-in?' + flow.query);
+      return new Response(null, { status: 303, headers: state.headers });
+    }
+    const scopes = flow.scopes.map(scope => `<li><code>${escapeHtml(scope)}</code></li>`).join('');
+    const claims = flow.params.get('claims');
+    // The claims request is signature-checked and escaped, not evaluated as HTML.
+    const claimsNote = claims ? `<details><summary>Requested identity claims</summary><pre>${escapeHtml(claims)}</pre></details>` : '';
+    const hidden = oauthHiddenInput(flow);
+    const form = (accept, label, style) => `<form data-oauth-consent method="post" action="/consent/decision">${hidden}<input type="hidden" name="accept" value="${accept}"><button class="button ${style}" type="submit">${label}</button></form>`;
+    return authPage('Authorize Repot', `<p class="eyebrow">REPOT / MCP CONSENT</p><h2>Let this agent<br><em>use Repot?</em></h2><p>Requesting client: <code>${escapeHtml(flow.clientId)}</code></p><p>Returns to <code>${escapeHtml(flow.redirect.origin)}</code>.</p><details open><summary>Requested permissions</summary><ul>${scopes || '<li>No additional scopes requested.</li>'}</ul>${claimsNote}</details><p class="muted">Repot can inspect repositories you authorized through the GitHub App. AI drafting shares selected code with Repot's configured model only after an explicit tool request. Publication creates a separate branch and draft pull request; Repot never auto-merges.</p><div class="hero-actions">${form('true', 'Authorize ↗︎', 'primary')}${form('false', 'Deny', 'secondary')}</div><p id="oauth-status" role="status" aria-live="polite"></p><script type="module" src="/oauth-consent.mjs"></script>`, { headers: state.headers });
+  } catch (error) { return oauthProblem(request, { unavailable: !(error instanceof OAuthFlowError) }); }
 }

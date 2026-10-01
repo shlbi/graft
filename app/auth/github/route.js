@@ -7,6 +7,7 @@
  */
 import {getAuth} from '../../../remote/auth.mjs';
 import {safeNextPath} from '../../../remote/auth-ui.mjs';
+import { OAuthFlowError, oauthProblem, readOAuthForm, readOAuthRequest } from '../../../remote/oauth-flow.mjs';
 export const runtime='nodejs';
 
 /**
@@ -42,12 +43,19 @@ export async function GET(request){
  * Cookies and OAuth correlation headers from Better Auth are copied to the redirect response.
  */
 export async function POST(request){
-  const form=await request.formData();
+  let form, flow;
+  try {
+    const auth=getAuth();
+    form=await readOAuthForm(request,auth);
+    flow=await readOAuthRequest(form.get('oauth_query')||'',auth);
+  } catch (error) { return oauthProblem(request,{unavailable:!(error instanceof OAuthFlowError)}); }
   // Both new and returning users land on a session-verified page by default.
   const callbackURL=safeNextPath(form.get('next'));
   // Do not pre-fill error=github: Better Auth supplies its actual failure code.
   const upstream=await getAuth().api.signInSocial({
-    body:{provider:'github',callbackURL,newUserCallbackURL:callbackURL,errorCallbackURL:'/sign-in'},
+    // The provider verifies and saves this signed request in server-only OAuth state.
+    // Do not replace it with callbackURL or recreate client state after GitHub returns.
+    body:{provider:'github',callbackURL,newUserCallbackURL:callbackURL,errorCallbackURL:'/sign-in',...(flow?{oauth_query:flow.query}:{})},
     headers:request.headers,
     asResponse:true
   });

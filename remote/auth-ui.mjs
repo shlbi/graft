@@ -97,7 +97,7 @@ export async function readBrowserSession(request, getSession) {
   return { headers, signedIn: Boolean(valid), displayName: valid && typeof user.name === 'string' ? user.name.slice(0,200) : '' };
 }
 
-/** Build the shared, script-free auth shell. Body is authored HTML, not provider content. */
+/** Build the shared auth shell. Body, including any self-hosted script tag, is authored HTML, never raw provider content. */
 export function authPage(title, body, { status = 200, headers = new Headers() } = {}) {
   headers = new Headers(headers);
   headers.set('content-type', 'text/html; charset=utf-8');

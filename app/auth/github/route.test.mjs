@@ -7,6 +7,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import * as oauthFlow from '../../../remote/oauth-flow.mjs';
 import { readFile } from 'node:fs/promises';
 import nextConfig from '../../../next.config.mjs';
 import { safeNextPath, signInError } from '../../../remote/auth-ui.mjs';
@@ -28,12 +29,17 @@ async function loadAuthRoute(file, overrides = {}) {
     this.setExport('getAuth', () => ({ api: { signInSocial, getSession }, handler }));
   }, { context, identifier: apiModule });
   const ui = new vm.SourceTextModule(await readFile(new URL(uiModule), 'utf8'), { context, identifier: uiModule });
+  // Use the actual continuation helpers, not a fake query/crypto implementation.
+  const flow = new vm.SyntheticModule(Object.keys(oauthFlow), function () {
+    for (const [name, value] of Object.entries(oauthFlow)) this.setExport(name, value);
+  }, { context });
   const routeUrl = new URL(file, root);
   const route = new vm.SourceTextModule(await readFile(routeUrl, 'utf8'), { context, identifier: routeUrl.href });
   await route.link((specifier, referencing) => {
     const resolved = new URL(specifier, referencing.identifier).href;
     if (resolved === apiModule) return auth;
     if (resolved === uiModule) return ui;
+    if (resolved === new URL('remote/oauth-flow.mjs', root).href) return flow;
     assert.fail('Unexpected import: ' + resolved);
   });
   await route.evaluate();

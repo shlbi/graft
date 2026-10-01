@@ -1,0 +1,55 @@
+{
+  "project": "Repot",
+  "baseCommit": "1937826b2676d0c3d15c308f4217c9604560e51e",
+  "scope": "Signed MCP OAuth continuation through GitHub login, explicit consent and checked client return",
+  "libraryContract": "@better-auth/oauth-provider 1.7.6 inspected at its pinned GitHub tag; no new package imports or version changes",
+  "observed": {
+    "runtime": "Node v22.16.0 on Linux",
+    "combinedCommand": "node --experimental-vm-modules --test app/auth/github/route.test.mjs remote/test/oauth-continuation.test.mjs remote/test/oauth-consent-client.test.mjs",
+    "combinedTests": {
+      "passed": 117,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "newCommand": "npm run test:oauth",
+    "newTests": {
+      "passed": 65,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "syntax": {
+      "command": "node --check <each changed JavaScript module>",
+      "passed": 11,
+      "failed": 0
+    },
+    "baselineRegression": {
+      "description": "Two new missing-query regressions executed with exact original sign-in and GitHub POST route bytes",
+      "passed": 0,
+      "failed": 2,
+      "expectedFailure": true
+    }
+  },
+  "testBoundaries": [
+    "Tests execute actual route bodies, query verification and browser controller code; Better Auth session/consent/sign-in responses are synthetic.",
+    "Signed query fixtures use independent WebCrypto HMAC signing; application verification uses the real Node crypto helper.",
+    "Controller tests use a small simulated DOM and FormData; they are not real browser tests."
+  ],
+  "notObserved": [
+    "Installed Better Auth runtime integration and Next.js build: npm registry lookup failed with EAI_AGAIN.",
+    "Production Node 24 validation.",
+    "Real browser navigation: Chromium launched, but the local fixture page was blocked by ERR_BLOCKED_BY_ADMINISTRATOR before page load.",
+    "Live ChatGPT OAuth callback/token exchange or connected-tool discovery.",
+    "Full repository suites and the existing GitHub-identity suite were not rerun in this focused checkout.",
+    "Repository transfer, paid AI inference and generated-code execution."
+  ],
+  "safety": [
+    "No new signatures, client registrations, session grants or tokens are manufactured by Repot presentation helpers.",
+    "Signed state, PKCE, scopes, resources and claims are forwarded per request; Better Auth still verifies them.",
+    "Consent remains explicit with Authorize and Deny; no skipConsent or policy weakening.",
+    "Existing CSP, credentials, permissions, model configuration and database schema are unchanged.",
+    "No private tokens, callback query bodies, state or codes are written to this evidence."
+  ],
+  "next": "After the GitHub-triggered deployment, start a fresh Connect attempt in ChatGPT. Complete consent and verify client-side token exchange/tool discovery. Use a separate fresh request to test Deny."
+}
