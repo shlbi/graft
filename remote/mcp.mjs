@@ -6,7 +6,7 @@
 import {createMcpHandler,McpServer} from '@modelcontextprotocol/server';
 import * as z from 'zod/v4';
 import {analyze} from '../web/lib/core.mjs';
-import {proposeWithAI} from '../web/lib/ai.mjs';
+import {proposeWithAI,REPOT_AI_MODEL} from '../web/lib/ai.mjs';
 import {Fault} from '../web/lib/core-base.mjs';
 import {githubTokenForUser,listRepositories,snapshotRepository,publishDraft} from './github.mjs';
 import {saveReview,getReview,publishStoredReview,incrementUsage,cleanupExpired} from './reviews.mjs';
@@ -65,7 +65,7 @@ export function createRepotServer(authInfo){
 
   server.registerTool('repot_draft',{
     title:'Draft feature transfer',
-    description:'Create a bounded AI-assisted transfer from the authenticated user’s GitHub repositories. Selected repository code is sent to Repot’s configured OpenAI model. Returns an encrypted durable review ID and exact patch; does not write GitHub or execute generated code.',
+    description:'Create a bounded AI-assisted transfer from the authenticated user’s GitHub repositories. Selected repository code is sent to Repot’s configured OpenAI model. Uses GPT-6.1 Sol to return an encrypted durable review ID and exact patch; does not write GitHub or execute generated code.',
     inputSchema:transfer.extend({allowAI:z.literal(true).describe('Explicitly confirm selected code may be sent to Repot’s configured OpenAI model for this draft')}),
     annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:false,openWorldHint:true}
   },async args=>{try{
@@ -74,9 +74,9 @@ export function createRepotServer(authInfo){
     const token=await githubTokenForUser(uid);
     const [source,destination]=await Promise.all([snapshotRepository(token,args.sourceRepo),snapshotRepository(token,args.destinationRepo)]);
     const analysis=analyze(source.snapshot,destination.snapshot,args.feature);
-    const review=await proposeWithAI({source:source.snapshot,destination:destination.snapshot,context:analysis.context,consent:true,apiKey:env('OPENAI_API_KEY'),model:env('REPOT_AI_MODEL')});
+    const review=await proposeWithAI({source:source.snapshot,destination:destination.snapshot,context:analysis.context,consent:true,apiKey:env('OPENAI_API_KEY')});
     const stored=await saveReview({userId:uid,sourceRepo:source.meta.name,destinationRepo:destination.meta.name,destinationRevision:destination.snapshot.revision,review});
-    return ok({reviewId:stored.id,expiresAt:stored.expiresAt,summary:review.summary,exportable:review.exportable,changes:review.changes.map(c=>({path:c.path,action:c.action,reason:c.reason,sourcePaths:c.sourcePaths})),testTransfer:review.testTransfer,risks:review.risks,suggestedChecks:review.suggestedChecks,verification:review.verification,patch:review.patch,notice:review.notice});
+    return ok({reviewId:stored.id,expiresAt:stored.expiresAt,model:REPOT_AI_MODEL,summary:review.summary,exportable:review.exportable,changes:review.changes.map(c=>({path:c.path,action:c.action,reason:c.reason,sourcePaths:c.sourcePaths})),testTransfer:review.testTransfer,risks:review.risks,suggestedChecks:review.suggestedChecks,verification:review.verification,patch:review.patch,notice:review.notice});
   }catch(e){return fail(e);}});
 
   server.registerTool('repot_review',{

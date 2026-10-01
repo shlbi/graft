@@ -85,12 +85,12 @@ function buildServer(){
 
   server.registerTool('repot_draft',{
     title:'Draft feature transfer',
-    description:'Create a reviewable feature-transfer patch from two allowed local repositories. Requires OPENAI_API_KEY and REPOT_AI_MODEL (or legacy GRAFT_AI_MODEL). The provider receives only Repot-selected bounded context. No files are changed and no generated code is executed.',
+    description:'Create a reviewable feature-transfer patch from two allowed local repositories. Requires OPENAI_API_KEY and defaults to GPT-6.1 Sol. The provider receives only Repot-selected bounded context. No files are changed and no generated code is executed.',
     inputSchema:transferInput,
     annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:false,openWorldHint:true}
   },async args=>{
     try{
-      if(!options.apiKey||!options.model) throw new Fault('AI drafting is disabled. Configure OPENAI_API_KEY and REPOT_AI_MODEL in the MCP client environment.',503);
+      if(!options.apiKey) throw new Fault('AI drafting is disabled. Configure OPENAI_API_KEY in the MCP client environment.',503);
       const r=await inspect(args);
       const review=await proposeWithAI({
         source:r.source.snapshot,destination:r.destination.snapshot,context:r.analysis.context,

@@ -67,7 +67,7 @@ test('AI adapter submits bounded structured output, no tools, store false and va
     assert.equal(url, 'https://api.openai.com/v1/responses'); assert.equal(options.redirect, 'error'); payload = JSON.parse(options.body);
     return json({ status: 'completed', output: [{ content: [{ type: 'output_text', text: JSON.stringify(demoProposal) }] }], usage: { input_tokens: 100, output_tokens: 50 } });
   } });
-  assert.equal(payload.store, false); assert.equal(payload.max_output_tokens, 12000); assert.equal(payload.text.format.strict, true); assert.equal(payload.tools, undefined);
+  assert.equal(payload.model, 'test-model'); assert.deepEqual(payload.reasoning, { effort: 'medium' }); assert.equal(payload.store, false); assert.equal(payload.max_output_tokens, 12000); assert.equal(payload.text.format.strict, true); assert.equal(payload.tools, undefined);
   assert.match(payload.instructions, /untrusted data/); assert.match(payload.instructions, /never change source tests/);
   assert.equal(JSON.parse(payload.input).testPlan.tests[0].path, 'test/csv.test.mjs');
   assert.equal(review.testTransfer.status, 'included'); assert.ok(review.changes.some(c => c.path === 'tests/csv.test.mjs'));
@@ -79,4 +79,14 @@ test('AI incomplete, refusal, malformed JSON and empty proposals stop without ap
     { status: 'completed', output: [{ content: [{ type: 'output_text', text: '{nope' }] }] },
     { status: 'completed', output: [{ content: [{ type: 'output_text', text: JSON.stringify({ ...demoProposal, changes: [] }) }] }] }
   ]) await assert.rejects(proposeWithAI({ ...aiOptions(), fetchImpl: async () => json(body) }));
+});
+
+test('AI adapter defaults production drafting to GPT-6.1 Sol', async () => {
+  let payload;
+  await proposeWithAI({ ...aiOptions(), model: undefined, fetchImpl: async (_url, options) => {
+    payload = JSON.parse(options.body);
+    return json({ status: 'completed', output: [{ content: [{ type: 'output_text', text: JSON.stringify(demoProposal) }] }], usage: { input_tokens: 1, output_tokens: 1 } });
+  } });
+  assert.equal(payload.model, 'gpt-6.1-sol');
+  assert.deepEqual(payload.reasoning, { effort: 'medium' });
 });

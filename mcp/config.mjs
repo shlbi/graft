@@ -16,5 +16,5 @@ export function parseArgs(argv=process.argv.slice(2),env=process.env){
     else if(argv[i]==='--read-only')writes=false;
     else throw new Error(`Unknown Repot MCP option: ${argv[i]}`);
   }
-  return{roots,writes,apiKey:env.OPENAI_API_KEY||'',model:env.REPOT_AI_MODEL||env.GRAFT_AI_MODEL||''};
+  return{roots,writes,apiKey:env.OPENAI_API_KEY||'',model:env.REPOT_AI_MODEL||'gpt-6.1-sol'};
 }

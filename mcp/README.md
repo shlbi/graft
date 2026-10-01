@@ -22,7 +22,7 @@ Repot MCP is local and intentionally narrow.
 2. **Symlinks are ignored during reads and refused at write targets.**
 3. **Snapshots are bounded** to 1,500 eligible text files, 750 KB total, and 60 KB per file.
 4. **Common secret/generated directories are excluded.** Sensitive-looking content fails closed.
-5. **AI is optional.** `repot_inspect` never calls a provider. `repot_draft` requires `OPENAI_API_KEY` plus `REPOT_AI_MODEL`.
+5. **AI is optional.** `repot_inspect` never calls a provider. `repot_draft` requires `OPENAI_API_KEY` and defaults to Repot's production model, `gpt-6.1-sol`.
 6. **Writes are off by default.** Enable with `--allow-writes` or `REPOT_MCP_ALLOW_WRITES=1`.
 7. **Apply is stale-safe.** The destination fingerprint and updated-file hashes must still match the reviewed snapshot.
 8. **No code execution.** Repot MCP does not run generated code, package managers, git hooks, builds, tests, or shell commands. Verification remains `not_run` until another isolated workflow actually runs it.
@@ -66,8 +66,7 @@ Project config: `.cursor/mcp.json`
         "/absolute/path/to/projects"
       ],
       "env": {
-        "OPENAI_API_KEY": "${env:OPENAI_API_KEY}",
-        "REPOT_AI_MODEL": "${env:REPOT_AI_MODEL}"
+        "OPENAI_API_KEY": "${env:OPENAI_API_KEY}"
       }
     }
   }

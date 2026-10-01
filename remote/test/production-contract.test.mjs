@@ -74,3 +74,11 @@ test('public MCP page is one-link remote onboarding', async () => {
   assert.match(page, /Copy MCP URL/);
   assert.doesNotMatch(page, /git clone|npm install|--allow-root/);
 });
+
+test('production AI model is pinned to GPT-6.1 Sol rather than environment-selected Astra', async () => {
+  const ai = await read('web/lib/ai.mjs');
+  const mcp = await read('remote/mcp.mjs');
+  assert.ok(ai.includes("REPOT_AI_MODEL = 'gpt-6.1-sol'"));
+  assert.ok(ai.includes("REPOT_REASONING_EFFORT = 'medium'"));
+  assert.ok(!mcp.includes("env('REPOT_AI_MODEL')"));
+});
