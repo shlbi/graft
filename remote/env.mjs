@@ -19,6 +19,14 @@ export function env(name,{optional=false}={}){
  * Security: keep least-privilege authorization, bounded inputs, and explicit failure handling intact.
  */
 export const resource=()=>process.env.REPOT_MCP_RESOURCE||'https://mcp.getrepot.com/mcp';
+
+/**
+ * @function authBaseUrl
+ * Returns Repot's public authorization origin. The canonical production URL is a non-secret product constant,
+ * so deployments remain buildable even when Vercel does not expose an optional public override at build time.
+ * Security: callers must not use request-controlled host headers as an authorization-server origin.
+ */
+export const authBaseUrl=()=>process.env.BETTER_AUTH_URL||'https://getrepot.com';
 /**
  * @function intEnv
  * Reads and validates int env configuration, failing closed instead of inventing a production default.

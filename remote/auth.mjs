@@ -9,7 +9,7 @@ import {mcp} from '@better-auth/mcp';
 import {cimd} from '@better-auth/cimd';
 import {fetchClientMetadataResource} from '@better-auth/cimd/node';
 import {db} from './db.mjs';
-import {env,resource} from './env.mjs';
+import {authBaseUrl,env,resource} from './env.mjs';
 let instance;
 /**
  * @function getAuth
@@ -20,7 +20,7 @@ export function getAuth(){
   if(instance)return instance;
   instance=betterAuth({
     appName:'Repot',
-    baseURL:env('BETTER_AUTH_URL'),
+    baseURL:authBaseUrl(),
     basePath:'/api/auth',
     secret:env('BETTER_AUTH_SECRET'),
     database:db(),
