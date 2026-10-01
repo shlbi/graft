@@ -1,0 +1,41 @@
+{
+  "baseline": "442b3b19a12846d5b1488ad27bbe0b16532c2004",
+  "date": "2026-10-01",
+  "activation": "Staged separately from main; new table requires production approval",
+  "command": "npm run test:drafts",
+  "observed": {
+    "node": "22.16.0",
+    "platform": "Linux",
+    "tests": {
+      "passed": 77,
+      "failed": 0,
+      "skipped": 0
+    },
+    "syntaxChecks": {
+      "passed": 14
+    },
+    "neonTemporaryBranch": {
+      "migrationApplied": true,
+      "constraintAndLifecycleAssertions": "passed",
+      "fixtureUsersRemaining": 0,
+      "fixtureReviewsRemaining": 0,
+      "jobRowsRemaining": 0,
+      "indexes": 4
+    }
+  },
+  "simulationBoundary": "Model latency, provider, SDK, engine and pg driver boundaries are simulated in local tests. Separate actual SQL checks ran on a temporary Neon branch; no claim of installed pg/SDK integration.",
+  "notObserved": [
+    "Full Next.js build (npm registry DNS EAI_AGAIN)",
+    "Node 24 execution",
+    "Live OpenAI background request with the user's project",
+    "Live ChatGPT job polling and original Pomodoro feature acceptance"
+  ],
+  "safety": {
+    "paidApiCalls": 0,
+    "productionSchemaWrites": 0,
+    "customerRepoWrites": 0,
+    "backgroundStorageRequiresConsent": true,
+    "autoRetryGeneration": false
+  },
+  "migrationSha256": "a659ff2e24e23937396a2bb8f68f6ac742a4b9d4158a84c36ce3d659c8686046"
+}
