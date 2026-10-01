@@ -1,0 +1,39 @@
+{
+  "scope": "GitHub sign-in navigation, response headers and cookies",
+  "baseCommit": "9f35a16598f43beefc5a6043fbccb46debb31bc6",
+  "changes": [
+    "Allow only self and https://github.com in form-action, retaining all other CSP directives.",
+    "GET /auth/github navigates to the sign-in form without initiating OAuth.",
+    "Reject unexpected origin, port, credentials and fragments in JSON provider handoffs.",
+    "Replace source-string-only auth assertions with executable handler/header tests and add npm run test:auth."
+  ],
+  "observed": {
+    "runtime": "Node.js v22.16.0 / Linux (production targets Node 24.x)",
+    "command": "npm run test:auth",
+    "tests": {
+      "total": 18,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 0
+    },
+    "baselineSameTests": {
+      "passed": 13,
+      "failed": 5,
+      "meaning": "Original Git blobs reject the new CSP, GET-link, and provider-origin regression expectations."
+    },
+    "syntaxPassed": [
+      "next.config.mjs",
+      "app/auth/github/route.js",
+      "app/auth/github/route.test.mjs"
+    ],
+    "cookieChecks": "Two synthetic Set-Cookie headers preserved separately; state and PKCE query parameters preserved.",
+    "dependencyBoundary": "The real route source was executed in node:vm with only the Better Auth import replaced by a synthetic response provider. No live credentials or network calls."
+  },
+  "notVerified": {
+    "browser": "Chromium attempted; fixture navigation was stopped by net::ERR_BLOCKED_BY_ADMINISTRATOR before the page loaded. No browser pass is claimed.",
+    "fullNextBuild": "Not run locally; network dependency checkout unavailable (GitHub DNS resolution failed).",
+    "liveOAuth": "GitHub login, callback, user permissions and MCP acceptance not executed.",
+    "productionNode24": "Not available in this local runtime."
+  },
+  "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/form-action"
+}

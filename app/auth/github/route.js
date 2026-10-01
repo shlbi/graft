@@ -17,10 +17,20 @@ export const runtime='nodejs';
 function githubRedirect(value){
   let url;
   try{url=new URL(value);}catch{throw new Error('GitHub sign-in returned an invalid authorization URL.');}
-  if(url.protocol!=='https:'||url.hostname!=='github.com'||url.pathname!=='/login/oauth/authorize'){
+  if(url.origin!=='https://github.com'||url.username||url.password||url.hash||url.pathname!=='/login/oauth/authorize'){
     throw new Error('GitHub sign-in returned an unexpected authorization destination.');
   }
   return url.toString();
+}
+
+/**
+ * @function GET
+ * Lets existing Connect GitHub links reach the sign-in form instead of a 405.
+ * This navigation does not call Better Auth, issue cookies, or start OAuth;
+ * the user must still submit the form's POST to begin authorization.
+ */
+export async function GET(){
+  return new Response(null,{status:303,headers:{location:'/sign-in','cache-control':'no-store'}});
 }
 
 /**

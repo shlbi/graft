@@ -36,7 +36,8 @@
     "connected": "node web/connected/server.mjs",
     "test:connected": "node --test --test-timeout=15000 web/connected/test/*.test.mjs",
     "test:frontend": "node --test web/connected/test/client.test.mjs web/connected/test/presentation.test.mjs web/connected/test/branding.test.mjs web/connected/test/mcp-page.test.mjs",
-    "test:mcp": "node --test mcp/test/*.test.mjs remote/test/*.test.mjs"
+    "test:mcp": "node --test mcp/test/*.test.mjs remote/test/*.test.mjs",
+    "test:auth": "node --experimental-vm-modules --test app/auth/github/route.test.mjs"
   },
   "devDependencies": {
     "@types/node": "24.10.1",
