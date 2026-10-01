@@ -26,7 +26,7 @@ const userId=authInfo=>{const id=authInfo?.extra?.userId;if(typeof id!=='string'
 
 /** Register all tools with explicit side effects and retain the existing authenticated GitHub access boundary. */
 export function createRepotServer(authInfo,requestSignal){
-  const server=new McpServer({name:'repot',version:'0.3.0',description:'Move reviewed features and related tests between GitHub repositories. Drafts return durable jobs; poll the same job instead of reducing the requested feature.'});
+  const server=new McpServer({name:'repot',version:'0.4.0',description:'Move reviewed features and related tests between GitHub repositories. Drafts return durable jobs; poll the same job instead of reducing the requested feature.'});
   server.registerTool('repot_repositories',{
     title:'List Repot repositories',
     description:'List GitHub repositories currently available to the authenticated Repot GitHub App user. Read-only.',
@@ -49,8 +49,9 @@ export function createRepotServer(authInfo,requestSignal){
 
   server.registerTool('repot_draft',{
     title:'Start resumable feature draft',
-    description:'Persist a draft job and return jobId immediately, before generation. Resume it with repot_draft_status until a reviewId is ready. Reuse requestKey if the initial response is lost; never switch features or start a new generation automatically. Uses GPT-6.1 Sol. Background generation temporarily stores response data at OpenAI for polling (roughly 10 minutes even with store:false); explicit background consent is required. No GitHub writes or generated-code execution.',
+    description:'Persist a draft job and return jobId immediately, before generation. Resume it with repot_draft_status until a reviewId is ready. Reuse requestKey if the initial response is lost; never switch features or start a duplicate job. This transfer includes one generation plus up to maxRepairAttempts targeted repairs (default 2, maximum 2). Each model attempt consumes one draft allowance and can incur API charges. No additional approval is requested between repairs within that saved budget. Uses GPT-6.1 Sol. Background generation temporarily stores response data at OpenAI for polling (roughly 10 minutes even with store:false); explicit background consent is required. No GitHub writes or generated-code execution.',
     inputSchema:transfer.extend({
+      maxRepairAttempts:z.number().int().min(0).max(2).optional().default(2).describe('Upfront repair budget: default 2 means at most three total model calls for this same transfer. Use 0 for a single attempt. Cannot be increased on an existing job.'),
       allowAI:z.literal(true).describe('Explicitly confirm selected code may be sent to Repot’s configured OpenAI model for this draft'),
       allowBackgroundProcessing:z.literal(true).describe('User permits asynchronous processing and temporary provider-side response storage for polling; this is not zero retention'),
       requestKey:z.string().regex(/^[A-Za-z0-9_-]{8,80}$/).describe('Choose once for this transfer, e.g. focusflow-pomodoro-001. Reuse exactly this value after a transport error; a different key can incur another generation charge')
@@ -63,7 +64,7 @@ export function createRepotServer(authInfo,requestSignal){
 
   server.registerTool('repot_draft_status',{
     title:'Resume or check a draft job',
-    description:'Perform one bounded step of the SAME durable job: prepare pinned repositories, submit one background AI request, or poll/finalize its result. Returns quickly with status and nextTool; follow pollAfterSeconds. This can charge the draft allowance once when submitting, but polling never regenerates or republishes. Do not change the feature to work around pending status. A completed job returns a reviewId; call repot_review before explicit repot_publish.',
+    description:'Perform one bounded step of the SAME durable job: prepare pinned repositories, submit one background AI request, or poll/finalize its result. Returns quickly with status and nextTool; follow pollAfterSeconds. Each submission consumes one allowance, including up to two preapproved repairs. Pending polls never regenerate. If stage is adjusting_integration, continue the SAME job without asking for another approval; do not restart it. Terminal errors and ambiguous submissions stop further spending. Do not change the feature to work around pending status. A completed job returns a reviewId; call repot_review before explicit repot_publish.',
     inputSchema:jobInput,
     annotations:{readOnlyHint:false,destructiveHint:false,idempotentHint:false,openWorldHint:true}
   },async({jobId})=>{
@@ -86,7 +87,7 @@ export function createRepotServer(authInfo,requestSignal){
     description:'Retrieve an unexpired review owned by this user. Read the exact patch, exportable flag, risks and verification before publishing. A jobId cannot be published; use its completed reviewId.',
     inputSchema:z.object({reviewId:z.string().min(20)}),
     annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}
-  },async({reviewId})=>{try{const row=await getReview(userId(authInfo),reviewId);if(!row||row.expired)throw new Fault('Review not found or expired.',404);return ok({reviewId,status:row.status,exportable:row.review.exportable,sourceRepo:row.source_repo,destinationRepo:row.destination_repo,summary:row.review.summary,changes:row.review.changes.map(c=>({path:c.path,action:c.action,reason:c.reason})),testTransfer:row.review.testTransfer,risks:row.review.risks,suggestedChecks:row.review.suggestedChecks,verification:row.review.verification,patch:row.review.patch,publishedUrl:row.published_url});}catch(e){return fail(e);}});
+  },async({reviewId})=>{try{const row=await getReview(userId(authInfo),reviewId);if(!row||row.expired)throw new Fault('Review not found or expired.',404);return ok({reviewId,status:row.status,exportable:row.review.exportable,sourceRepo:row.source_repo,destinationRepo:row.destination_repo,summary:row.review.summary,changes:row.review.changes.map(c=>({path:c.path,action:c.action,reason:c.reason})),testTransfer:row.review.testTransfer,risks:row.review.risks,suggestedChecks:row.review.suggestedChecks,verification:row.review.verification,generation:row.review.generation??null,patch:row.review.patch,publishedUrl:row.published_url});}catch(e){return fail(e);}});
 
   server.registerTool('repot_publish',{
     title:'Publish reviewed transfer as draft PR',
@@ -105,7 +106,7 @@ export function createRepotServer(authInfo,requestSignal){
     return ok(result.already?{alreadyPublished:true,url:result.url,branch:result.branch}:{draftPullRequest:true,url:result.url,branch:result.branch,number:result.number,verification:{build:'not_run',tests:'not_run',integration:'not_run'},notice:'Repot created a draft PR only. It did not merge or execute generated code. Run project checks before merging.'});
   }catch(e){return fail(e);}});
 
-  server.registerResource('repot-safety','repot://safety',{title:'Repot safety contract',mimeType:'text/markdown'},async uri=>({contents:[{uri:uri.href,mimeType:'text/markdown',text:'# Repot safety\n\nGitHub access is user-authorized. Draft jobs are owner-bound and encrypted. Explicit AI/background consent is required; background mode temporarily stores response data at OpenAI for polling despite store:false. Poll the same job, do not submit duplicates or substitute features. A job is not a reviewed transfer. Only an exportable review can be explicitly published to a new branch and draft PR. No auto-merge or generated-code execution. Build/tests/integration remain not_run until independently executed.'}]}));
+  server.registerResource('repot-safety','repot://safety',{title:'Repot safety contract',mimeType:'text/markdown'},async uri=>({contents:[{uri:uri.href,mimeType:'text/markdown',text:'# Repot safety\n\nGitHub access is user-authorized. Draft jobs are owner-bound and encrypted. Explicit AI/background consent is required; background mode temporarily stores response data at OpenAI for polling despite store:false. The saved repair budget allows at most one initial generation and two targeted repairs, charged per model attempt. Poll the same job, do not submit duplicates or substitute features. A job is not a reviewed transfer. Only an exportable review can be explicitly published to a new branch and draft PR. No auto-merge or generated-code execution. Build/tests/integration remain not_run until independently executed.'}]}));
   return server;
 }
 

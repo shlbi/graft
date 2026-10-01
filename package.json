@@ -41,7 +41,8 @@
     "test:oauth": "node --experimental-vm-modules --test remote/test/oauth-continuation.test.mjs remote/test/oauth-consent-client.test.mjs",
     "test:timeouts": "node --experimental-vm-modules --test remote/test/draft-timeout.test.mjs remote/test/github-read-cancellation.test.mjs",
     "draft:migrate": "node scripts/migrate-draft-jobs.mjs",
-    "test:drafts": "node --experimental-vm-modules --test remote/test/draft-jobs.test.mjs remote/test/background-ai.test.mjs remote/test/draft-mcp.test.mjs remote/test/draft-timeout.test.mjs remote/test/draft-job-store.test.mjs"
+    "test:drafts": "node --experimental-vm-modules --test remote/test/draft-jobs.test.mjs remote/test/background-ai.test.mjs remote/test/draft-mcp.test.mjs remote/test/draft-timeout.test.mjs remote/test/draft-job-store.test.mjs remote/test/draft-repair.test.mjs remote/test/proposal-validation.test.mjs remote/test/draft-service-wiring.test.mjs",
+    "test:repairs": "node --experimental-vm-modules --test remote/test/draft-repair.test.mjs remote/test/proposal-validation.test.mjs remote/test/draft-job-store.test.mjs remote/test/draft-mcp.test.mjs remote/test/draft-service-wiring.test.mjs"
   },
   "devDependencies": {
     "@types/node": "24.10.1",

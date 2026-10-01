@@ -31,7 +31,7 @@ export function draftService() {
       return { source, destination, context };
     },
     /** Build the same pinned model/prompt/schema request as foreground generation. */
-    buildRequest: value => buildProposalRequest({ source: value.source.snapshot, destination: value.destination.snapshot, context: value.context }),
+    buildRequest: value => buildProposalRequest({ source: value.source.snapshot, destination: value.destination.snapshot, context: value.context, repair: value.repair ?? null }),
     /** Apply deterministic test relocation and structural review before saving anything publishable. */
     reviewResponse: (response, value) => reviewFromAIResponse(response, { source: value.source.snapshot, destination: value.destination.snapshot, context: value.context })
   });

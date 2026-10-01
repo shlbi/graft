@@ -1,5 +1,10 @@
 /** @file Public, fixed draft-job errors. Never serialize a provider/DB exception or abort reason. */
+import { PROPOSAL_RULES } from '../web/lib/proposal-contract.mjs';
+
 export const JOB_MESSAGES = Object.freeze({
+  ...Object.fromEntries(Object.entries(PROPOSAL_RULES).map(([code, rule]) => [code, rule.message])),
+  validator_error: 'Repot encountered an internal validation error. No further generation was submitted; the operator must investigate the validator.',
+  repair_budget_exhausted: 'The saved repair budget is exhausted. No extra generation was submitted.',
   background_consent_required: 'Background drafting needs explicit consent to temporary provider-side storage for asynchronous generation and polling. No job was submitted.',
   invalid_request: 'Choose two distinct owner/repo names, a feature, and an 8–80 character requestKey. Reuse that key for retries of the same request.',
   job_not_found: 'This draft job does not exist or belongs to a different account.',

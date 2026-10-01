@@ -1,0 +1,114 @@
+{
+  "dateUTC": "2026-10-01T22:24:02.726293+00:00",
+  "baseCommit": "679a75332e6f84a5dc09eb2511468a62c9da22d7",
+  "runtime": {
+    "node": "22.16.0",
+    "platform": "Linux",
+    "productionNode24": "not executed"
+  },
+  "commands": [
+    {
+      "command": "npm run test:drafts",
+      "passed": 142,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run test:repairs",
+      "passed": 83,
+      "failed": 0,
+      "skipped": 0,
+      "overlapsDraftSuite": true
+    }
+  ],
+  "syntaxChecks": {
+    "passed": 18,
+    "files": [
+      "remote/draft-repair.mjs",
+      "remote/mcp.mjs",
+      "remote/draft-service.mjs",
+      "remote/draft-jobs.mjs",
+      "remote/draft-job-errors.mjs",
+      "remote/draft-job-store.mjs",
+      "remote/test/draft-timeout.test.mjs",
+      "remote/test/draft-job-store.test.mjs",
+      "remote/test/draft-repair.test.mjs",
+      "remote/test/proposal-validation.test.mjs",
+      "remote/test/draft-service-wiring.test.mjs",
+      "remote/test/draft-jobs.test.mjs",
+      "remote/test/draft-mcp.test.mjs",
+      "remote/test/repair-load-ai.mjs",
+      "remote/test/repair-fixture.mjs",
+      "web/lib/core-base.mjs",
+      "web/lib/ai.mjs",
+      "web/lib/proposal-contract.mjs"
+    ]
+  },
+  "controlledRegression": {
+    "baseline": {
+      "status": "failed",
+      "errorCode": "invalid_proposal",
+      "generationCalls": 1,
+      "reviews": 0
+    },
+    "updated": {
+      "status": "completed",
+      "errorCode": null,
+      "generationCalls": 2,
+      "reviews": 1
+    }
+  },
+  "actualExecution": "Real orchestration, AI request/parser, structural validator and store methods; synthetic provider, pg driver, MCP SDK and test-transplant boundaries.",
+  "unchangedByteComparisons": [
+    "repot_publish registration/handler",
+    "web/lib/policy.mjs",
+    "remote/background-ai.mjs"
+  ],
+  "notExecuted": [
+    "Full Next.js build: dependency registry DNS failed with EAI_AGAIN",
+    "Installed SDK integration",
+    "Node 24 execution",
+    "Real browser flow",
+    "Real Postgres repair transactions/concurrency",
+    "Paid AI repair generation",
+    "Source/destination project runtime tests",
+    "Live feature-transfer acceptance"
+  ],
+  "migrationRequired": false,
+  "paidCalls": 0,
+  "customerRepositoryWrites": 0,
+  "patchApplication": {
+    "check": "git apply --check --index passed on an exact-baseline fixture",
+    "application": "git apply --index passed; all changed file bytes match tested working files",
+    "appliedFixtureTests": {
+      "passed": 142,
+      "failed": 0,
+      "skipped": 0
+    },
+    "unrelatedUserWork": "sentinel unchanged",
+    "noSyntheticRemoteCommit": true
+  },
+  "previousPublicationAttempt": {
+    "pushed": false,
+    "reason": "Available GitHub actions are read-only; no commit/create-tree/push action. GitHub CLI is not installed. Apply-ready patch packaged; no production update claimed."
+  },
+  "publicationPreparation": {
+    "dateUTC": "2026-10-01",
+    "target": "shlbi/graft/main",
+    "authorization": "Saif explicitly requested commit and push of the repair archive",
+    "method": "Supported GitHub connector writes; preserve the base tree and use force=false",
+    "checksRerun": {
+      "command": "npm run test:drafts",
+      "passed": 142,
+      "failed": 0,
+      "skipped": 0,
+      "node": "22.16.0",
+      "syntaxChecksPassed": 18
+    },
+    "unchangedSupportFiles": "Test-support policy and background transport/test copied through GitHub reads and matched their remote blob SHAs",
+    "network": "Direct public clone could not resolve github.com; npm ping returned EAI_AGAIN. Full local Next build not run.",
+    "statusAtRecordCreation": "Prepared for commit; remote branch attachment and deployment must be checked separately",
+    "paidCalls": 0,
+    "customerRepositoryWrites": 0
+  }
+}

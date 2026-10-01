@@ -7,13 +7,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
+import {ProposalValidationError} from '../../web/lib/core-base.mjs';
+import * as contract from '../../web/lib/proposal-contract.mjs';
+import * as policy from '../../web/lib/policy.mjs';
 
 const proposal={summary:'Timer',changes:[{path:'timer.js',action:'add',content:'export const timer = 1;',sourcePaths:['timer.js'],reason:'test'}],risks:[],suggestedChecks:[]};
 const input={source:{name:'source'},destination:{name:'dest',inventory:[]},context:{feature:'timer',source:[],destination:[],testPlan:{}},consent:true,apiKey:'TEST_KEY'};
 /** Load actual adapter code against a closed, synthetic engine/network boundary. */
 async function adapter(fetchImpl,review=object=>({...object,verification:{tests:'not_run'}})) {
   class Fault extends Error {constructor(message,status){super(message);this.status=status;}}
-  const exports={ './core.mjs':{Fault,requireThat:(v,m,s)=>{if(!v)throw new Fault(m,s);},reviewProposal:review}, './github.mjs':{boundedJSON:r=>r.json()}};
+  const exports={ './proposal-contract.mjs':contract,'./policy.mjs':policy,'./core.mjs':{ProposalValidationError,Fault,requireThat:(v,m,s)=>{if(!v)throw new Fault(m,s);},reviewProposal:review}, './github.mjs':{boundedJSON:r=>r.json()}};
   const context=vm.createContext({fetch:fetchImpl,AbortSignal,AbortController,DOMException,Response,Date,setTimeout:(...a)=>setTimeout(...a),clearTimeout:(...a)=>clearTimeout(...a)});
   const mod=new vm.SourceTextModule(await readFile(new URL('../../web/lib/ai.mjs',import.meta.url),'utf8'),{context});
   await mod.link(spec=>{assert.ok(exports[spec]);return new vm.SyntheticModule(Object.keys(exports[spec]),function(){for(const[k,v]of Object.entries(exports[spec]))this.setExport(k,v);},{context});});

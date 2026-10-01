@@ -6,10 +6,28 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { LIMITS, eligiblePath, pathShape, looksSensitive } from './policy.mjs';
+import { PROPOSAL_LIMITS, proposalDiagnostic } from './proposal-contract.mjs';
 export { LIMITS };
 export class Fault extends Error {
   constructor(message, status = 400) { super(message); this.status = status; }
 }
+/** A typed, fixed-message rejection; unknown engine exceptions are not model errors. */
+export class ProposalValidationError extends Fault {
+  /** Attach only a catalog code and bounded change index, never generated text. */
+  constructor(code, changeIndex) {
+    const diagnostic = proposalDiagnostic(code, changeIndex);
+    super(diagnostic.message, 422);
+    this.name = 'ProposalValidationError';
+    this.code = code;
+    this.diagnostic = diagnostic;
+  }
+}
+
+/** Fail one explicit proposal rule without changing the underlying safety boundary. */
+function checkProposal(condition, code, changeIndex) {
+  if (!condition) throw new ProposalValidationError(code, changeIndex);
+}
+
 /**
  * @function hash
  * Implements hash for Repot's bounded web transfer pipeline.
@@ -163,7 +181,7 @@ const exactKeys = (obj, keys) => obj && typeof obj === 'object' && !Array.isArra
  * Implements strings for Repot's bounded web transfer pipeline.
  */
 function strings(values, max, label) {
-  requireThat(Array.isArray(values) && values.length <= max && values.every(v => typeof v === 'string' && v.length > 0 && v.length <= 600), `Invalid ${label} list.`); return values;
+  checkProposal(Array.isArray(values) && values.length <= max && values.every(v => typeof v === 'string' && v.length > 0 && v.length <= PROPOSAL_LIMITS.explanation), label === 'risks' ? 'proposal_risks' : 'proposal_checks'); return values;
 }
 /**
  * @function patchLines
@@ -196,31 +214,38 @@ export function unifiedPatch(changes) {
  * Implements review proposal for Repot's bounded web transfer pipeline.
  */
 export function reviewProposal(proposal, source, destination, context, provider = 'ai') {
-  requireThat(exactKeys(proposal, ['summary', 'changes', 'risks', 'suggestedChecks']), 'Provider returned an invalid proposal envelope.', 422);
-  requireThat(typeof proposal.summary === 'string' && proposal.summary.length > 0 && proposal.summary.length <= 1500, 'Invalid proposal summary.', 422);
-  requireThat(Array.isArray(proposal.changes) && proposal.changes.length > 0 && proposal.changes.length <= LIMITS.changes, 'A draft needs 1–10 file changes.', 422);
+  checkProposal(exactKeys(proposal, ['summary', 'changes', 'risks', 'suggestedChecks']), 'proposal_envelope');
+  checkProposal(typeof proposal.summary === 'string' && proposal.summary.length > 0 && proposal.summary.length <= PROPOSAL_LIMITS.summary, 'proposal_summary');
+  checkProposal(Array.isArray(proposal.changes) && proposal.changes.length > 0 && proposal.changes.length <= PROPOSAL_LIMITS.changes, 'proposal_change_count');
   const viewed = new Map(context.destination.map(f => [f.path, f]));
   const sourcePaths = new Set(context.source.map(f => f.path));
   const occupied = new Set(destination.inventory.map(p => p.toLowerCase()));
   const pending = new Set(); let total = 0;
-  const changes = proposal.changes.map(c => {
-    requireThat(exactKeys(c, ['path', 'action', 'content', 'reason', 'sourcePaths']), 'Invalid change fields.', 422);
-    requireThat(eligiblePath(c.path) && ['add', 'update'].includes(c.action), 'Unsafe path or unsupported change action.', 422);
-    requireThat(typeof c.content === 'string' && bytes(c.content) <= LIMITS.fileBytes && !c.content.includes('\0') && !looksSensitive(c.content), 'Unsafe or oversized generated file.', 422);
-    requireThat(typeof c.reason === 'string' && c.reason.length > 0 && c.reason.length <= 600, 'Each change needs a short reason.', 422);
-    requireThat(Array.isArray(c.sourcePaths) && c.sourcePaths.length > 0 && c.sourcePaths.length <= 12 && c.sourcePaths.every(p => sourcePaths.has(p)), 'Every change must cite inspected source files.', 422);
-    const key = c.path.toLowerCase(); requireThat(!pending.has(key), 'Duplicate change path.', 422); pending.add(key);
+  const changes = proposal.changes.map((c, index) => {
+    checkProposal(exactKeys(c, ['path', 'action', 'content', 'reason', 'sourcePaths']), 'proposal_change_fields', index);
+    checkProposal(eligiblePath(c.path) && ['add', 'update'].includes(c.action), 'proposal_unsafe_path', index);
+    checkProposal(typeof c.content === 'string', 'proposal_content_type', index);
+    checkProposal(!c.content.includes('\0') && !looksSensitive(c.content), 'proposal_unsafe_content', index);
+    checkProposal(bytes(c.content) <= PROPOSAL_LIMITS.fileBytes, 'proposal_file_size', index);
+    checkProposal(typeof c.reason === 'string' && c.reason.length > 0 && c.reason.length <= PROPOSAL_LIMITS.explanation, 'proposal_reason', index);
+    checkProposal(Array.isArray(c.sourcePaths) && c.sourcePaths.length > 0 && c.sourcePaths.length <= PROPOSAL_LIMITS.sourcePaths && c.sourcePaths.every(p => sourcePaths.has(p)), 'proposal_source_refs', index);
+    const key = c.path.toLowerCase(); checkProposal(!pending.has(key), 'proposal_duplicate_path', index); pending.add(key);
     const before = viewed.get(c.path);
-    if (c.action === 'add') requireThat(!occupied.has(key) && c.content.length > 0, 'An added file would overwrite an existing path or be empty.', 422);
-    else requireThat(before && before.content !== c.content, 'Updates require inspected, changed destination content.', 422);
-    total += bytes(c.content); requireThat(total <= 120000, 'Generated changes exceed the patch budget.', 422);
+    if (c.action === 'add') {
+      checkProposal(!occupied.has(key), 'proposal_add_collision', index);
+      checkProposal(c.content.length > 0, 'proposal_empty_file', index);
+    } else {
+      checkProposal(before, 'proposal_uninspected_update', index);
+      checkProposal(before.content !== c.content, 'proposal_noop_update', index);
+    }
+    total += bytes(c.content); checkProposal(total <= PROPOSAL_LIMITS.patchBytes, 'proposal_patch_size', index);
     return { ...c, before: c.action === 'add' ? null : before.content, baseHash: c.action === 'add' ? null : before.hash };
   });
   for (const c of changes) {
     const key = c.path.toLowerCase();
-    requireThat(![...occupied, ...pending].some(p => p !== key && (p.startsWith(key + '/') || key.startsWith(p + '/'))), 'File/directory collision in proposed changes.', 422);
+    checkProposal(![...occupied, ...pending].some(p => p !== key && (p.startsWith(key + '/') || key.startsWith(p + '/'))), 'proposal_path_collision');
   }
-  strings(proposal.risks, 12, 'risks'); strings(proposal.suggestedChecks, 12, 'suggested checks');
+  strings(proposal.risks, PROPOSAL_LIMITS.listItems, 'risks'); strings(proposal.suggestedChecks, PROPOSAL_LIMITS.listItems, 'suggested checks');
   const patch = unifiedPatch(changes);
   return { id: hash(source.fingerprint + destination.fingerprint + patch), provider, summary: proposal.summary,
     sourceFingerprint: source.fingerprint, destinationFingerprint: destination.fingerprint, destinationRevision: destination.revision,

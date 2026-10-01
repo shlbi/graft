@@ -5,6 +5,8 @@
  */
 import { createHash } from 'node:crypto';
 import { DraftJobError, JOB_MESSAGES } from './draft-job-errors.mjs';
+import { MAX_REPAIR_ATTEMPTS, repairProgress, validationDiagnostic, repairFeedback, canRepair } from './draft-repair.mjs';
+import { PROPOSAL_RULES } from '../web/lib/proposal-contract.mjs';
 const TERMINAL = new Set(['completed','failed','cancelled']);
 const PROVIDER_WINDOW_MS = 8 * 60 * 1000;
 
@@ -15,34 +17,51 @@ export function draftRequest(args, validateFeature = value => value.trim()) {
   if (!repo(args.sourceRepo) || !repo(args.destinationRepo) || args.sourceRepo.toLowerCase() === args.destinationRepo.toLowerCase() ||
       typeof args.feature !== 'string' || args.feature.trim().length < 3 || args.feature.length > 1500 ||
       typeof args.requestKey !== 'string' || !/^[A-Za-z0-9_-]{8,80}$/.test(args.requestKey)) throw new DraftJobError('invalid_request');
-  const request = { sourceRepo: args.sourceRepo.toLowerCase(), destinationRepo: args.destinationRepo.toLowerCase(), feature: validateFeature(args.feature), allowAI: true, allowBackgroundProcessing: true };
-  return { request, requestKey: args.requestKey, requestHash: createHash('sha256').update(JSON.stringify(request)).digest('hex') };
+  const maxRepairAttempts = args.maxRepairAttempts === undefined ? MAX_REPAIR_ATTEMPTS : args.maxRepairAttempts;
+  if (!Number.isInteger(maxRepairAttempts) || maxRepairAttempts < 0 || maxRepairAttempts > MAX_REPAIR_ATTEMPTS) throw new DraftJobError('invalid_request');
+  const request = { maxRepairAttempts, sourceRepo: args.sourceRepo.toLowerCase(), destinationRepo: args.destinationRepo.toLowerCase(), feature: validateFeature(args.feature), allowAI: true, allowBackgroundProcessing: true };
+  const { maxRepairAttempts: _budget, ...legacyRequest } = request;
+  return { request, requestKey: args.requestKey, requestHash: createHash('sha256').update(JSON.stringify(request)).digest('hex'),
+    legacyRequestHash: createHash('sha256').update(JSON.stringify(legacyRequest)).digest('hex') };
+
 }
 
 /** Return only opaque job/review handles and truthful progress; no snapshots, provider IDs, lease tokens or keys. */
-export function draftJobStatus(row) {
+export function draftJobStatus(row, progress = null) {
   const terminal = TERMINAL.has(row.state);
+  const errorCode = Object.hasOwn(JOB_MESSAGES, row.error_code) ? row.error_code : 'service_unavailable';
   return {
     jobId: row.id, requestKey: row.request_key, status: row.state, cancelRequested: row.cancel_requested,
     ...(row.review_id ? { reviewId: row.review_id } : {}),
-    ...(row.error_code ? { error: { code: row.error_code, message: JOB_MESSAGES[row.error_code] ?? JOB_MESSAGES.service_unavailable } } : {}),
+    ...(row.error_code ? { [terminal ? 'error' : 'validation']: { code: errorCode, message: JOB_MESSAGES[errorCode] } } : {}),
+    ...(progress ? { generation: progress } : {}),
+    stage: !terminal && row.error_code ? 'adjusting_integration' : row.state,
+    continueAutomatically: !terminal,
+    repairBudgetExhausted: row.state === 'failed' && (row.error_code === 'repair_budget_exhausted' ||
+      (Object.hasOwn(PROPOSAL_RULES, row.error_code) && PROPOSAL_RULES[row.error_code].repairable)),
     providerCleanupPending: row.cleanup_pending,
     nextTool: row.state === 'completed' ? 'repot_review' : terminal ? null : 'repot_draft_status',
     pollAfterSeconds: terminal ? null : row.state === 'running' ? 5 : 1,
     retryAutomatically: false,
     notice: row.state === 'completed' ? 'A review is saved, not a verified integration. Read it and check exportable before explicit publication.' :
       terminal ? 'No repository changes were made. Do not replace the requested feature or submit a new job without user approval.' :
-      'Resume this jobId with repot_draft_status. Do not call repot_draft again with a new requestKey or substitute a smaller feature. Preparation/submission advance on polls; generation runs at the provider.'
+      row.error_code ? 'Adjusting the integration within this job’s approved repair budget. Continue repot_draft_status; no new user approval or new requestKey is needed. Do not switch features.' :
+      'Resume this jobId with repot_draft_status. Generation and targeted repairs stay within the saved per-job attempt budget. Each attempt consumes the existing draft allowance; status polls do not regenerate. Do not start a new job or substitute another feature.'
   };
 }
 
 /** Construct orchestration with replaceable I/O for executable failure/race/restart tests. */
 export function createDraftJobs({ store, provider, prepare, buildRequest, reviewResponse, validateFeature, now = Date.now }) {
+  /** Expose only numeric repair progress after the store has checked job ownership. */
+  function view(row) {
+    return draftJobStatus(row, row.payload ? repairProgress(store.context(row), row.charged) : null);
+  }
+
   /** Start cheaply: persist intent and return a durable job ID before reading repos or waiting for a model. */
   async function start(userId, args) {
     if (typeof userId !== 'string' || !userId) throw new DraftJobError('job_not_found');
     const normalized = draftRequest(args, validateFeature);
-    return draftJobStatus(await store.create(userId, normalized.requestKey, normalized.requestHash, normalized.request));
+    return view(await store.create(userId, normalized.requestKey, normalized.requestHash, normalized.request, normalized.legacyRequestHash));
   }
   /** Cleanup is best-effort and never creates a new generation or claims remote deletion that failed. */
   async function cleanup(row) {
@@ -66,9 +85,9 @@ export function createDraftJobs({ store, provider, prepare, buildRequest, review
    */
   async function status(userId, jobId) {
     let current = await store.get(userId, jobId);
-    if (TERMINAL.has(current.state)) { await cleanup(current); return draftJobStatus(await store.get(userId, jobId)); }
+    if (TERMINAL.has(current.state)) { await cleanup(current); return view(await store.get(userId, jobId)); }
     const claimed = await store.claim(userId, jobId);
-    if (!claimed) return draftJobStatus(await store.get(userId, jobId));
+    if (!claimed) return view(await store.get(userId, jobId));
     let phase = claimed.state, acceptedResponseId;
     try {
       if (claimed.cancel_requested) {
@@ -81,12 +100,18 @@ export function createDraftJobs({ store, provider, prepare, buildRequest, review
         try { prepared = await prepareStep(value.request, userId); }
         catch { throw new DraftJobError('preparation_failed'); }
         current = await store.prepared(claimed, { ...value, ...prepared });
+      } else if (phase === 'prepared' && claimed.response_id) {
+        // Separate short cleanup step before another billable attempt. Failure is
+        // recoverable by polling this job, never by starting a duplicate generation.
+        try { await provider.cleanup(claimed.response_id, false); }
+        catch { throw new DraftJobError('service_unavailable'); }
+        current = await store.repairCleaned(claimed);
       } else if (phase === 'prepared') {
         const value = store.context(claimed);
         // Build/validate before marking dispatch, so local preparation failures never spend quota.
         const payload = buildRequest(value);
         const dispatched = await store.beginSubmission(claimed);
-        if (!dispatched) return draftJobStatus(await store.get(userId, jobId));
+        if (!dispatched) return view(await store.get(userId, jobId));
         phase = 'submitting';
         const response = await provider.start(payload, value.request.allowBackgroundProcessing);
         acceptedResponseId = response.id;
@@ -102,10 +127,25 @@ export function createDraftJobs({ store, provider, prepare, buildRequest, review
           const response = await provider.retrieve(claimed.response_id);
           if (response.status === 'completed') {
             const value = store.context(claimed);
-            let review;
-            try { review = reviewResponse(response, value); }
-            catch { throw new DraftJobError('invalid_proposal'); }
-            current = await store.complete(claimed, value, review);
+            let review, failure, rejected = false;
+            try {
+              review = await reviewResponse(response, value);
+              if (!review || typeof review !== 'object') throw new Error('Invalid validator result');
+            } catch (error) { rejected = true; failure = error; }
+            if (rejected) {
+              const diagnostic = validationDiagnostic(failure);
+              if (canRepair(value, failure, claimed.charged)) {
+                current = await store.queueRepair(claimed, repairFeedback(failure));
+              } else {
+                // Keep the exact fixed rule in error_code even after clearing the
+                // discarded source context. Unknown engine bugs are distinct.
+                current = await store.finish(claimed, 'failed', diagnostic.code);
+              }
+            } else {
+              review.generation = { ...repairProgress(value, claimed.charged),
+                validationHistory: (value.generation?.diagnostics ?? []).map(d => ({ code: d.code, changeIndex: d.changeIndex })) };
+              current = await store.complete(claimed, value, review);
+            }
           } else if (response.status === 'queued' || response.status === 'in_progress') current = claimed;
           else current = await store.finish(claimed, response.status === 'cancelled' ? 'cancelled' : 'failed', 'provider_failed');
         }
@@ -124,7 +164,7 @@ export function createDraftJobs({ store, provider, prepare, buildRequest, review
     current = await store.get(userId, jobId);
     // Cancellation that raced a completed prepare/submit/finalize is observed on the next short poll.
     if (TERMINAL.has(current.state)) await cleanup(current);
-    return draftJobStatus(await store.get(userId, jobId));
+    return view(await store.get(userId, jobId));
   }
   /** Cancel persistently; a currently leased worker observes the flag before finalization. */
   async function cancel(userId, jobId) {

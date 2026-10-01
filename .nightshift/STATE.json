@@ -3,7 +3,7 @@
   "legacyName": "Graft",
   "repository": "shlbi/graft",
   "domain": "getrepot.com",
-  "phase": "remote-mcp-production-code-awaiting-secrets-and-live-acceptance",
+  "phase": "bounded-draft-repairs-awaiting-live-acceptance",
   "authorization": "Saif requested rebrand/redesign and commit/push. Existing Vercel Git deployment is acknowledged. No paid resource, credentials, account permissions or repository rename changed. Kinetic stays paused.",
   "previousHandoff": {
     "commit": "cd669b366353cea01b51fde6a27e638ea93f880e",
@@ -48,5 +48,40 @@
     "Run npm run migrate against production database",
     "Attach mcp.getrepot.com to Vercel",
     "Execute live OAuth + MCP client + real-repository acceptance checklist in docs/PRODUCTION.md"
-  ]
+  ],
+  "latestManualHandoff": {
+    "dateUTC": "2026-10-01T22:24:02.726293+00:00",
+    "project": "Repot",
+    "kinetic": "paused",
+    "baseCommit": "679a75332e6f84a5dc09eb2511468a62c9da22d7",
+    "request": "Saif approved bounded draft repair; implement and push. This manual handoff supersedes the earlier historical state fields for this task.",
+    "implemented": [
+      "One initial generation plus up to two saved-budget targeted repairs",
+      "Specific safe validation diagnostics retained after terminal cleanup",
+      "Shared proposal limits/schema and source-citation enum",
+      "Atomic attempt/quota/dispatch persistence using existing schema",
+      "Legacy key recovery without retroactive repair budgets"
+    ],
+    "verification": "docs/verification/draft-repairs.json",
+    "publication": "Repair implementation is included in the commit carrying this handoff. Saif explicitly requested commit/push; verify remote main attachment and the Vercel status separately. No live transfer result is claimed.",
+    "next": [
+      "Verify the enclosing commit is attached to main and check its automatic Vercel deployment status",
+      "Refresh MCP tool definitions and perform an authorized new transfer to verify live repair acceptance; failed legacy jobs stay terminal and publication still requires review"
+    ],
+    "limits": [
+      "No live generation, schema edits, customer repo writes or production deployment performed",
+      "No universal integration or passing project-runtime claim"
+    ],
+    "publishingSessionValidation": {
+      "dateUTC": "2026-10-01",
+      "draftTestsPassed": 142,
+      "failed": 0,
+      "skipped": 0,
+      "syntaxChecksPassed": 18,
+      "node": "22.16.0",
+      "packageBaseMatchesMain": true,
+      "localNextBuild": "Not run: dependencies unavailable; npm ping returned EAI_AGAIN",
+      "packagePatchSha256": "a2f50c34cc377fe58ba6143afc89615f5cc4fa4448dac1db9c1de14d58714b16"
+    }
+  }
 }

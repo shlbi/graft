@@ -5,6 +5,8 @@
  */
 import { randomBytes } from 'node:crypto';
 import { DraftJobError } from './draft-job-errors.mjs';
+import { repairProgress, nextRepairContext } from './draft-repair.mjs';
+import { PROPOSAL_RULES } from '../web/lib/proposal-contract.mjs';
 const TERMINAL = ['completed', 'failed', 'cancelled'];
 
 /** Build an injectable store; production supplies pg Pool and the existing seal/open helpers. */
@@ -29,12 +31,13 @@ export function createDraftJobStore({ pool, seal, open, draftLimit = 20, reviewT
     return rows[0];
   }
   /** Serialize job creation per owner and deduplicate transport retries before any generation. */
-  async function create(userId, requestKey, requestHash, request) {
+  async function create(userId, requestKey, requestHash, request, legacyRequestHash = null) {
     return tx(async client => {
       await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', ['repot-draft:' + userId]);
       const prior = await client.query('SELECT * FROM public.repot_draft_job WHERE user_id=$1 AND request_key=$2', [userId, requestKey]);
       if (prior.rows[0]) {
-        if (prior.rows[0].request_hash !== requestHash) throw new DraftJobError('request_key_conflict');
+        // Legacy retries recover the old job WITHOUT granting it a repair budget.
+        if (prior.rows[0].request_hash !== requestHash && prior.rows[0].request_hash !== legacyRequestHash) throw new DraftJobError('request_key_conflict');
         return prior.rows[0];
       }
       const { rows } = await client.query(`SELECT count(*) FILTER (WHERE state NOT IN ('completed','failed','cancelled') AND expires_at>now())::int AS active,
@@ -81,17 +84,23 @@ export function createDraftJobStore({ pool, seal, open, draftLimit = 20, reviewT
         WHERE id=$1 AND user_id=$2 RETURNING *`, [current.id, current.user_id, seal(value)])).rows[0];
     });
   }
-  /** Charge once and commit the dispatch intent before contacting OpenAI; crash recovery never re-POSTs. */
+  /** Charge each bounded attempt and persist its counter with dispatch intent; crash recovery never re-POSTs. */
   async function beginSubmission(claimed) {
     return tx(async client => {
       const current = await ownedLease(client, claimed);
       if (current.cancel_requested || current.state !== 'prepared') return null;
+      if (current.response_id || current.cleanup_pending) throw new DraftJobError('service_unavailable');
+      const value = context(current);
+      const progress = repairProgress(value, current.charged);
+      if (progress.attempts >= progress.maxAttempts) throw new DraftJobError('repair_budget_exhausted');
+      if (new Date(current.expires_at).getTime() <= Date.now()) throw new DraftJobError('job_expired');
+      const updated = { ...value, generation: { ...value.generation, attempts: progress.attempts + 1 } };
       await client.query('INSERT INTO public.repot_usage(user_id,usage_day) VALUES($1,CURRENT_DATE) ON CONFLICT DO NOTHING', [current.user_id]);
       const usage = await client.query('SELECT drafts FROM public.repot_usage WHERE user_id=$1 AND usage_day=CURRENT_DATE FOR UPDATE', [current.user_id]);
       if (usage.rows[0].drafts >= draftLimit) throw new DraftJobError('draft_limit');
       await client.query('UPDATE public.repot_usage SET drafts=drafts+1 WHERE user_id=$1 AND usage_day=CURRENT_DATE', [current.user_id]);
       return (await client.query(`UPDATE public.repot_draft_job SET state='submitting',charged=true,
-        provider_started_at=now(),updated_at=now() WHERE id=$1 AND user_id=$2 RETURNING *`, [current.id, current.user_id])).rows[0];
+        payload=$3,provider_started_at=now(),updated_at=now() WHERE id=$1 AND user_id=$2 RETURNING *`, [current.id, current.user_id, seal(updated)])).rows[0];
     });
   }
   /** Save the provider handle even when cancellation was requested concurrently, so it can be cleaned up. */
@@ -104,6 +113,34 @@ export function createDraftJobStore({ pool, seal, open, draftLimit = 20, reviewT
         next_poll_at=now()+interval '3 seconds',updated_at=now() WHERE id=$1 AND user_id=$2 RETURNING *`, [current.id, current.user_id, responseId])).rows[0];
     });
   }
+  /**
+   * Queue a targeted repair in the SAME job after a known completed response was
+   * rejected. Keep the old provider handle until deletion is confirmed. Request,
+   * snapshots, quota, attempt count and cancellation remain database-owned.
+   */
+  async function queueRepair(claimed, feedback) {
+    return tx(async client => {
+      const current = await ownedLease(client, claimed);
+      if (current.cancel_requested || current.state !== 'running') return current;
+      const value = context(current), progress = repairProgress(value, current.charged);
+      const code = feedback?.diagnostic?.code;
+      if (!Object.hasOwn(PROPOSAL_RULES, code) || !PROPOSAL_RULES[code].repairable ||
+          progress.attempts < 1 || progress.attempts >= progress.maxAttempts || !current.response_id) throw new DraftJobError('repair_budget_exhausted');
+      if (new Date(current.expires_at).getTime() <= Date.now()) throw new DraftJobError('job_expired');
+      return (await client.query(`UPDATE public.repot_draft_job SET state='prepared',payload=$3,
+        error_code=$4,cleanup_pending=true,updated_at=now() WHERE id=$1 AND user_id=$2 RETURNING *`,
+        [current.id, current.user_id, seal(nextRepairContext(value, feedback)), code])).rows[0];
+    });
+  }
+  /** Clear only the acknowledged old response; a lost delete acknowledgement may safely repeat DELETE. */
+  async function repairCleaned(claimed) {
+    return tx(async client => {
+      const current = await ownedLease(client, claimed);
+      if (current.state !== 'prepared' || current.response_id !== claimed.response_id) throw new DraftJobError('service_unavailable');
+      return (await client.query(`UPDATE public.repot_draft_job SET cleanup_pending=false,response_id=NULL,
+        provider_started_at=NULL,updated_at=now() WHERE id=$1 AND user_id=$2 RETURNING *`, [current.id, current.user_id])).rows[0];
+    });
+  }
   /** Store a validated review and its job reference in one transaction; concurrency cannot create two reviews. */
   async function complete(claimed, value, review) {
     return tx(async client => {
@@ -114,7 +151,7 @@ export function createDraftJobStore({ pool, seal, open, draftLimit = 20, reviewT
         VALUES($1,$2,$3,$4,$5,$6,now()+($7::int * interval '1 minute'))`,
       [reviewId, current.user_id, value.source.meta.name, value.destination.meta.name, value.destination.snapshot.revision, seal(review), reviewTtlMinutes]);
       return (await client.query(`UPDATE public.repot_draft_job SET state='completed',review_id=$3,
-        payload=NULL,cleanup_pending=true,updated_at=now() WHERE id=$1 AND user_id=$2 RETURNING *`, [current.id, current.user_id, reviewId])).rows[0];
+        payload=NULL,error_code=NULL,cleanup_pending=true,updated_at=now() WHERE id=$1 AND user_id=$2 RETURNING *`, [current.id, current.user_id, reviewId])).rows[0];
     });
   }
   /** Record a terminal outcome and drop source context; retain an opaque provider ID for best-effort cleanup. */
@@ -145,5 +182,5 @@ export function createDraftJobStore({ pool, seal, open, draftLimit = 20, reviewT
   async function cleaned(userId, jobId) {
     return tx(client => client.query('UPDATE public.repot_draft_job SET cleanup_pending=false,response_id=NULL WHERE id=$1 AND user_id=$2 AND state IN (\'completed\',\'failed\',\'cancelled\')', [jobId, userId]));
   }
-  return { create, get, claim, context, prepared, beginSubmission, running, complete, finish, requestCancel, release, cleaned };
+  return { create, get, claim, context, prepared, beginSubmission, running, queueRepair, repairCleaned, complete, finish, requestCancel, release, cleaned };
 }

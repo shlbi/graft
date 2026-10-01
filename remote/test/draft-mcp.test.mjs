@@ -13,7 +13,7 @@ async function fixture(review) {
   const jobService={start:async(u,a)=>{events.push(['start',u,a]);return{jobId:'job',status:'queued'};},status:async(u,id)=>{events.push(['status',u,id]);return{status:'running',jobId:id};},cancel:async(u,id)=>{events.push(['cancel',u,id]);return{status:'cancelled'};}};
   const imports={
     '@modelcontextprotocol/server':{McpServer,createMcpHandler:f=>({factory:f})},
-    'zod/v4':{object:()=>shape,string:()=>shape,literal:()=>shape},
+    'zod/v4':{object:()=>shape,string:()=>shape,literal:()=>shape,number:()=>shape},
     '../web/lib/core.mjs':{analyze:()=>{throw Error('Unexpected engine');}},
     '../web/lib/core-base.mjs':{Fault},
     './github.mjs':{githubTokenForUser:async()=>{events.push(['github-token']);return'test';},listRepositories:()=>[],snapshotRepository:()=>{throw Error('Unexpected snapshot');},publishDraft:async()=>{events.push(['publish']);return{url:'synthetic-pr'};}},
@@ -33,3 +33,12 @@ test('draft metadata requires separate background-storage consent and discourage
 for(const row of [null,{expired:true},{status:'ready',review:{exportable:false}},{status:'ready',review:{}}])test('missing/expired/blocked review cannot publish or consume a quota',async()=>{const f=await fixture(row);const result=await f.tools.get('repot_publish').call({reviewId:'not-a-job-id',confirmReviewed:true});assert.equal(result.isError,true);assert.equal(f.events.length,0);});
 test('publication still requires explicit review confirmation',async()=>{const f=await fixture({status:'ready',review:{exportable:true}});const result=await f.tools.get('repot_publish').call({reviewId:'review-id',confirmReviewed:false});assert.equal(result.isError,true);assert.equal(f.events.length,0);});
 test('review returns exportability and verification so an agent can inspect instead of guessing',async()=>{const f=await fixture({status:'ready',review:{exportable:false,changes:[],verification:{tests:'not_run'}}});const result=output(await f.tools.get('repot_review').call({reviewId:'review-id'}));assert.equal(result.exportable,false);assert.equal(result.verification.tests,'not_run');});
+
+/** Check that budget consent is upfront, not requested again for each status poll. */
+test('MCP explains bounded repair charges and preserves same-job continuation', async () => {
+  const f = await fixture();
+  const draft = f.tools.get('repot_draft').config.description;
+  assert.match(draft, /default 2, maximum 2/);
+  assert.match(draft, /Each model attempt consumes one draft allowance/);
+  assert.match(f.tools.get('repot_draft_status').config.description, /continue the SAME job without asking for another approval/);
+});
