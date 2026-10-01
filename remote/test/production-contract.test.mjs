@@ -48,8 +48,9 @@ test('reviews are encrypted and durable with ownership and expiry checks', async
 
 test('AI draft requires explicit allowAI and server-side API key', async () => {
   const mcp = await read('remote/mcp.mjs');
+  const service = await read('remote/draft-service.mjs');
   assert.ok(mcp.includes('allowAI:z.literal(true)'));
-  assert.ok(mcp.includes("env('OPENAI_API_KEY')"));
+  assert.ok(service.includes("env('OPENAI_API_KEY')"));
   assert.ok(!mcp.includes('apiKey:z.'));
 });
 
