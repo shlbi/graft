@@ -1,0 +1,57 @@
+{
+  "scope": "Browser sign-in failure visibility, safe continuation and session-verified confirmation",
+  "baseCommit": "579fdc9d9b083341933bf2353e12998d0ada8cc9",
+  "runtime": "Node v22.16.0 / Linux",
+  "executed": {
+    "command": "node --experimental-vm-modules --test app/auth/github/route.test.mjs",
+    "tests": {
+      "passed": 52,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "negativeControl": {
+      "scope": "4 selected checks against the unchanged previous sign-in and GitHub handler blobs",
+      "failedAsExpected": 4,
+      "passed": 0
+    },
+    "nodeCheck": {
+      "files": [
+        "remote/auth-ui.mjs",
+        "app/sign-in/route.js",
+        "app/connected/route.js",
+        "app/auth/github/route.js",
+        "app/auth/github/route.test.mjs"
+      ],
+      "passed": 5
+    },
+    "unchangedSourceHashesVerified": [
+      "next.config.mjs",
+      "app/auth/callback/route.js"
+    ]
+  },
+  "sha256": {
+    "remote/auth-ui.mjs": "ccd3c9e908c4cec02fa0708bbe7e7e66da1bb0e7ca8208439e9bd086d5349722",
+    "app/sign-in/route.js": "69e3d45f04691a462fa733a87574d878c95ae10d36d177f760e7754374a6d951",
+    "app/connected/route.js": "58fa4e4c9b994abcc0cd0e808ab58156f4f74f1a312d92497d183b4f894fe8d0",
+    "app/auth/github/route.js": "84be5c3495bea87f90e8461d06545b6c4d5106401277d9f604ae3dbc0c5c9295",
+    "app/auth/github/route.test.mjs": "0386de7bb4e852945dfc935a7178f5eae283c819627bd4992f4d97bac5a979ab",
+    "docs/AUTH-TROUBLESHOOTING.md": "41e6edfc6f20d961e4f58584218d357cfbc886ac6c945ffdb47f96d6a0599edb"
+  },
+  "securityBoundaries": [
+    "No database mutation, account permission changes, secrets retrieved or credentials transferred",
+    "No user/account fabrication and no bypass of state, PKCE, email or session validation",
+    "Better Auth is the only session authority; query strings cannot authenticate a user",
+    "Error descriptions, OAuth codes/state, provider bodies, cookies and tokens are not rendered"
+  ],
+  "notObserved": [
+    "Real GitHub authorization and cookie/session round trip",
+    "Exact installed Better Auth 1.7.6 integration",
+    "Next.js production build or Node 24 execution",
+    "Live browser/mobile acceptance"
+  ],
+  "blockers": [
+    "Container DNS resolution unavailable for the npm registry and public raw GitHub; dependency install and local Next build were not executed",
+    "The screenshot does not expose the callback error code; an email-permission failure remains a hypothesis, not a confirmed diagnosis"
+  ]
+}

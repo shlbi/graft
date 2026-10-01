@@ -6,6 +6,7 @@
  * while preserving any Set-Cookie/state headers emitted by Better Auth.
  */
 import {getAuth} from '../../../remote/auth.mjs';
+import {safeNextPath} from '../../../remote/auth-ui.mjs';
 export const runtime='nodejs';
 
 /**
@@ -29,8 +30,10 @@ function githubRedirect(value){
  * This navigation does not call Better Auth, issue cookies, or start OAuth;
  * the user must still submit the form's POST to begin authorization.
  */
-export async function GET(){
-  return new Response(null,{status:303,headers:{location:'/sign-in','cache-control':'no-store'}});
+export async function GET(request){
+  const value=request ? new URL(request.url).searchParams.get('next') : null;
+  const location=value===null ? '/sign-in' : '/sign-in?'+new URLSearchParams({next:safeNextPath(value)});
+  return new Response(null,{status:303,headers:{location,'cache-control':'no-store'}});
 }
 
 /**
@@ -40,10 +43,11 @@ export async function GET(){
  */
 export async function POST(request){
   const form=await request.formData();
-  const next=String(form.get('next')||'/');
-  const callbackURL=next.startsWith('/')&&!next.startsWith('//')?next:'/';
+  // Both new and returning users land on a session-verified page by default.
+  const callbackURL=safeNextPath(form.get('next'));
+  // Do not pre-fill error=github: Better Auth supplies its actual failure code.
   const upstream=await getAuth().api.signInSocial({
-    body:{provider:'github',callbackURL,errorCallbackURL:'/sign-in?error=github'},
+    body:{provider:'github',callbackURL,newUserCallbackURL:callbackURL,errorCallbackURL:'/sign-in'},
     headers:request.headers,
     asResponse:true
   });
