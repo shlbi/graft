@@ -1,0 +1,328 @@
+{
+  "schemaVersion": 1,
+  "recordType": "observed-ci-log-summary",
+  "dateUTC": "2026-10-04",
+  "repository": "shlbi/graft",
+  "scope": "authored ordinary Dart/Flutter library package transfer fixtures",
+  "baselineCommit": "33312e943d5242a0b074e131f08586840d2d5565",
+  "testedCommit": "df3b26324e22b5db7dd6ec35bee5b4739eeba6b1",
+  "provenance": "Summary transcribed from the observed GitHub job logs and final run API status; not a byte-for-byte copy of the generated sdk-acceptance.json reports. Full stdout/stderr and generated reports are printed in the job logs.",
+  "ci": {
+    "runId": 37244628809,
+    "jobId": 111559956177,
+    "runNumber": 2,
+    "url": "https://github.com/shlbi/graft/actions/runs/37244628809",
+    "status": "completed",
+    "conclusion": "success",
+    "startedAt": "2026-10-04T23:40:52Z",
+    "updatedAt": "2026-10-04T23:43:11Z"
+  },
+  "runtime": {
+    "os": "Ubuntu 24.04.5",
+    "architecture": "x64",
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "flutter": "3.47.6",
+    "dart": "3.13.5",
+    "flutterRevision": "5fc346839b5d0eef006ed8404392afb4dfae428d",
+    "archiveSha256": "f1631b9c2c8b3529323db412b0d1beacf4a748f8783b0d7cf599a8fd5f461675",
+    "archiveChecksum": "passed",
+    "checkoutRevision": "matched"
+  },
+  "versionCommands": [
+    {
+      "sdk": "dart",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "durationMs": 25
+    },
+    {
+      "sdk": "flutter",
+      "args": [
+        "--version"
+      ],
+      "exitCode": 0,
+      "durationMs": 65
+    }
+  ],
+  "sdkPackages": [
+    {
+      "sdk": "dart",
+      "package": "source",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 1287
+        },
+        {
+          "args": [
+            "analyze"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 695
+        },
+        {
+          "args": [
+            "test"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 4209
+        }
+      ],
+      "analysisResult": "No issues found",
+      "testExecutionsPassed": 3,
+      "testsFailed": 0
+    },
+    {
+      "sdk": "dart",
+      "package": "destination-before",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 246
+        },
+        {
+          "args": [
+            "analyze"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 525
+        },
+        {
+          "args": [
+            "test"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 4120
+        }
+      ],
+      "analysisResult": "No issues found",
+      "testExecutionsPassed": 1,
+      "testsFailed": 0
+    },
+    {
+      "sdk": "dart",
+      "package": "destination-after",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 242
+        },
+        {
+          "args": [
+            "analyze"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 323
+        },
+        {
+          "args": [
+            "test"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 4303
+        }
+      ],
+      "analysisResult": "No issues found",
+      "testExecutionsPassed": 3,
+      "testsFailed": 0
+    },
+    {
+      "sdk": "flutter",
+      "package": "source",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 3601
+        },
+        {
+          "args": [
+            "analyze"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 5169
+        },
+        {
+          "args": [
+            "test"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 6785
+        }
+      ],
+      "analysisResult": "No issues found",
+      "testExecutionsPassed": 3,
+      "testsFailed": 0
+    },
+    {
+      "sdk": "flutter",
+      "package": "destination-before",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 228
+        },
+        {
+          "args": [
+            "analyze"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 5234
+        },
+        {
+          "args": [
+            "test"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 5260
+        }
+      ],
+      "analysisResult": "No issues found",
+      "testExecutionsPassed": 1,
+      "testsFailed": 0
+    },
+    {
+      "sdk": "flutter",
+      "package": "destination-after",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 225
+        },
+        {
+          "args": [
+            "analyze"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 4754
+        },
+        {
+          "args": [
+            "test"
+          ],
+          "exitCode": 0,
+          "status": "passed",
+          "durationMs": 6331
+        }
+      ],
+      "analysisResult": "No issues found",
+      "testExecutionsPassed": 3,
+      "testsFailed": 0
+    }
+  ],
+  "preservation": [
+    {
+      "sdk": "dart",
+      "status": "passed",
+      "checkedFiles": 23,
+      "changes": []
+    },
+    {
+      "sdk": "flutter",
+      "status": "passed",
+      "checkedFiles": 23,
+      "changes": []
+    }
+  ],
+  "regressionSuites": [
+    {
+      "command": "node --test scripts/verify-dart-fixture.test.mjs",
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run test:dart",
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run test:platforms",
+      "passed": 77,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run test:repairs",
+      "passed": 83,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "regressionScope": "Node regression counts are separate from native SDK test executions. Harness orchestration tests double materializer/SDK; the SDK acceptance commands above use the real materializer/core/adapter and actual SDKs. Provider/database doubles remain in the existing lifecycle suites.",
+  "observedBehavior": [
+    "Original donor tests execute against source libraries.",
+    "Original destination test passes before and after the transfer.",
+    "Transferred cart and price assertions pass against renamed destination feature libraries, including their relocated helper.",
+    "A colliding existing test is not overwritten; the transferred bundle uses test/repot_056b2a5b1e7e/.",
+    "All 23 original fixture/evidence files in each SDK run remain unchanged after execution."
+  ],
+  "firstRun": {
+    "runId": 37244418325,
+    "commit": "c77d2a39e1ea8e60106f7c284a907d185866764f",
+    "result": "failed during SDK setup: incorrect metadata URL returned HTTP 404",
+    "sdkExecution": "not_run",
+    "correctionCommit": "df3b26324e22b5db7dd6ec35bee5b4739eeba6b1"
+  },
+  "verification": {
+    "authoredPackageAnalysis": "passed",
+    "authoredPackageTests": "passed",
+    "nativeAppBuild": "not_run",
+    "widgetRendering": "not_run",
+    "deviceOrEmulator": "not_run",
+    "liveAITransfer": "not_run",
+    "customerRepositoryTransfer": "not_run",
+    "fullLocalNextBuild": "not_run"
+  },
+  "limitations": [
+    "Authored pricing-library fixtures, not full mobile apps, AI output or universal repository compatibility.",
+    "Flutter tests here use flutter_test for library assertions; no widget/device integration is established.",
+    "Package registry resolution uses fixture constraints; generated lockfiles are not persisted in this summary. The observed Dart test package was 1.32.0.",
+    "SDK runner is not itself a security sandbox; acceptance used a disposable standard public GitHub-hosted runner without production credentials.",
+    "No paid AI request, customer repository write, database/schema migration or hosting-setting change."
+  ]
+}
