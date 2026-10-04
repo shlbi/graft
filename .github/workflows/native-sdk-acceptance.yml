@@ -52,7 +52,7 @@ jobs:
           set -euo pipefail
           # Select the recorded official revision, not a moving SDK channel.
           curl --fail --silent --show-error --location --retry 2 \
-            https://storage.googleapis.com/flutter_infra_release/flutter/releases/releases_linux.json \
+            https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json \
             --output "$RUNNER_TEMP/flutter-releases.json"
           python3 - <<'PY'
           import json, os, re
@@ -74,7 +74,7 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --location --retry 2 \
-            "https://storage.googleapis.com/flutter_infra_release/flutter/$FLUTTER_ARCHIVE" \
+            "https://storage.googleapis.com/flutter_infra_release/releases/$FLUTTER_ARCHIVE" \
             --output "$RUNNER_TEMP/flutter-sdk.tar.xz"
           printf '%s  %s\n' "$FLUTTER_SHA256" "$RUNNER_TEMP/flutter-sdk.tar.xz" | sha256sum --check --strict
           tar -xJf "$RUNNER_TEMP/flutter-sdk.tar.xz" -C "$RUNNER_TEMP"
