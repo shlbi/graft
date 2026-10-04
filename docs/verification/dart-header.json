@@ -1,0 +1,39 @@
+{
+  "baseCommit": "dbc5e248217684f1dcdda25695ec9e78515c91a6",
+  "date": "2026-10-04",
+  "runtime": "Node 22.16.0/Linux",
+  "command": "node --test web/test/dart-directives.test.mjs",
+  "passed": 26,
+  "failed": 0,
+  "skipped": 0,
+  "syntaxChecks": 3,
+  "comparison": {
+    "conditionalUris": {
+      "before": [
+        "stub.dart",
+        "true",
+        "io.dart"
+      ],
+      "after": [
+        "stub.dart",
+        "io.dart"
+      ]
+    },
+    "crossPackageRelativeUri": {
+      "before": "resolved",
+      "after": "unresolved"
+    }
+  },
+  "blobHashes": {
+    "web/lib/source-graph.mjs": "0f49ba9ec4a7e97eb79040762d31f6e15f7fa777",
+    "web/lib/project-profile.mjs": "6af8bb2bfccc963f5f4c1704f1b7f259452361bd",
+    "web/test/dart-directives.test.mjs": "d285e547a8fffe7f8113b78ce2550331a2df1e7e"
+  },
+  "notRun": [
+    "Dart/Flutter compiler",
+    "device or emulator",
+    "paid model generation",
+    "full Next.js build"
+  ],
+  "scope": "Real static parser and resolver on synthetic source; no Dart execution"
+}

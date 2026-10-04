@@ -36,23 +36,79 @@ export function sourceTokens(text, hashComments = false) {
   }
   return {tokens,issues};
 }
-/** Extract top-level Dart import/export/part URIs and exact literal-content offsets; preserve every conditional branch. */
+/**
+ * Read the Dart library header, capturing only directive URIs (not strings inside an
+ * if-condition, annotation or declaration). All edits later use these exact spans.
+ * This validates the supported directive grammar, not the rest of the Dart program.
+ */
 export function dartDirectives(file) {
-  const {tokens,issues}=sourceTokens(file.content),directives=[];let braces=0;
-  for(let i=0;i<tokens.length;i++) {
-    const t=tokens[i];
-    if(t.value==='{'){braces++;continue;}if(t.value==='}'){braces--;continue;}
-    if(braces!==0 || t.kind!=='word' || !['import','export','part'].includes(t.value))continue;
-    const end=tokens.findIndex((n,j)=>j>i && n.value===';');
-    if(end===-1){issues.push('unterminated_directive');break;}
-    const body=tokens.slice(i+1,end),conditional=body.some(n=>n.kind==='word'&&n.value==='if');
-    if(t.value==='part'&&body[0]?.value==='of')issues.push('part_of_requires_library_context');
-    else {
-      const strings=body.filter(n=>n.kind==='string');
-      if(!strings.length || body[0]?.kind!=='string')issues.push('unsupported_directive');
-      for(const n of strings){if(!n.static)issues.push('nonliteral_directive');else directives.push({kind:t.value,specifier:n.value,start:n.valueStart,end:n.valueEnd,conditional});}
+  const {tokens,issues}=sourceTokens(file.content),directives=[];
+  let i=0;
+  /** Compare punctuation by token kind; a string containing ';' or '{' is not syntax. */
+  const symbol=(token,value)=>token?.kind==='symbol' && token.value===value;
+  /** Consume balanced annotation/condition parentheses without interpreting their contents. */
+  function parentheses(list,index) {
+    if(!symbol(list[index],'('))return -1;
+    let depth=1;
+    for(let j=index+1;j<list.length;j++) {
+      if(symbol(list[j],'('))depth++;
+      if(symbol(list[j],')'))depth--;
+      if(!depth)return j+1;
+      if(depth>32)return -1;
     }
-    i=end;
+    return -1;
+  }
+  /** Read a supported non-interpolated single-line URI literal. */
+  function uri(token,kind,conditional) {
+    if(token?.kind!=='string'||!token.static||/[\r\n]/.test(token.value)) {
+      issues.push('nonliteral_directive');return false;
+    }
+    directives.push({kind,specifier:token.value,start:token.valueStart,end:token.valueEnd,conditional});
+    return true;
+  }
+  while(i<tokens.length) {
+    // Metadata is kept verbatim, including test-runner annotations. It cannot add imports.
+    if(symbol(tokens[i],'@')) {
+      i++;
+      if(tokens[i]?.kind!=='word'){issues.push('unsupported_library_metadata');break;}
+      i++;
+      while(symbol(tokens[i],'.')&&tokens[i+1]?.kind==='word')i+=2;
+      if(symbol(tokens[i],'(')) {i=parentheses(tokens,i);if(i<0){issues.push('unsupported_library_metadata');break;}}
+      continue;
+    }
+    const t=tokens[i];
+    if(t.kind!=='word'||!['library','import','export','part'].includes(t.value))break;
+    let end=i+1;
+    while(end<tokens.length&&!symbol(tokens[end],';'))end++;
+    if(end===tokens.length){issues.push('unterminated_directive');break;}
+    const body=tokens.slice(i+1,end);i=end+1;
+    if(t.value==='library')continue;
+    if(t.value==='part') {
+      issues.push('part_requires_library_adapter');
+      if(body[0]?.value==='of') {issues.push('part_of_requires_library_context');continue;}
+    }
+    const conditional=body.some(n=>n.kind==='word'&&n.value==='if');
+    if(!uri(body[0],t.value,conditional))continue;
+    let j=1;
+    while(body[j]?.kind==='word'&&body[j].value==='if') {
+      const after=parentheses(body,j+1);
+      if(after<0){issues.push('unsupported_conditional_directive');break;}
+      if(!uri(body[after],t.value,true))break;
+      j=after+1;
+    }
+    // Validate suffix shape without renaming aliases or show/hide identifiers.
+    if(body[j]?.value==='deferred'&&t.value==='import')j++;
+    if(body[j]?.value==='as'&&t.value==='import') {
+      if(body[j+1]?.kind!=='word'){issues.push('unsupported_directive_suffix');continue;}
+      j+=2;
+    }
+    while(['show','hide'].includes(body[j]?.value)) {
+      j++;
+      if(body[j]?.kind!=='word'){issues.push('unsupported_directive_suffix');break;}
+      j++;
+      while(symbol(body[j],',')) {j++;if(body[j]?.kind!=='word'){issues.push('unsupported_directive_suffix');break;}j++;}
+    }
+    if(j!==body.length)issues.push('unsupported_directive_suffix');
   }
   return {directives,issues:[...new Set(issues)]};
 }
@@ -63,13 +119,19 @@ export function dartPackage(profile,filePath) {
 }
 /** Resolve a Dart URI only inside its own package or as an explicitly external library. */
 export function resolveDart(filePath,specifier,profile,files) {
-  if(specifier.startsWith('dart:'))return {kind:'builtin',targets:[]};
+  if(typeof specifier!=='string'||!specifier||/[?#%\\\u0000-\u0020]/.test(specifier))return {kind:'unresolved',targets:[]};
+  if(/^dart:[a-z_][a-z0-9_]*$/.test(specifier))return {kind:'builtin',targets:[]};
   const component=dartPackage(profile,filePath),pkg=/^package:([a-z][a-z0-9_]*)\/(.+)$/.exec(specifier);
   let target;
-  if(pkg){if(pkg[2].split('/').some(p=>!p||p==='.'||p==='..'))return {kind:'unresolved',targets:[]};if(!component || pkg[1]!==component.name)return {kind:'external',package:pkg[1],targets:[]};target=path.posix.join(component.root,'lib',pkg[2]);}
-  else if(/^[a-z][a-z0-9+.-]*:|[?#%\\]/i.test(specifier) || specifier.startsWith('/'))return {kind:'unresolved',targets:[]};
+  if(pkg) {
+    if(pkg[2].split('/').some(p=>!p||p==='.'||p==='..')||!eligiblePath(pkg[2]))return {kind:'unresolved',targets:[]};
+    if(!component)return {kind:'unresolved',targets:[]};
+    if(pkg[1]!==component.name)return {kind:'external',package:pkg[1],targets:[]};
+    target=path.posix.join(component.root,'lib',pkg[2]);
+  } else if(/^[a-z][a-z0-9+.-]*:/i.test(specifier)||specifier.startsWith('/'))return {kind:'unresolved',targets:[]};
   else target=path.posix.normalize(path.posix.join(path.posix.dirname(filePath),specifier));
-  if(!eligiblePath(target) || (component && !insideRoot(target,component.root)))return {kind:'unresolved',targets:[]};
+  const owner=dartPackage(profile,target);
+  if(!eligiblePath(target)||!component||!owner||component.root!==owner.root)return {kind:'unresolved',targets:[]};
   return files.has(target)?{kind:'resolved',targets:[target]}:{kind:'unresolved',targets:[],candidate:target};
 }
 /** Extract import lines from tokens so comments and string bodies cannot invent dependencies. */

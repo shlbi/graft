@@ -33,7 +33,7 @@ export const insideRoot = (filePath, root) => !root || filePath.startsWith(root 
  */
 export function readPubspec(text) {
   let name = null, section = '', complex = false;
-  const dependencies = new Set(), devDependencies = new Set();
+  const dependencies = new Set(), devDependencies = new Set(), sections = new Set(), keys = new Set();
   for (const raw of text.split(/\r?\n/)) {
     const line = raw.replace(/\s+#.*$/, '');
     if (!line.trim() || /^\s*#/.test(line)) continue;
@@ -41,12 +41,19 @@ export function readPubspec(text) {
     const top = /^([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$/.exec(line);
     if (top) {
       section = top[1];
+      if (sections.has(section)) complex = true;
+      sections.add(section);
       if (section === 'name') name = safeName(top[2].replace(/^(['"])(.*?)\1$/, '$2').trim());
       if (['dependencies','dev_dependencies','dependency_overrides','workspace'].includes(section) && top[2].trim()) complex = true;
       if (['dependency_overrides','workspace','resolution'].includes(section)) complex = true;
       continue;
     }
     const dependency = /^  ([a-z][a-z0-9_]*):(?:\s|$)/.exec(line);
+    if (dependency && ['dependencies', 'dev_dependencies'].includes(section)) {
+      const key = section + ':' + dependency[1];
+      if (keys.has(key)) complex = true;
+      keys.add(key);
+    }
     if (dependency && section === 'dependencies') dependencies.add(dependency[1]);
     if (dependency && section === 'dev_dependencies') devDependencies.add(dependency[1]);
   }
