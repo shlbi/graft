@@ -14,7 +14,9 @@ import {publicJobError} from './draft-job-errors.mjs';
 const transfer=z.object({
   sourceRepo:z.string().min(3).max(140).describe('Source GitHub repository as owner/repo'),
   destinationRepo:z.string().min(3).max(140).describe('Destination GitHub repository as owner/repo'),
-  feature:z.string().min(3).max(1500).describe('Feature behavior to move and destination constraints')
+  feature:z.string().min(3).max(1500).describe('Feature behavior to move and destination constraints'),
+  sourcePaths:z.array(z.string().min(1).max(240)).min(1).max(20).optional().describe('Optional exact source entrypoint files from inspection; dependency/test context is expanded automatically'),
+  destinationPaths:z.array(z.string().min(1).max(240)).min(1).max(20).optional().describe('Optional existing destination integration files from inspection; never uninspected overwrite targets')
 });
 const jobInput=z.object({jobId:z.string().regex(/^[A-Za-z0-9_-]{32}$/).describe('Opaque jobId returned by repot_draft; not a provider response ID')});
 /** Return structured text without inventing verification. */
@@ -43,7 +45,7 @@ export function createRepotServer(authInfo,requestSignal){
     if(args.sourceRepo.toLowerCase()===args.destinationRepo.toLowerCase())throw new Fault('Choose two different repositories.');
     const token=await githubTokenForUser(userId(authInfo));
     const [source,destination]=await Promise.all([snapshotRepository(token,args.sourceRepo),snapshotRepository(token,args.destinationRepo)]);
-    const analysis=analyze(source.snapshot,destination.snapshot,args.feature),{context,...publicAnalysis}=analysis;
+    const analysis=analyze(source.snapshot,destination.snapshot,args.feature,{sourcePaths:args.sourcePaths,destinationPaths:args.destinationPaths}),{context,...publicAnalysis}=analysis;
     return ok({...publicAnalysis,sourceRepository:source.meta,destinationRepository:destination.meta});
   }catch(e){return fail(e);}});
 
@@ -87,7 +89,7 @@ export function createRepotServer(authInfo,requestSignal){
     description:'Retrieve an unexpired review owned by this user. Read the exact patch, exportable flag, risks and verification before publishing. A jobId cannot be published; use its completed reviewId.',
     inputSchema:z.object({reviewId:z.string().min(20)}),
     annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}
-  },async({reviewId})=>{try{const row=await getReview(userId(authInfo),reviewId);if(!row||row.expired)throw new Fault('Review not found or expired.',404);return ok({reviewId,status:row.status,exportable:row.review.exportable,sourceRepo:row.source_repo,destinationRepo:row.destination_repo,summary:row.review.summary,changes:row.review.changes.map(c=>({path:c.path,action:c.action,reason:c.reason})),testTransfer:row.review.testTransfer,risks:row.review.risks,suggestedChecks:row.review.suggestedChecks,verification:row.review.verification,generation:row.review.generation??null,patch:row.review.patch,publishedUrl:row.published_url});}catch(e){return fail(e);}});
+  },async({reviewId})=>{try{const row=await getReview(userId(authInfo),reviewId);if(!row||row.expired)throw new Fault('Review not found or expired.',404);return ok({reviewId,status:row.status,exportable:row.review.exportable,integrationPlan:row.review.integrationPlan??null,sourceRepo:row.source_repo,destinationRepo:row.destination_repo,summary:row.review.summary,changes:row.review.changes.map(c=>({path:c.path,action:c.action,reason:c.reason})),testTransfer:row.review.testTransfer,risks:row.review.risks,suggestedChecks:row.review.suggestedChecks,verification:row.review.verification,generation:row.review.generation??null,patch:row.review.patch,publishedUrl:row.published_url});}catch(e){return fail(e);}});
 
   server.registerTool('repot_publish',{
     title:'Publish reviewed transfer as draft PR',

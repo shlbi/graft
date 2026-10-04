@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto';
 import { DraftJobError, JOB_MESSAGES } from './draft-job-errors.mjs';
 import { MAX_REPAIR_ATTEMPTS, repairProgress, validationDiagnostic, repairFeedback, canRepair } from './draft-repair.mjs';
 import { PROPOSAL_RULES } from '../web/lib/proposal-contract.mjs';
+import { normalizeSelection } from '../web/lib/feature-plan.mjs';
 const TERMINAL = new Set(['completed','failed','cancelled']);
 const PROVIDER_WINDOW_MS = 8 * 60 * 1000;
 
@@ -20,6 +21,12 @@ export function draftRequest(args, validateFeature = value => value.trim()) {
   const maxRepairAttempts = args.maxRepairAttempts === undefined ? MAX_REPAIR_ATTEMPTS : args.maxRepairAttempts;
   if (!Number.isInteger(maxRepairAttempts) || maxRepairAttempts < 0 || maxRepairAttempts > MAX_REPAIR_ATTEMPTS) throw new DraftJobError('invalid_request');
   const request = { maxRepairAttempts, sourceRepo: args.sourceRepo.toLowerCase(), destinationRepo: args.destinationRepo.toLowerCase(), feature: validateFeature(args.feature), allowAI: true, allowBackgroundProcessing: true };
+  try {
+    for (const key of ['sourcePaths', 'destinationPaths']) {
+      const selected = normalizeSelection(args[key]);
+      if (selected) request[key] = selected;
+    }
+  } catch { throw new DraftJobError('invalid_request'); }
   const { maxRepairAttempts: _budget, ...legacyRequest } = request;
   return { request, requestKey: args.requestKey, requestHash: createHash('sha256').update(JSON.stringify(request)).digest('hex'),
     legacyRequestHash: createHash('sha256').update(JSON.stringify(legacyRequest)).digest('hex') };
@@ -99,6 +106,7 @@ export function createDraftJobs({ store, provider, prepare, buildRequest, review
         let prepared;
         try { prepared = await prepareStep(value.request, userId); }
         catch { throw new DraftJobError('preparation_failed'); }
+        if (prepared.context?.integrationPlan?.contextCoverage?.complete === false || prepared.context?.integrationPlan?.metadataTruncated) throw new DraftJobError('context_budget_exceeded');
         current = await store.prepared(claimed, { ...value, ...prepared });
       } else if (phase === 'prepared' && claimed.response_id) {
         // Separate short cleanup step before another billable attempt. Failure is

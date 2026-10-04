@@ -2,6 +2,7 @@
 import { PROPOSAL_RULES } from '../web/lib/proposal-contract.mjs';
 
 export const JOB_MESSAGES = Object.freeze({
+  context_budget_exceeded: 'The dependency plan exceeds one bounded draft context. No generation was started. Inspect the plan and select precise source entrypoints/destination integration files; staged execution is not yet available.',
   ...Object.fromEntries(Object.entries(PROPOSAL_RULES).map(([code, rule]) => [code, rule.message])),
   validator_error: 'Repot encountered an internal validation error. No further generation was submitted; the operator must investigate the validator.',
   repair_budget_exhausted: 'The saved repair budget is exhausted. No extra generation was submitted.',

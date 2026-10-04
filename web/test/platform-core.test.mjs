@@ -5,12 +5,13 @@ import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 import * as base from '../lib/core-base.mjs';
 import * as projects from '../lib/project-profile.mjs';
+import * as plans from '../lib/feature-plan.mjs';
 /** Load authored core code; the legacy JS test adapter remains a synthetic boundary in this focused suite. */
 async function core() {
   const context=vm.createContext({Buffer});
   const testAdapter={discoverTests:()=>({tests:[],requiredSource:[],requiredDestination:[]}),references:()=>[],isTestPath:()=>false,isTestSupport:()=>false,isTestConfig:()=>false,
     transplantTests:changes=>({changes,report:{status:'none_found',blockers:[]}})};
-  const deps={'./core-base.mjs':base,'./project-profile.mjs':projects,'./test-transfer.mjs':testAdapter};
+  const deps={'./core-base.mjs':base,'./project-profile.mjs':projects,'./feature-plan.mjs':plans,'./test-transfer.mjs':testAdapter};
   const code=new vm.SourceTextModule(await readFile(new URL('../lib/core.mjs',import.meta.url),'utf8'),{context});
   await code.link(name=>new vm.SyntheticModule(Object.keys(deps[name]),function(){for(const[k,v]of Object.entries(deps[name]))this.setExport(k,v);},{context}));
   await code.evaluate();return code.namespace;

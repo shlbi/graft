@@ -27,7 +27,7 @@ export function draftService() {
         snapshotRepository(token, request.destinationRepo, { signal })
       ]);
       signal.throwIfAborted();
-      const { context } = analyze(source.snapshot, destination.snapshot, request.feature);
+      const { context } = analyze(source.snapshot, destination.snapshot, request.feature, { sourcePaths: request.sourcePaths, destinationPaths: request.destinationPaths });
       return { source, destination, context };
     },
     /** Build the same pinned model/prompt/schema request as foreground generation. */

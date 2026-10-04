@@ -7,6 +7,7 @@
 import { analyze as analyzeBase, reviewProposal as reviewBase, rank, hash, unifiedPatch, LIMITS } from './core-base.mjs';
 import { discoverTests, transplantTests, references, isTestPath, isTestSupport, isTestConfig } from './test-transfer.mjs';
 import { profileProject, languageForPath, isProjectTest } from './project-profile.mjs';
+import { planFeature, finalizePlan, compactPlan, selectContext } from './feature-plan.mjs';
 export * from './core-base.mjs';
 /**
  * @function bytes
@@ -14,40 +15,26 @@ export * from './core-base.mjs';
  */
 const bytes = text => Buffer.byteLength(text, 'utf8');
 /**
- * @function contextFiles
- * Implements context files for Repot's bounded web transfer pipeline.
+ * Inspect project types and scoped dependency evidence before selecting bounded model context.
+ * Explicit entrypoints are server-validated and survive repair/review through immutable selection.
  */
-function contextFiles(repo, feature, priority) {
-  const ranked = rank(repo.files, feature), files = new Map(repo.files.map(f => [f.path, f]));
-  const chosen = new Map(); let used = 0;
-  /**
-   * @function add
-   * Implements add for Repot's bounded web transfer pipeline.
-   */
-  const add = file => {
-    if (!file || chosen.has(file.path) || chosen.size >= 36 || used + bytes(file.content) > LIMITS.contextBytes / 2) return;
-    chosen.set(file.path, file); used += bytes(file.content);
-  };
-  priority.forEach(p => add(files.get(p)));
-  ranked.filter(f => f.score > 0).slice(0, 8).forEach(add);
-  repo.files.filter(f => /(?:^|\/)(?:package\.json|pyproject\.toml|go\.mod|Cargo\.toml|LICENSE|NOTICE|README\.md)$/.test(f.path)).slice(0, 5).forEach(add);
-  for (const file of chosen.values()) for (const r of references(file, files)) if (r.target) add(files.get(r.target));
-  ranked.slice(0, 8).forEach(add);
-  return [...chosen.values()].map(({ path, content, hash }) => ({ path, content, hash }));
-}
-/**
- * @function analyze
- * Implements analyze for Repot's bounded web transfer pipeline.
- */
-export function analyze(source, destination, feature) {
+export function analyze(source, destination, feature, options = {}) {
   const base = analyzeBase(source, destination, feature);
-  const ranked = rank(source.files.filter(f => !isTestPath(f.path) && !isTestSupport(f.path) && !isTestConfig(f.path) && !isProjectTest(f.path) && languageForPath(f.path)), base.feature);
-  const roots = ranked.filter(f => f.score > 0 && f.score >= (ranked[0]?.score ?? 0) / 2).slice(0, 8).map(f => f.path);
-  const testPlan = discoverTests(source, destination, roots);
-  const context = { feature: base.feature, testPlan,
-    source: contextFiles(source, base.feature, [...roots, ...testPlan.requiredSource]),
-    destination: contextFiles(destination, base.feature, testPlan.requiredDestination) };
-  return { ...base, projects: { source: profileProject(source), destination: profileProject(destination) }, testPlan, context, contextManifest: { source: context.source.map(f => f.path), destination: context.destination.map(f => f.path) } };
+  const production = f => !isTestPath(f.path) && !isTestSupport(f.path) && !isTestConfig(f.path) && !isProjectTest(f.path) && languageForPath(f.path);
+  const ranked = rank(source.files.filter(production), base.feature);
+  const sourceRoots = ranked.filter(f => f.score > 0 && f.score >= (ranked[0]?.score ?? 0) / 2).slice(0, 8).map(f => f.path);
+  const destinationRoots = rank(destination.files.filter(production), base.feature).slice(0, 3).map(f => f.path);
+  const plan = planFeature(source, destination, base.feature, { ...options, sourceRoots, destinationRoots, jsReferences: references });
+  const testPlan = discoverTests(source, destination, plan.roots);
+  plan.requiredSource = [...new Set([...plan.requiredSource, ...testPlan.requiredSource])];
+  plan.requiredDestination = [...new Set([...plan.requiredDestination, ...testPlan.requiredDestination])];
+  const context = { feature: base.feature, selection: plan.selection, testPlan,
+    ...selectContext(source,destination,{sourcePriority:plan.requiredSource,destinationPriority:plan.requiredDestination,
+      sourceFallback:rank(source.files,base.feature).slice(0,8).map(f=>f.path),
+      destinationFallback:rank(destination.files,base.feature).slice(0,8).map(f=>f.path)}) };
+  context.integrationPlan = compactPlan(finalizePlan(plan, context));
+  return { ...base, projects: plan.projects, integrationPlan: context.integrationPlan, testPlan, context,
+    contextManifest: { source: context.source.map(f => f.path), destination: context.destination.map(f => f.path) } };
 }
 /**
  * @function reviewProposal
@@ -57,7 +44,7 @@ export function reviewProposal(proposal, source, destination, context, provider 
   // Validate the provider's production draft before interpreting any mapping/provenance.
   const base = reviewBase(proposal, source, destination, context, provider);
   // Recompute from snapshots; a provider cannot supply or weaken the required test plan.
-  const plan = analyze(source, destination, context.feature).testPlan;
+  const plan = analyze(source, destination, context.feature, context.selection).testPlan;
   const transferred = transplantTests(base.changes, source, destination, plan, context);
   const testTransfer = transferred.report;
   // Newly admitted native sources must not turn undiscovered tests into a false "none_found".
@@ -75,5 +62,6 @@ export function reviewProposal(proposal, source, destination, context, provider 
   const exportable = testTransfer.status !== 'blocked';
   return { ...base, id: hash(source.fingerprint + destination.fingerprint + JSON.stringify(changes)), changes,
     patch: exportable ? unifiedPatch(changes) : null, exportable, testTransfer,
+    integrationPlan: context.integrationPlan ?? null,
     notice: (exportable ? '' : 'Patch export is blocked until test-transfer issues are resolved. ') + base.notice };
 }

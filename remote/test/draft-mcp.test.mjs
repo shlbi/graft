@@ -13,7 +13,7 @@ async function fixture(review) {
   const jobService={start:async(u,a)=>{events.push(['start',u,a]);return{jobId:'job',status:'queued'};},status:async(u,id)=>{events.push(['status',u,id]);return{status:'running',jobId:id};},cancel:async(u,id)=>{events.push(['cancel',u,id]);return{status:'cancelled'};}};
   const imports={
     '@modelcontextprotocol/server':{McpServer,createMcpHandler:f=>({factory:f})},
-    'zod/v4':{object:()=>shape,string:()=>shape,literal:()=>shape,number:()=>shape},
+    'zod/v4':{object:()=>shape,string:()=>shape,literal:()=>shape,number:()=>shape,array:()=>shape},
     '../web/lib/core.mjs':{analyze:()=>{throw Error('Unexpected engine');}},
     '../web/lib/core-base.mjs':{Fault},
     './github.mjs':{githubTokenForUser:async()=>{events.push(['github-token']);return'test';},listRepositories:()=>[],snapshotRepository:()=>{throw Error('Unexpected snapshot');},publishDraft:async()=>{events.push(['publish']);return{url:'synthetic-pr'};}},
