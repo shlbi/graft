@@ -3,7 +3,7 @@
   "legacyName": "Graft",
   "repository": "shlbi/graft",
   "domain": "getrepot.com",
-  "phase": "bounded-draft-repairs-awaiting-live-acceptance",
+  "phase": "native-dart-test-transfer-awaiting-sdk-acceptance",
   "authorization": "Saif requested rebrand/redesign and commit/push. Existing Vercel Git deployment is acknowledged. No paid resource, credentials, account permissions or repository rename changed. Kinetic stays paused.",
   "previousHandoff": {
     "commit": "cd669b366353cea01b51fde6a27e638ea93f880e",
@@ -83,5 +83,46 @@
       "localNextBuild": "Not run: dependencies unavailable; npm ping returned EAI_AGAIN",
       "packagePatchSha256": "a2f50c34cc377fe58ba6143afc89615f5cc4fa4448dac1db9c1de14d58714b16"
     }
+  },
+  "latestPlatformHandoff": {
+    "dateUTC": "2026-10-04",
+    "repository": "shlbi/graft",
+    "kinetic": "paused",
+    "authorization": "Saif explicitly requested continued mobile/polyglot development with incremental commits/pushes. Manual Repot work supersedes the old overnight project schedule. Existing Vercel Git deployment is acknowledged.",
+    "supersedes": "Older top-level acceptance/next and latestManualHandoff fields describe earlier milestones; use this platform handoff for the next task.",
+    "userReportedAcceptance": "Saif reports the JavaScript/TypeScript workflow was verified. This is user-reported, not a fresh hosted acceptance run in this session.",
+    "checkpoints": [
+      {
+        "sha": "18941f9351f12de343c1db73186db6ff4df21637",
+        "scope": "mobile/polyglot inventory"
+      },
+      {
+        "sha": "dbc5e248217684f1dcdda25695ec9e78515c91a6",
+        "scope": "scoped integration plans"
+      },
+      {
+        "sha": "2951cb7b6403ae2ae76eba6fcf5633dc2a89769e",
+        "scope": "Dart URI parsing and package-boundary corrections",
+        "vercelStatus": "success observed via GitHub"
+      }
+    ],
+    "implemented": [
+      "Dart/Flutter default-layout native test discovery with transitive Dart helpers",
+      "URI-only relocation, body-preservation digests and non-overwriting namespaced collision handling",
+      "Actual core/model-parser integration and same-job bounded repairs for native implementation mapping/import errors",
+      "Runnable source/before/after package fixture materializer; no SDK execution performed"
+    ],
+    "verification": "docs/verification/dart-transfer.json",
+    "publication": "Native adapter is in the commit carrying this handoff; verify its remote attachment and automatic Vercel status separately. No live native-runtime success is claimed.",
+    "next": [
+      "Run the authored Dart/Flutter source/before/after fixtures with real SDKs in a separately authorized isolated environment; record versions and exit codes",
+      "Implement additional language test/toolchain adapters and validated staged transfer execution beyond the existing snapshot/context/patch limits"
+    ],
+    "limitations": [
+      "Native SDKs unavailable locally; device/plugin/resource behavior unverified",
+      "Single-package ordinary Dart libraries/default test layout only; source/setup/security blockers remain",
+      "No new secrets, schema migration, hosting changes, paid AI calls or customer-repository writes",
+      "No universal compatibility or verified complex-mobile integration claim"
+    ]
   }
 }

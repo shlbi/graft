@@ -54,10 +54,26 @@ zero failures/skips in both. Tests use real planning/orchestration/structural co
 with the documented legacy SDK/provider/database/test-adapter doubles. The deployed
 first checkpoint's Vercel check succeeded. No live native build or paid generation.
 
+## Checkpoints 3 and 4 — actual Dart/Flutter test relocation
+
+The Dart header parser now separates real URI literals from conditional-comparison
+strings/metadata and refuses cross-package relative resolution. A dedicated adapter
+then discovers related default-layout Dart/Flutter tests and helpers, rewrites only
+library URI spans, verifies body-preservation digests, and namespaces colliding test
+bundles without overwriting destination tests. Source and destination package roots
+can differ. Selected context and the real native test plan flow through the hosted
+validator and existing bounded repair loop for fixable library mapping/import errors.
+
+See [Dart transfers](DART-TRANSFERS.md) and [executed evidence](verification/dart-transfer.json).
+The earlier checkpoint counts above remain historical. New tests exercise the real
+core and existing JS parser rather than substituting the test-transfer layer. Native
+runtime execution is still not claimed: the reproducible package materializer emits
+source/before/after fixtures for separate Dart/Flutter SDK acceptance.
+
 ## Next checkpoints
 
-- Dependency-aware, scoped feature plans and explicit missing-context reporting.
-- Supported native test adapters, with assertion-preservation fixtures.
+- Isolated Dart/Flutter SDK acceptance, then native device/runtime wiring.
+- Native test adapters for Kotlin, Swift, Python, Go and other ecosystems.
 - Isolated compiler/test runners and device/emulator acceptance for each ecosystem.
 - Incremental large-repository intake and validated multi-stage integration.
 

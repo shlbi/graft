@@ -33,6 +33,8 @@ const definitions = {
   proposal_path_collision: [true, 'File/directory collision in proposed changes.'],
   proposal_risks: [true, 'Invalid risks list. Use at most 12 nonempty strings of up to 600 characters each.'],
   proposal_checks: [true, 'Invalid suggested checks list. Use at most 12 nonempty strings of up to 600 characters each.'],
+  proposal_dart_import: [true, 'The generated Dart implementation has unresolved or undeclared imports. Use existing destination dependencies, the destination pubspec package name, and the complete proposed library paths. Do not change tests or pubspec to bypass validation.'],
+  proposal_dart_mapping: [true, 'Map every inspected Dart implementation required by the source tests to one unambiguous Dart file in the selected destination library. Preserve the original interfaces and sourcePaths; do not drop tests or copy a second donor implementation as a helper.'],
   proposal_json: [true, 'The AI response was not a valid JSON proposal.'],
   proposal_incomplete: [false, 'The AI response was incomplete. No draft was applied.'],
   proposal_refused: [false, 'The AI provider declined this request. No repair will retry a refusal.'],

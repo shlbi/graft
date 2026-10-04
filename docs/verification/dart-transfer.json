@@ -1,0 +1,99 @@
+{
+  "date": "2026-10-04",
+  "baseCommit": "2951cb7b6403ae2ae76eba6fcf5633dc2a89769e",
+  "runtime": {
+    "node": "22.16.0",
+    "typescript": "5.8.3",
+    "platform": "Linux"
+  },
+  "tests": {
+    "native": {
+      "command": "npm run test:dart",
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0
+    },
+    "combined": {
+      "command": "node --experimental-vm-modules --test web/test/dart-directives.test.mjs web/test/dart-test-transfer.test.mjs web/test/dart-core.test.mjs remote/test/dart-repair-integration.test.mjs web/test/platform-core.test.mjs remote/test/draft-repair.test.mjs remote/test/proposal-validation.test.mjs remote/test/draft-job-store.test.mjs remote/test/draft-mcp.test.mjs remote/test/draft-service-wiring.test.mjs",
+      "passed": 159,
+      "failed": 0,
+      "skipped": 0
+    },
+    "countingNote": "Native 73 and previous repair 83 are included in combined 159, with 3 platform-core tests; these are overlapping suites, not additive totals.",
+    "syntaxChecksPassed": 10
+  },
+  "actualChecks": [
+    "Actual core analysis, shared AI parser, structural validator, native test adapter and unchanged TypeScript-backed node:test adapter executed",
+    "Real git apply --check --index and git apply --index on an authored disposable destination fixture, preserving all preexisting files",
+    "Source/before/after fixtures materialized in Dart and Flutter modes; existing directory overwrite rejected",
+    "73 native tests cover Dart/Flutter library, widget-test text, helpers, monorepo scope, namespace collisions, policy/setup failures and same-job repair controls"
+  ],
+  "comparison": {
+    "baselineCoreBlob": "6e16e5e65652ab7808877aa3fd7018a459eca754",
+    "before": {
+      "exportable": false,
+      "files": [
+        "lib/features/basket.dart",
+        "lib/features/price.dart"
+      ],
+      "testStatus": "blocked",
+      "discovered": 0,
+      "blockers": [
+        "Native test discovery requires a language adapter; 4 test/support file(s) were not covered. No tests were silently dropped."
+      ],
+      "verification": {
+        "structure": "passed",
+        "build": "not_run",
+        "tests": "not_run",
+        "integration": "not_run"
+      }
+    },
+    "after": {
+      "exportable": true,
+      "files": [
+        "lib/features/basket.dart",
+        "lib/features/price.dart",
+        "test/cart_test.dart",
+        "test/price_test.dart",
+        "test/support/cart_helper.dart"
+      ],
+      "testStatus": "included",
+      "discovered": 2,
+      "blockers": [],
+      "verification": {
+        "structure": "passed",
+        "build": "not_run",
+        "tests": "not_run",
+        "integration": "not_run"
+      }
+    },
+    "scope": "Same authored proposal/snapshots, real core/structural/test adapters. No Dart execution or AI request."
+  },
+  "simulatedBoundaries": [
+    "Provider generation/output and PostgreSQL storage in job-lifecycle tests",
+    "External infrastructure/test-transplant boundary in the retained older repair suite, as described in those test files"
+  ],
+  "notRun": [
+    "Dart and Flutter compilers or native test runners (SDK executables unavailable)",
+    "Emulator, browser or physical-device execution",
+    "Paid AI generation or real hosted native transfer",
+    "Full local Next.js build (targeted restored checkout; full dependencies unavailable)",
+    "Live PostgreSQL concurrency or schema migrations"
+  ],
+  "changesOutsideRepository": "No customer repository, credentials, database schema, hosting settings or paid resources changed",
+  "blobHashes": {
+    "web/lib/dart-test-transfer.mjs": "cf91f974d0ba05708ea36794352f6b1c521e8d56",
+    "web/lib/core.mjs": "26dac39ea45b5f939ecc2d280c94df3a38df589b",
+    "web/lib/ai.mjs": "a4071d1659f887b7de7a07562cf660fe726ae715",
+    "web/lib/proposal-contract.mjs": "65e5bc2bc05e8d76f66a4ddf4f0c23dbe592f87b",
+    "web/test/fixtures/dart-transfer-fixture.mjs": "08d0dbb2a9e73ee00dfa7b8558e0c628a263a779",
+    "web/test/dart-test-transfer.test.mjs": "f4d895480c24c5dfb4f3ccea3b0cde69e4dd3a14",
+    "web/test/dart-core.test.mjs": "5968d7fa810099f5d4d9ec8e3c04fe3cec828b8b",
+    "remote/test/dart-repair-integration.test.mjs": "1d56a1bb052ab93686782fcaf5cc72eaa55150a3",
+    "web/test/platform-core.test.mjs": "658961ac19330e6d5af41ef8059a878fe05d014f",
+    "scripts/materialize-dart-fixture.mjs": "f469118707dcc5102cb6f281d32079a204386579",
+    "package.json": "e3328e80e3d5f1637438ecf2e0338f2f8b139426",
+    "docs/DART-TRANSFERS.md": "25e07f32b88927696121fdc139514ab76207b029",
+    "docs/PLATFORM-EXPANSION.md": "9f439b0a15d641ad5ffd02d271ed2c4cdbaf5753"
+  }
+}

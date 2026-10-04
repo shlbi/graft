@@ -4,10 +4,11 @@
  * Boundary note: keep repository context bounded and never claim execution/verification that this module did not actually perform.
  */
 // Snapshot/patch primitives remain unchanged; this layer makes tests part of every transfer.
-import { analyze as analyzeBase, reviewProposal as reviewBase, rank, hash, unifiedPatch, LIMITS } from './core-base.mjs';
+import { analyze as analyzeBase, reviewProposal as reviewBase, rank, hash, unifiedPatch, LIMITS, ProposalValidationError } from './core-base.mjs';
 import { discoverTests, transplantTests, references, isTestPath, isTestSupport, isTestConfig } from './test-transfer.mjs';
 import { profileProject, languageForPath, isProjectTest } from './project-profile.mjs';
 import { planFeature, finalizePlan, compactPlan, selectContext } from './feature-plan.mjs';
+import { discoverDartTests, transplantDartTests } from './dart-test-transfer.mjs';
 export * from './core-base.mjs';
 /**
  * @function bytes
@@ -25,7 +26,7 @@ export function analyze(source, destination, feature, options = {}) {
   const sourceRoots = ranked.filter(f => f.score > 0 && f.score >= (ranked[0]?.score ?? 0) / 2).slice(0, 8).map(f => f.path);
   const destinationRoots = rank(destination.files.filter(production), base.feature).slice(0, 3).map(f => f.path);
   const plan = planFeature(source, destination, base.feature, { ...options, sourceRoots, destinationRoots, jsReferences: references });
-  const testPlan = discoverTests(source, destination, plan.roots);
+  const testPlan = discoverDartTests(source, destination, plan.roots, plan.landing) ?? discoverTests(source, destination, plan.roots);
   plan.requiredSource = [...new Set([...plan.requiredSource, ...testPlan.requiredSource])];
   plan.requiredDestination = [...new Set([...plan.requiredDestination, ...testPlan.requiredDestination])];
   const context = { feature: base.feature, selection: plan.selection, testPlan,
@@ -45,11 +46,15 @@ export function reviewProposal(proposal, source, destination, context, provider 
   const base = reviewBase(proposal, source, destination, context, provider);
   // Recompute from snapshots; a provider cannot supply or weaken the required test plan.
   const plan = analyze(source, destination, context.feature, context.selection).testPlan;
-  const transferred = transplantTests(base.changes, source, destination, plan, context);
+  const native = plan.adapter === 'dart';
+  const transferred = native ? transplantDartTests(base.changes, source, destination, plan, context) : transplantTests(base.changes, source, destination, plan, context);
   const testTransfer = transferred.report;
+  // Only the native adapter's fixed, repairable implementation diagnostics enter the
+  // existing bounded repair loop. Source/setup/policy failures stay unexportable.
+  if (native && testTransfer.proposalRepairCode) throw new ProposalValidationError(testTransfer.proposalRepairCode, testTransfer.proposalRepairChangeIndex);
   // Newly admitted native sources must not turn undiscovered tests into a false "none_found".
   // Dedicated adapters can replace this conservative gate as their fixtures are validated.
-  const unhandled = source.files.filter(f => isProjectTest(f.path) && languageForPath(f.path) &&
+  const unhandled = native ? [] : source.files.filter(f => isProjectTest(f.path) && languageForPath(f.path) &&
     !/\.[cm]?[jt]sx?$/i.test(f.path) && !plan.tests.some(t => t.path === f.path));
   if (unhandled.length) {
     testTransfer.status = 'blocked';

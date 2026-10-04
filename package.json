@@ -43,7 +43,8 @@
     "draft:migrate": "node scripts/migrate-draft-jobs.mjs",
     "test:drafts": "node --experimental-vm-modules --test remote/test/draft-jobs.test.mjs remote/test/background-ai.test.mjs remote/test/draft-mcp.test.mjs remote/test/draft-timeout.test.mjs remote/test/draft-job-store.test.mjs remote/test/draft-repair.test.mjs remote/test/proposal-validation.test.mjs remote/test/draft-service-wiring.test.mjs",
     "test:repairs": "node --experimental-vm-modules --test remote/test/draft-repair.test.mjs remote/test/proposal-validation.test.mjs remote/test/draft-job-store.test.mjs remote/test/draft-mcp.test.mjs remote/test/draft-service-wiring.test.mjs",
-    "test:platforms": "node --experimental-vm-modules --test web/test/project-profile.test.mjs web/test/platform-core.test.mjs web/test/feature-plan.test.mjs remote/test/platform-wiring.test.mjs"
+    "test:platforms": "node --experimental-vm-modules --test web/test/project-profile.test.mjs web/test/platform-core.test.mjs web/test/feature-plan.test.mjs remote/test/platform-wiring.test.mjs",
+    "test:dart": "node --experimental-vm-modules --test web/test/dart-directives.test.mjs web/test/dart-test-transfer.test.mjs web/test/dart-core.test.mjs remote/test/dart-repair-integration.test.mjs"
   },
   "devDependencies": {
     "@types/node": "24.10.1",
