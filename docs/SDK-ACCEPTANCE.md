@@ -82,3 +82,38 @@ Primary references checked 2026-10-04:
 - https://dart.dev/tools/dart-test
 - https://docs.flutter.dev/reference/flutter-cli
 - https://docs.github.com/en/billing/concepts/product-billing/github-actions
+
+## Observed SDK acceptance — 2026-10-04
+
+GitHub Actions run [37244628809](https://github.com/shlbi/graft/actions/runs/37244628809)
+completed successfully at tested commit `df3b26324e22b5db7dd6ec35bee5b4739eeba6b1`.
+The actual toolchain was Flutter **3.47.6**, Dart **3.13.5**, Node **24.21.0**,
+and Ubuntu **24.04.5**. Official SDK archive checksum and checkout revision matched.
+
+| SDK | Package | pub get | analyze | test | Test executions |
+| --- | --- | --- | --- | --- | --- |
+| Dart | source | exit 0 | exit 0 | exit 0 | 3 passed |
+| Dart | destination-before | exit 0 | exit 0 | exit 0 | 1 passed |
+| Dart | destination-after | exit 0 | exit 0 | exit 0 | 3 passed |
+| Flutter | source | exit 0 | exit 0 | exit 0 | 3 passed |
+| Flutter | destination-before | exit 0 | exit 0 | exit 0 | 1 passed |
+| Flutter | destination-after | exit 0 | exit 0 | exit 0 | 3 passed |
+
+Both runs preserved all **23 original files**, including the structural review and
+patch evidence. The destination's original test remained intact and passed alongside
+the two relocated feature tests under `test/repot_056b2a5b1e7e/`.
+The four Node suites passed separately: **25** harness, **73** native adapter,
+**77** platform and **83** repairs, with no failures or skips.
+
+The first CI run stopped at an incorrect SDK metadata URL (HTTP 404); it never ran
+a native test. The corrected second run above supplies the actual SDK evidence.
+A [structured log summary](verification/native-sdk-acceptance.json) records the
+observed versions, command exits, durations, provenance and scope. Full generated
+reports and stdout/stderr are in that job's logs; this summary is not the raw report.
+
+This closes **authored ordinary-library package acceptance only**. The Flutter
+fixtures run library assertions with flutter_test, not a rendered widget or device.
+No complete native app build, live AI generation or customer-repository transfer was
+performed, and hosted structural reviews are not automatically upgraded to runtime
+verified. Dependency constraints are resolved during each run; generated lockfiles
+are not persisted in the summary.

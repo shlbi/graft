@@ -3,7 +3,7 @@
   "legacyName": "Graft",
   "repository": "shlbi/graft",
   "domain": "getrepot.com",
-  "phase": "native-dart-test-transfer-awaiting-sdk-acceptance",
+  "phase": "authored-dart-flutter-sdk-acceptance-passed",
   "authorization": "Saif requested rebrand/redesign and commit/push. Existing Vercel Git deployment is acknowledged. No paid resource, credentials, account permissions or repository rename changed. Kinetic stays paused.",
   "previousHandoff": {
     "commit": "cd669b366353cea01b51fde6a27e638ea93f880e",
@@ -123,6 +123,51 @@
       "Single-package ordinary Dart libraries/default test layout only; source/setup/security blockers remain",
       "No new secrets, schema migration, hosting changes, paid AI calls or customer-repository writes",
       "No universal compatibility or verified complex-mobile integration claim"
+    ]
+  },
+  "latestSdkHandoff": {
+    "dateUTC": "2026-10-04",
+    "repository": "shlbi/graft",
+    "kinetic": "paused",
+    "request": "Saif asked to recover the capped Repot conversation and continue its unfinished work.",
+    "recovery": "Recovered the latest committed platform handoff at 33312e943d5242a0b074e131f08586840d2d5565. The literal final message of the previous conversation was not retrieved. The earlier repair-loop milestone was already superseded.",
+    "supersedes": "Use this SDK handoff for current acceptance and next work. Older sections are retained verbatim as historical checkpoints.",
+    "implementationCommit": "c77d2a39e1ea8e60106f7c284a907d185866764f",
+    "testedCommit": "df3b26324e22b5db7dd6ec35bee5b4739eeba6b1",
+    "pullRequest": 2,
+    "branch": "repot/native-sdk-acceptance-20261004",
+    "implemented": [
+      "Opt-in bounded SDK acceptance runner using the existing real authored fixture materializer.",
+      "Version, dependency, analyzer and test evidence for source, destination-before and destination-after.",
+      "No-shell execution, time/output bounds, fresh SDK home/cache, new-directory protection and original-file/evidence preservation checks.",
+      "Public disposable CI workflow using pinned official SDK/actions and verified archive checksum; no persistent artifacts or caches."
+    ],
+    "observedAcceptance": {
+      "workflowRunId": 37244628809,
+      "conclusion": "success",
+      "dart": "3.13.5: all three package dependency/analyze/test commands exit 0",
+      "flutter": "3.47.6: all three package dependency/analyze/test commands exit 0",
+      "testsPerSdk": {
+        "source": 3,
+        "destinationBefore": 1,
+        "destinationAfter": 3
+      },
+      "preservation": "23/23 original files unchanged in each SDK run",
+      "regressions": "25 harness, 73 native adapter, 77 platform, 83 repair tests passed; zero failures/skips"
+    },
+    "verification": "docs/verification/native-sdk-acceptance.json",
+    "documentation": "docs/SDK-ACCEPTANCE.md",
+    "publication": "Acceptance code was pushed to the named branch and validated before this documentation/handoff commit. PR 2 and the current main ref establish merge attachment; this field makes no deployment claim.",
+    "next": [
+      "Extend native coverage from ordinary libraries to independently verified widget/runtime integration, keeping device/plugin/resource setup explicit.",
+      "Implement additional ecosystem test/toolchain adapters without dropping or weakening donor tests.",
+      "Implement incremental large-repository intake and validated multi-stage integration beyond current context/patch limits."
+    ],
+    "limitations": [
+      "These authored fixtures are not live AI/customer-repository transfers or complete mobile apps.",
+      "No native app build, widget-rendering, device/emulator, signing or plugin/resource acceptance was run.",
+      "Hosted structural review verification remains separate; this runner does not create an automatic hosted execution worker.",
+      "No new credentials, database schema, paid AI calls, hosting-setting changes or customer-repository writes."
     ]
   }
 }
