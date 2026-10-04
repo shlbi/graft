@@ -1,0 +1,110 @@
+name: Native SDK acceptance
+
+# Bounded acceptance checkpoint, not a production worker or scheduled service.
+on:
+  workflow_dispatch:
+  push:
+    branches: [repot/native-sdk-acceptance-20261004]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-sdk-acceptance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  authored-packages:
+    # Never use a paid larger runner, a self-hosted machine, or a private-repo run.
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      FLUTTER_SUPPRESS_ANALYTICS: 'true'
+      DART_SUPPRESS_ANALYTICS: 'true'
+      FLUTTER_REVISION: 5fc346839b5d0eef006ed8404392afb4dfae428d
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, resolved 2026-10-04
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          # No persistent cache or artifact storage is created by this workflow.
+      - name: Install repository dependencies without lifecycle scripts
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts --no-audit --no-fund
+          else
+            npm install --ignore-scripts --no-audit --no-fund
+          fi
+      - name: Run acceptance-harness and existing native regression tests
+        run: |
+          node --test scripts/verify-dart-fixture.test.mjs
+          npm run test:dart
+          npm run test:platforms
+          npm run test:repairs
+      - name: Install pinned official Flutter SDK and its Dart SDK
+        id: sdk
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Select the recorded official revision, not a moving SDK channel.
+          curl --fail --silent --show-error --location --retry 2 \
+            https://storage.googleapis.com/flutter_infra_release/flutter/releases/releases_linux.json \
+            --output "$RUNNER_TEMP/flutter-releases.json"
+          python3 - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          records = json.loads((Path(os.environ['RUNNER_TEMP']) / 'flutter-releases.json').read_text())
+          release = next(r for r in records['releases'] if r['hash'] == os.environ['FLUTTER_REVISION'] and r['channel'] == 'stable' and r.get('dart_sdk_arch', 'x64') == 'x64')
+          archive, digest = release['archive'], release['sha256']
+          if not re.fullmatch(r'stable/linux/flutter_linux_[A-Za-z0-9_.-]+\.tar\.xz', archive):
+              raise SystemExit('Unexpected official SDK archive path')
+          if not re.fullmatch(r'[a-f0-9]{64}', digest):
+              raise SystemExit('Missing official SDK checksum')
+          with open(os.environ['GITHUB_ENV'], 'a') as out:
+              out.write(f'FLUTTER_ARCHIVE={archive}\nFLUTTER_SHA256={digest}\n')
+          print(json.dumps({'sdkRevision': release['hash'], 'version': release['version'], 'archive': archive, 'sha256': digest}))
+          PY
+      - name: Extract checksum-verified SDK
+        id: sdk_ready
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 2 \
+            "https://storage.googleapis.com/flutter_infra_release/flutter/$FLUTTER_ARCHIVE" \
+            --output "$RUNNER_TEMP/flutter-sdk.tar.xz"
+          printf '%s  %s\n' "$FLUTTER_SHA256" "$RUNNER_TEMP/flutter-sdk.tar.xz" | sha256sum --check --strict
+          tar -xJf "$RUNNER_TEMP/flutter-sdk.tar.xz" -C "$RUNNER_TEMP"
+          test "$(git -C "$RUNNER_TEMP/flutter" rev-parse HEAD)" = "$FLUTTER_REVISION"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/flutter/bin/flutter" --version
+      - name: Run real Dart source/before/after acceptance
+        id: dart
+        run: node scripts/verify-dart-fixture.mjs "$RUNNER_TEMP/repot-dart-acceptance" --execute
+      - name: Run real Flutter source/before/after acceptance
+        if: ${{ !cancelled() && steps.sdk_ready.outcome == 'success' }}
+        id: flutter
+        run: node scripts/verify-dart-fixture.mjs "$RUNNER_TEMP/repot-flutter-acceptance" --execute --flutter
+      - name: Summarize observed results (no artifacts or caches)
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          lines = ['# Authored native fixture acceptance', '', f"Commit: `{os.environ['GITHUB_SHA']}`", '', '| SDK | Outcome | Analysis | Tests | Original files |', '|---|---|---|---|---|']
+          for sdk in ('dart', 'flutter'):
+              p = Path(os.environ['RUNNER_TEMP']) / f'repot-{sdk}-acceptance' / 'sdk-acceptance.json'
+              if not p.exists():
+                  lines.append(f'| {sdk} | not_run / no report | not_run | not_run | not_run |')
+                  continue
+              report = json.loads(p.read_text())
+              lines.append(f"| {sdk} | {report['status']} | {report['verification']['analysis']} | {report['verification']['tests']} | {report['preservation']['status']} |")
+          lines += ['', 'Authored package fixtures only. No paid AI, native app build, device test, production database, or customer repository was used. Full per-command output is in the job logs.']
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('\n'.join(lines) + '\n')
+          print('\n'.join(lines))
+          PY
