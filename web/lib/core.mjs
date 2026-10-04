@@ -6,6 +6,7 @@
 // Snapshot/patch primitives remain unchanged; this layer makes tests part of every transfer.
 import { analyze as analyzeBase, reviewProposal as reviewBase, rank, hash, unifiedPatch, LIMITS } from './core-base.mjs';
 import { discoverTests, transplantTests, references, isTestPath, isTestSupport, isTestConfig } from './test-transfer.mjs';
+import { profileProject, languageForPath, isProjectTest } from './project-profile.mjs';
 export * from './core-base.mjs';
 /**
  * @function bytes
@@ -40,13 +41,13 @@ function contextFiles(repo, feature, priority) {
  */
 export function analyze(source, destination, feature) {
   const base = analyzeBase(source, destination, feature);
-  const ranked = rank(source.files.filter(f => !isTestPath(f.path) && !isTestSupport(f.path) && !isTestConfig(f.path) && /\.(?:[cm]?[jt]sx?|py|go|rs|java|cs|rb|php|cpp)$/.test(f.path)), base.feature);
+  const ranked = rank(source.files.filter(f => !isTestPath(f.path) && !isTestSupport(f.path) && !isTestConfig(f.path) && !isProjectTest(f.path) && languageForPath(f.path)), base.feature);
   const roots = ranked.filter(f => f.score > 0 && f.score >= (ranked[0]?.score ?? 0) / 2).slice(0, 8).map(f => f.path);
   const testPlan = discoverTests(source, destination, roots);
   const context = { feature: base.feature, testPlan,
     source: contextFiles(source, base.feature, [...roots, ...testPlan.requiredSource]),
     destination: contextFiles(destination, base.feature, testPlan.requiredDestination) };
-  return { ...base, testPlan, context, contextManifest: { source: context.source.map(f => f.path), destination: context.destination.map(f => f.path) } };
+  return { ...base, projects: { source: profileProject(source), destination: profileProject(destination) }, testPlan, context, contextManifest: { source: context.source.map(f => f.path), destination: context.destination.map(f => f.path) } };
 }
 /**
  * @function reviewProposal
@@ -59,6 +60,14 @@ export function reviewProposal(proposal, source, destination, context, provider 
   const plan = analyze(source, destination, context.feature).testPlan;
   const transferred = transplantTests(base.changes, source, destination, plan, context);
   const testTransfer = transferred.report;
+  // Newly admitted native sources must not turn undiscovered tests into a false "none_found".
+  // Dedicated adapters can replace this conservative gate as their fixtures are validated.
+  const unhandled = source.files.filter(f => isProjectTest(f.path) && languageForPath(f.path) &&
+    !/\.[cm]?[jt]sx?$/i.test(f.path) && !plan.tests.some(t => t.path === f.path));
+  if (unhandled.length) {
+    testTransfer.status = 'blocked';
+    testTransfer.blockers.push('Native test discovery requires a language adapter; ' + unhandled.length + ' test/support file(s) were not covered. No tests were silently dropped.');
+  }
   const changes = transferred.changes.map(c => ({ ...c, before: c.before ?? null, baseHash: c.baseHash ?? null }));
   if (changes.length > 32 || changes.reduce((n, c) => n + bytes(c.content), 0) > 120000) {
     testTransfer.status = 'blocked'; testTransfer.blockers.push('Feature and tests exceed the 32-file/120KB combined patch budget. Narrow the transfer.');
