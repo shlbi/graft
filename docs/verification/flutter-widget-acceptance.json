@@ -1,0 +1,392 @@
+{
+  "schemaVersion": 1,
+  "recordType": "observed-ci-log-summary",
+  "dateUTC": "2026-10-05",
+  "repository": "shlbi/graft",
+  "scope": "authored headless Flutter widget and destination-route integration",
+  "baselineCommit": "43b3a2ccaab4b44d2d77d0147e22598fa0b4d4ec",
+  "testedCommit": "67226dd4956f3a0e58b5aaa89500fdce4aead15b",
+  "provenance": "Transcribed from observed GitHub job logs and final run API status. This is not a raw generated-report copy. Full commands, stdout/stderr, machine events and widget-sdk-acceptance.json are printed in the job logs.",
+  "ci": {
+    "runId": 37253660375,
+    "jobId": 111586191884,
+    "runNumber": 2,
+    "url": "https://github.com/shlbi/graft/actions/runs/37253660375",
+    "status": "completed",
+    "conclusion": "success",
+    "startedAt": "2026-10-05T02:00:36Z",
+    "updatedAt": "2026-10-05T02:04:25Z",
+    "reportCreatedAt": "2026-10-05T02:02:27.908Z"
+  },
+  "runtime": {
+    "os": "Ubuntu 24.04.5",
+    "architecture": "x64",
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "flutter": "3.47.6",
+    "dart": "3.13.5",
+    "flutterRevision": "5fc346839b5d0eef006ed8404392afb4dfae428d",
+    "archiveSha256": "f1631b9c2c8b3529323db412b0d1beacf4a748f8783b0d7cf599a8fd5f461675",
+    "archiveChecksum": "passed",
+    "checkoutRevision": "matched"
+  },
+  "versionCommand": {
+    "command": "flutter",
+    "args": [
+      "--version"
+    ],
+    "exitCode": 0,
+    "durationMs": 74
+  },
+  "packages": [
+    {
+      "name": "source",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "durationMs": 5200
+        },
+        {
+          "args": [
+            "analyze",
+            "--no-pub"
+          ],
+          "exitCode": 0,
+          "durationMs": 7559
+        },
+        {
+          "args": [
+            "test",
+            "--no-pub",
+            "--machine"
+          ],
+          "exitCode": 0,
+          "durationMs": 8918
+        }
+      ],
+      "analysis": "No issues found",
+      "passedTestExecutions": 6,
+      "expectedAssertionFailures": [],
+      "unexpectedFailures": 0,
+      "skippedTests": 0,
+      "evidence": "passed",
+      "assertionKind": null
+    },
+    {
+      "name": "destination-before",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "durationMs": 337
+        },
+        {
+          "args": [
+            "analyze",
+            "--no-pub"
+          ],
+          "exitCode": 0,
+          "durationMs": 6233
+        },
+        {
+          "args": [
+            "test",
+            "--no-pub",
+            "--machine"
+          ],
+          "exitCode": 0,
+          "durationMs": 8172
+        }
+      ],
+      "analysis": "No issues found",
+      "passedTestExecutions": 2,
+      "expectedAssertionFailures": [],
+      "unexpectedFailures": 0,
+      "skippedTests": 0,
+      "evidence": "passed",
+      "assertionKind": null
+    },
+    {
+      "name": "destination-after",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "durationMs": 340
+        },
+        {
+          "args": [
+            "analyze",
+            "--no-pub"
+          ],
+          "exitCode": 0,
+          "durationMs": 5842
+        },
+        {
+          "args": [
+            "test",
+            "--no-pub",
+            "--machine"
+          ],
+          "exitCode": 0,
+          "durationMs": 9575
+        }
+      ],
+      "analysis": "No issues found",
+      "passedTestExecutions": 7,
+      "expectedAssertionFailures": [],
+      "unexpectedFailures": 0,
+      "skippedTests": 0,
+      "evidence": "passed",
+      "assertionKind": null
+    },
+    {
+      "name": "host-positive",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "durationMs": 870
+        },
+        {
+          "args": [
+            "analyze",
+            "--no-pub"
+          ],
+          "exitCode": 0,
+          "durationMs": 5175
+        },
+        {
+          "args": [
+            "test",
+            "--no-pub",
+            "--machine"
+          ],
+          "exitCode": 0,
+          "durationMs": 10467
+        }
+      ],
+      "analysis": "No issues found",
+      "passedTestExecutions": 9,
+      "expectedAssertionFailures": [],
+      "unexpectedFailures": 0,
+      "skippedTests": 0,
+      "evidence": "passed",
+      "assertionKind": null
+    },
+    {
+      "name": "host-missing-route",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "durationMs": 334
+        },
+        {
+          "args": [
+            "analyze",
+            "--no-pub"
+          ],
+          "exitCode": 0,
+          "durationMs": 4390
+        },
+        {
+          "args": [
+            "test",
+            "--no-pub",
+            "--machine"
+          ],
+          "exitCode": 1,
+          "durationMs": 10067
+        }
+      ],
+      "analysis": "No issues found",
+      "passedTestExecutions": 7,
+      "expectedAssertionFailures": [
+        "host: cart route renders and updates pricing",
+        "host: route exit and reentry resets state"
+      ],
+      "unexpectedFailures": 0,
+      "skippedTests": 0,
+      "evidence": "expected_failure_observed",
+      "assertionKind": "flutter-framework-TestFailure"
+    },
+    {
+      "name": "host-broken-update",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "durationMs": 339
+        },
+        {
+          "args": [
+            "analyze",
+            "--no-pub"
+          ],
+          "exitCode": 0,
+          "durationMs": 3593
+        },
+        {
+          "args": [
+            "test",
+            "--no-pub",
+            "--machine"
+          ],
+          "exitCode": 1,
+          "durationMs": 10646
+        }
+      ],
+      "analysis": "No issues found",
+      "passedTestExecutions": 6,
+      "expectedAssertionFailures": [
+        "widget: buttons update price and preserve entered text",
+        "host: cart route renders and updates pricing",
+        "host: route exit and reentry resets state"
+      ],
+      "unexpectedFailures": 0,
+      "skippedTests": 0,
+      "evidence": "expected_failure_observed",
+      "assertionKind": "flutter-framework-TestFailure"
+    },
+    {
+      "name": "host-missing-dispose",
+      "commands": [
+        {
+          "args": [
+            "pub",
+            "get"
+          ],
+          "exitCode": 0,
+          "durationMs": 341
+        },
+        {
+          "args": [
+            "analyze",
+            "--no-pub"
+          ],
+          "exitCode": 0,
+          "durationMs": 3472
+        },
+        {
+          "args": [
+            "test",
+            "--no-pub",
+            "--machine"
+          ],
+          "exitCode": 1,
+          "durationMs": 10308
+        }
+      ],
+      "analysis": "No issues found",
+      "passedTestExecutions": 8,
+      "expectedAssertionFailures": [
+        "widget: disposes its controller and resets on remount"
+      ],
+      "unexpectedFailures": 0,
+      "skippedTests": 0,
+      "evidence": "expected_failure_observed",
+      "assertionKind": "flutter-framework-TestFailure"
+    }
+  ],
+  "preservation": {
+    "status": "passed",
+    "checkedFiles": 63,
+    "changes": []
+  },
+  "regressionSuites": [
+    {
+      "command": "node --test scripts/flutter-widget-*.test.mjs",
+      "passed": 65,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "node --experimental-vm-modules --test web/test/flutter-widget-core.test.mjs",
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "node --test scripts/verify-dart-fixture.test.mjs",
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run test:dart",
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run test:platforms",
+      "passed": 77,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run test:repairs",
+      "passed": 83,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "countingNote": "332 Node regression test executions across six commands. The seven Flutter package copies reuse tests: 45 successful and 6 deliberately failing test executions, not 51 unique production tests. Negative-control failures are required evidence, not successful tests.",
+  "observedBehavior": [
+    "The real existing Repot planner, proposal parser, validator and Dart adapter assemble a six-file transfer including one intended existing-host main.dart update.",
+    "Four original widget tests exercise rendering, button interaction, text state, quantity limits, controller disposal and remount; the pricing test uses the relocated production dependency.",
+    "Two original destination tests preserve home and catalog behavior. Incoming tests/helpers use test/repot_5c13a73dd733/ without overwriting the existing tests.",
+    "Independent test-only host probes confirm destination route reachability, price updates, return navigation and state reset on reentry.",
+    "Missing route wiring leaves isolated widget tests passing but fails both host probes. Broken updates fail the interaction test and both host probes. Missing disposal fails only the disposal test.",
+    "All seven package dependency resolutions and analyzers exit 0. Each negative test process exits 1 with only its exact expected framework TestFailure assertions.",
+    "Host probes and negative-control mutations do not enter the generated transfer patch. Original structural review runtime flags remain not_run."
+  ],
+  "firstRun": {
+    "runId": 37252936076,
+    "jobId": 111584109800,
+    "commit": "208fd4881fba3b0684f5771f4459e4f39505d7c2",
+    "acceptance": "failed",
+    "reason": "Reader did not recognize Flutter daemon arrays and wrapped widget TestFailure diagnostics. Real packages executed; overall acceptance was not passed.",
+    "correctionCommit": "67226dd4956f3a0e58b5aaa89500fdce4aead15b",
+    "assertionsAndFixtureImplementationChanged": false
+  },
+  "verification": {
+    "authoredWidgetBehavior": "passed",
+    "authoredHostRouteWiring": "passed",
+    "negativeControlSensitivity": "passed",
+    "nativeAppBuild": "not_run",
+    "deviceOrEmulator": "not_run",
+    "liveAITransfer": "not_run",
+    "customerRepositoryTransfer": "not_run",
+    "fullLocalNextBuild": "not_run"
+  },
+  "limitations": [
+    "Authored widget/host fixtures, not AI-generated output or universal repository compatibility. The host route update is authored, not automatically synthesized by this acceptance runner.",
+    "No Android/iOS app build, emulator/device, native plugin, asset/golden, platform channel, signing or generated-code acceptance.",
+    "No production execution worker or automatic runtime promotion of hosted structural reviews was introduced.",
+    "The reporter classifier is scoped to these authored fixtures; it does not authenticate potentially adversarial logs.",
+    "Dependency constraints resolve during each run; generated lockfiles are not persisted in this summary.",
+    "The SDK process runner is not itself a security sandbox. Execution used a disposable standard public GitHub-hosted runner without production credentials.",
+    "No paid AI calls, customer-repository writes, database/schema migrations or hosting-setting changes."
+  ]
+}

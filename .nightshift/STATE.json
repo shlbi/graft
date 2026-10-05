@@ -3,7 +3,7 @@
   "legacyName": "Graft",
   "repository": "shlbi/graft",
   "domain": "getrepot.com",
-  "phase": "authored-dart-flutter-sdk-acceptance-passed",
+  "phase": "authored-flutter-widget-host-acceptance-passed",
   "authorization": "Saif requested rebrand/redesign and commit/push. Existing Vercel Git deployment is acknowledged. No paid resource, credentials, account permissions or repository rename changed. Kinetic stays paused.",
   "previousHandoff": {
     "commit": "cd669b366353cea01b51fde6a27e638ea93f880e",
@@ -168,6 +168,60 @@
       "No native app build, widget-rendering, device/emulator, signing or plugin/resource acceptance was run.",
       "Hosted structural review verification remains separate; this runner does not create an automatic hosted execution worker.",
       "No new credentials, database schema, paid AI calls, hosting-setting changes or customer-repository writes."
+    ]
+  },
+  "latestWidgetHandoff": {
+    "dateUTC": "2026-10-05",
+    "repository": "shlbi/graft",
+    "kinetic": "paused",
+    "request": "Saif requested continuing the saved Flutter widget/runtime development checkpoint.",
+    "supersedes": "Use this widget handoff for current acceptance and next work. Prior handoff sections remain historical and unchanged.",
+    "baselineCommit": "43b3a2ccaab4b44d2d77d0147e22598fa0b4d4ec",
+    "implementationCommit": "208fd4881fba3b0684f5771f4459e4f39505d7c2",
+    "testedCommit": "67226dd4956f3a0e58b5aaa89500fdce4aead15b",
+    "pullRequest": 3,
+    "branch": "repot/flutter-widget-acceptance-20261004",
+    "implemented": [
+      "Authored stateful Flutter widget and pricing dependency transferred by the real existing pipeline, with preserved original tests/helper and an intended existing-host route update.",
+      "Independent test-only host probes and implementation-only controls for missing wiring, broken updates and missing controller disposal.",
+      "Bounded opt-in SDK execution with exact named reporter evidence, Flutter daemon/wrapped-TestFailure compatibility, and original-file preservation.",
+      "Real core/Git checks for default and differing monorepo roots; existing production transfer safeguards and runtime flags remain unchanged."
+    ],
+    "observedAcceptance": {
+      "workflowRunId": 37253660375,
+      "jobId": 111586191884,
+      "conclusion": "success",
+      "flutter": "3.47.6",
+      "dart": "3.13.5",
+      "node": "24.21.0",
+      "positiveTestExecutions": {
+        "source": 6,
+        "destinationBefore": 2,
+        "destinationAfter": 7,
+        "hostPositive": 9
+      },
+      "negativeControls": {
+        "missingRoute": "7 passed, exactly 2 intended assertion failures",
+        "brokenUpdate": "6 passed, exactly 3 intended assertion failures",
+        "missingDispose": "8 passed, exactly 1 intended assertion failure"
+      },
+      "dependenciesAndAnalysis": "exit 0 for all seven packages",
+      "preservation": "63/63 original authored files unchanged",
+      "nodeRegressions": "65 reader/harness/protocol, 9 real widget core/Git, 25 SDK harness, 73 Dart, 77 platform, 83 repairs; zero failures/skips"
+    },
+    "verification": "docs/verification/flutter-widget-acceptance.json",
+    "documentation": "docs/FLUTTER-WIDGET-ACCEPTANCE.md",
+    "publication": "Executable files and workflow passed the recorded CI before the documentation-only commit carrying this handoff. PR 3 and current main determine merge attachment; this field does not claim Vercel deployment success.",
+    "next": [
+      "Add separately bounded native Android/iOS build or emulator/device acceptance without broadening claims from headless widget tests.",
+      "Implement additional ecosystem test/toolchain adapters while preserving donor tests and destination behavior.",
+      "Implement incremental large-repository intake and validated multi-stage integration beyond current context/patch limits."
+    ],
+    "limitations": [
+      "Authored fixtures and host route proposal, not automatic route synthesis or live AI/customer-repository transfer.",
+      "No native app build, device/emulator, plugin/resource, platform-channel, signing or generated-code acceptance.",
+      "No production execution worker; hosted structural reviews are not automatically promoted to runtime verified.",
+      "No new credentials, database/schema migration, paid AI calls, hosting-setting changes or customer-repository writes."
     ]
   }
 }
