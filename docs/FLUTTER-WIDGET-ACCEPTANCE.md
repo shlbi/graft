@@ -36,7 +36,8 @@ Seven packages run through dependency resolution, analysis and real `flutter tes
 | host-broken-update | The interaction test and two host probes fail |
 | host-missing-dispose | Only the controller-disposal test fails |
 
-Controls mutate one known implementation span, never a donor assertion. All controls
+Controls change implementation only, never a donor assertion. The missing-route
+control retains an unused widget factory so its import is valid. All controls
 must analyze successfully. An SDK failure, compile error, skipped test, missing test,
 unrelated failure, late error, truncated event stream, or unexpected success cannot
 satisfy the expected-control result. Exact test names and assertion-error events are
@@ -50,7 +51,7 @@ isolated widget tests do not prove that the destination app exposes the feature.
 With repository dependencies and Flutter installed, on disposable Linux/macOS:
 
 ```sh
-node --test scripts/flutter-widget-evidence.test.mjs
+node --test scripts/flutter-widget-*.test.mjs
 node --experimental-vm-modules --test web/test/flutter-widget-core.test.mjs
 node scripts/verify-flutter-widget-fixture.mjs /tmp/repot-widget-new --execute
 ```
@@ -86,3 +87,72 @@ Primary references checked for this checkpoint:
 - https://docs.flutter.dev/cookbook/testing/widget/tap-drag
 - https://api.flutter.dev/flutter/flutter_test/WidgetTester/pumpWidget.html
 - https://github.com/dart-lang/test/blob/master/pkgs/test/doc/json_reporter.md
+
+## Reporter compatibility and negative-control evidence
+
+Flutter's machine stream interleaves `test.startedProcess` daemon arrays with Dart
+test reporter objects. Widget matcher failures can also appear as a framework
+`TestFailure` print followed by a generic error wrapper with `isFailure: false`.
+The reader accepts only the known notification envelope and correlates a same-test
+framework diagnostic, expectation location, exact name, wrapper, and completion
+order. A plain runtime error does not satisfy a negative control. Hidden failures,
+late errors, swallowed framework exceptions, and cross-test diagnostic borrowing
+remain failures. This is a bounded classifier for authored fixtures, not an
+adversarial log-authenticity protocol.
+
+The first native run, `37252936076`, ran all seven packages and preserved 63
+original files, but overall acceptance failed because the reader did not recognize
+those reporter forms. The follow-up changes only the reader, its regressions, and
+the workflow's regression command. Fixture implementations, donor assertions,
+destination tests, and control mutations remain unchanged.
+
+Updated local evidence: `node --test scripts/flutter-widget-*.test.mjs` passed
+65 checks on Node 22.16.0/Linux. Seven JavaScript syntax checks and workflow
+YAML/embedded-Python parsing passed. These local orchestration/report examples use
+explicit doubles; actual Flutter results are recorded separately after CI.
+
+## Observed real SDK acceptance — 2026-10-05 UTC
+
+[GitHub Actions run 37253660375](https://github.com/shlbi/graft/actions/runs/37253660375)
+completed successfully at `67226dd4956f3a0e58b5aaa89500fdce4aead15b`.
+This is October 4 evening in America/New_York. The observed toolchain was Flutter
+**3.47.6**, Dart **3.13.5**, Node **24.21.0**, and Ubuntu **24.04.5**.
+Official archive checksum and pinned SDK checkout revision matched.
+
+| Package | Analysis | Test exit | Passed executions | Intended assertion failures |
+|---|---|---|---|---|
+| source | exit 0 | 0 | 6 | 0 |
+| destination-before | exit 0 | 0 | 2 | 0 |
+| destination-after | exit 0 | 0 | 7 | 0 |
+| host-positive | exit 0 | 0 | 9 | 0 |
+| host-missing-route | exit 0 | 1 | 7 | 2 |
+| host-broken-update | exit 0 | 1 | 6 | 3 |
+| host-missing-dispose | exit 0 | 1 | 8 | 1 |
+
+Every dependency installation exited 0. All expected test names completed, with
+no skips or unrelated failures. The six intentional failures were correlated
+Flutter framework `TestFailure` assertions, not SDK or compiler failures.
+These are repeated executions across fixture copies, not 51 unique tests.
+
+The actual transfer contains **six changes**: two implementation libraries, the
+intended existing-host `lib/main.dart` update, and three relocated test/helper
+files. The incoming bundle uses `test/repot_5c13a73dd733/`. The destination's existing
+home/catalog tests were not overwritten and pass alongside the transferred tests.
+All **63 original authored package/evidence files** remained unchanged through SDK
+execution, including the original structural review and generated patch.
+
+The same CI run passed all six Node regression commands: **65** reader/harness/
+protocol, **9** real widget-core/Git, **25** retained SDK harness, **73** Dart adapter,
+**77** platform, and **83** repairs. All reported zero failures and skips.
+Node test doubles remain distinct from the actual Flutter SDK execution above.
+
+The [structured observed-log summary](verification/flutter-widget-acceptance.json)
+records provenance, exact commands and exits, versions, durations, controls and
+remaining boundaries. Full generated reports and machine events are in the job
+logs. This summary is not a raw-report copy.
+
+This closes authored **headless widget behavior and destination-route acceptance**.
+It does not implement automatic route synthesis, a hosted execution worker, native
+Android/iOS builds, device testing, or a live AI/customer-repository transfer.
+The six-file proposal and independent host probes are authored acceptance inputs;
+production adapter/runtime-verification boundaries remain unchanged.
