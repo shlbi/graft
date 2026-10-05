@@ -37,7 +37,7 @@ jobs:
           fi
       - name: New widget harness and real core regression tests
         run: |
-          node --test scripts/flutter-widget-evidence.test.mjs
+          node --test scripts/flutter-widget-*.test.mjs
           node --experimental-vm-modules --test web/test/flutter-widget-core.test.mjs
       - name: Retained SDK harness, native, platform and repair regressions
         run: |

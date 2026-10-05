@@ -179,3 +179,10 @@ test('preservation rejects symlink parents without reading their target', async 
   const r = await checkPreservation(f.output, fixture.originalFiles);
   assert.equal(r.status, 'failed'); assert.ok(r.changes.some(c => c.path === 'source/pubspec.yaml'));
 });
+
+test('a hidden failure cannot disappear from a successful report', () => {
+  const e = events();
+  e.splice(1, 0, {type: 'testStart', test: {id: 50, name: 'loader'}},
+    {type: 'testDone', testID: 50, result: 'failure', hidden: true, skipped: false});
+  assert.equal(evaluateTestEvidence(command(e), ['one']).status, 'failed');
+});
