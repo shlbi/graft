@@ -44,7 +44,48 @@ jobs:
         run: |
           npm run test:drafts
           npm run test:auth
-          npm run test:frontend
+      - name: Compare unchanged legacy frontend failures against the pinned main baseline
+        env:
+          BILLING_BASELINE: 78726eb75fb8e5aa5ac2b9f50a5aef95c372d804
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Do not edit old tests or silently ignore failures. Verify every legacy input is unchanged.
+          git fetch --no-tags --depth=1 origin "$BILLING_BASELINE"
+          git diff --exit-code "$BILLING_BASELINE" HEAD -- web scripts/build-site.mjs next.config.mjs vercel.json
+          mkdir "$RUNNER_TEMP/repot-frontend-baseline"
+          git archive "$BILLING_BASELINE" | tar -x -C "$RUNNER_TEMP/repot-frontend-baseline"
+          python3 - <<'PYBASE'
+          import json, os, re, subprocess
+          from pathlib import Path
+          current = Path.cwd()
+          baseline = Path(os.environ['RUNNER_TEMP']) / 'repot-frontend-baseline'
+          files = ['client.test.mjs', 'presentation.test.mjs', 'branding.test.mjs', 'mcp-page.test.mjs']
+          args = ['node', '--test', '--test-reporter=tap'] + ['web/connected/test/' + f for f in files]
+          results = []
+          for label, root in [('baseline', baseline), ('current', current)]:
+              completed = subprocess.run(args, cwd=root, text=True, capture_output=True, timeout=90)
+              print('=== ' + label + ': complete original test output ===')
+              print(completed.stdout)
+              print(completed.stderr)
+              counts = {}
+              for key in ('tests', 'pass', 'fail', 'skipped', 'cancelled'):
+                  matches = re.findall(r'^# ' + key + r' (\d+)$', completed.stdout, re.M)
+                  if len(matches) != 1:
+                      raise SystemExit('Missing or ambiguous frontend test summary')
+                  counts[key] = int(matches[0])
+              failures = sorted(name.replace(str(root), '<ROOT>') for name in re.findall(r'^not ok \d+ - (.+)$', completed.stdout, re.M))
+              if completed.returncode not in (0, 1) or counts['skipped'] or counts['cancelled'] or counts['fail'] != len(failures):
+                  raise SystemExit('Invalid/incomplete frontend baseline evidence')
+              results.append({'exitCode': completed.returncode, 'counts': counts, 'failures': failures})
+          if results[0] != results[1]:
+              raise SystemExit('Frontend results differ from the untouched main baseline')
+          classification = 'passed' if results[1]['exitCode'] == 0 else 'unchanged_baseline_failures'
+          summary = {'scope': 'legacy-frontend-baseline-comparison-only', 'classification': classification, 'baseline': os.environ['BILLING_BASELINE'], **results[1]}
+          print(json.dumps(summary, indent=2))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write('## Legacy frontend comparison\n\n```json\n' + json.dumps(summary, indent=2) + '\n```\n\nUnchanged failures remain failures; this is not a full frontend pass.\n')
+          PYBASE
       - name: Production build with billing inactive and no production credentials
         env:
           REPOT_BILLING_ENABLED: 'false'
