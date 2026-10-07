@@ -53,12 +53,19 @@ export function createBillingHandlers({getSession, service, env = process.env}) 
       let state;
       try {
         if (!billingEnabled(env)) return unavailable();
-        // This browser POST creates a portal session. Pin the origin rather than trust Host headers.
-        if (request.headers.get('origin') !== 'https://getrepot.com' ||
-            !['same-origin',null].includes(request.headers.get('sec-fetch-site'))) return new Response(null,{status:403});
+        // Native no-referrer forms may send Origin:null. Only same-origin Fetch Metadata
+        // can authorize that case; missing/foreign origins and cross-site requests fail.
+        const origin = request.headers.get('origin'), site = request.headers.get('sec-fetch-site');
+        if (!(origin === 'https://getrepot.com' && ['same-origin',null].includes(site) ||
+              origin === 'null' && site === 'same-origin')) return new Response(null,{status:403});
         state = await identity(request,getSession);
         if (!state.userId) return redirect('/sign-in?next=%2Fbilling',state.headers);
-        return redirect(await (await service()).portal(state.userId),state.headers);
+        const url = new URL(await (await service()).portal(state.userId));
+        if (url.origin !== 'https://billing.stripe.com' || !url.pathname.startsWith('/p/session/') ||
+            url.username || url.password) throw new BillingError();
+        // A checked ordinary link avoids loosening the global OAuth form-action policy.
+        // This response already opens in the new tab selected by the billing form.
+        return page(`<h1 class="billing-title">Manage your subscription.</h1><p class="billing-notice">Continue to Stripe to update payment details or cancel. This link is private and temporary; do not share it.</p><a class="button primary" href="${escape(url.href)}" rel="noopener noreferrer">Continue to Stripe ↗</a>`,state.headers);
       } catch { return unavailable(state?.headers); }
     },
     async webhook(request) {

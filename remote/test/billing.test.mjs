@@ -178,7 +178,9 @@ test('portal browser POST rejects cross-origin actions before calling Stripe',as
   assert.equal((await h.portal(new Request('https://getrepot.com/billing/portal',{method:'POST',headers:{origin:'https://evil.example'}}))).status,403);
   assert.equal(calls.length,0);
   const r=await h.portal(new Request('https://getrepot.com/billing/portal',{method:'POST',headers:{origin:'https://getrepot.com','sec-fetch-site':'same-origin'}}));
-  assert.equal(r.status,303);assert.deepEqual(calls,[['portal','owner']]);
+  assert.equal(r.status,200);assert.equal(r.headers.get('location'),null);
+  assert.match(await r.text(),/href="https:\/\/billing\.stripe\.com\/p\/session\/test"/);
+  assert.deepEqual(calls,[['portal','owner']]);
 });
 test('raw webhook HTTP rejects forgery before service access and accepts a signed fixture',async()=>{
   const {h,calls}=handlers();const s=signed(event(),Math.floor(Date.now()/1000));
@@ -186,4 +188,36 @@ test('raw webhook HTTP rejects forgery before service access and accepts a signe
   assert.equal(forged.status,400);assert.equal(calls.length,0);
   const r=await h.webhook(new Request('https://getrepot.com/api/billing/stripe',{method:'POST',body:s.raw,headers:{'stripe-signature':s.signature}}));
   assert.equal(r.status,200);assert.deepEqual(calls,[['webhook']]);
+});
+
+// The portal must work without weakening the sign-in flow's exact CSP allowlist.
+test('billing keeps the original global OAuth redirect policy',async()=>{
+  const {default:config}=await import('../../next.config.mjs');
+  const csp=(await config.headers())[0].headers.find(h=>h.key==='Content-Security-Policy').value;
+  const action=csp.split(';').map(s=>s.trim()).find(s=>s.startsWith('form-action ')).split(/\s+/).slice(1);
+  assert.deepEqual(action,["'self'",'https://github.com']);
+  assert.doesNotMatch(csp,/unsafe-inline|https:\/\/billing\.stripe\.com|https:\/\/buy\.stripe\.com/);
+});
+test('portal no-referrer native forms require exact same-origin Fetch Metadata',async()=>{
+  for(const [origin,site,expected] of [
+    ['null','same-origin',200],['null','cross-site',403],['null',null,403],
+    [null,'same-origin',403],['https://evil.example','same-origin',403],
+    ['https://getrepot.com','cross-site',403],['https://getrepot.com',null,200],
+  ]) {
+    const {h,calls}=handlers();const headers=new Headers();
+    if(origin!==null)headers.set('origin',origin);if(site!==null)headers.set('sec-fetch-site',site);
+    const r=await h.portal(new Request('https://getrepot.com/billing/portal',{method:'POST',headers}));
+    assert.equal(r.status,expected);assert.equal(calls.length,expected===200?1:0);
+  }
+});
+test('portal handoff fails closed on invalid URLs and escapes validated query attributes',async()=>{
+  for(const target of ['javascript:alert(1)','https://billing.stripe.com.evil.example/p/session/x','https://billing.stripe.com/other','https://user@billing.stripe.com/p/session/x']) {
+    const {h,service}=handlers();service.portal=async()=>target;
+    const r=await h.portal(new Request('https://getrepot.com/billing/portal',{method:'POST',headers:{origin:'https://getrepot.com'}}));
+    assert.equal(r.status,503);assert.equal(r.headers.get('location'),null);
+  }
+  const {h,service}=handlers();service.portal=async()=>'https://billing.stripe.com/p/session/x?a=1&b=2';
+  const r=await h.portal(new Request('https://getrepot.com/billing/portal',{method:'POST',headers:{origin:'https://getrepot.com'}}));
+  assert.equal(r.headers.get('cache-control'),'no-store');assert.equal(r.headers.get('referrer-policy'),'no-referrer');
+  assert.match(await r.text(),/a=1&amp;b=2/);
 });

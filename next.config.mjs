@@ -13,9 +13,10 @@ const nextConfig={
     {key:'X-Frame-Options',value:'DENY'},
     {key:'Permissions-Policy',value:'camera=(), microphone=(), geolocation=()'},
     {key:'Strict-Transport-Security',value:'max-age=63072000; includeSubDomains; preload'},
-    // OAuth and billing forms redirect only to the named provider origins.
-    // No Stripe script, iframe, arbitrary HTTPS source or inline script is permitted.
-    {key:'Content-Security-Policy',value:"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://github.com https://billing.stripe.com"}
+    // A same-origin OAuth form POST redirects to GitHub. Chromium/Safari also
+    // check that redirect against form-action; 'self' alone blocks navigation.
+    // Allow this one provider origin, not arbitrary HTTPS sites or inline scripts.
+    {key:'Content-Security-Policy',value:"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://github.com"}
   ]}]}
 };
 export default nextConfig;
