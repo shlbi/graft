@@ -33,7 +33,9 @@ Checkout Session from Stripe. Only this link, price, mode and known reference ca
 bind a Stripe subscription to its REPOT owner. Replays are idempotent; a different
 owner cannot claim a bound subscription. A reference is attribution, not an access
 credential, so saved links and delayed notifications remain reconcilable after
-its 24-hour reuse window. Account deletion cascades local billing records.
+its 24-hour reuse window. Account deletion cascades local billing records but
+does **not** cancel a Stripe subscription; cancel or reconcile billing before
+deleting an account, so a recurring charge cannot be orphaned locally.
 
 **Webhooks never set an unconditional `paid=true` flag.** Before each new remote
 AI submission—including repairs—the server retrieves the linked subscription and
@@ -51,8 +53,12 @@ per-job repair budgets, source/test preservation and publication consent remain.
 No ChatGPT-token-to-REPOT-API fallback exists.
 
 `/billing` reads actual state; `?success=1` and `?session_id=...` cannot grant access.
-An authenticated same-origin POST to `/billing/portal` opens the Stripe portal for
-an already-bound customer. Browser-supplied customer IDs are never used.
+An authenticated same-origin POST to `/billing/portal` opens a new REPOT tab with
+a checked, temporary **Continue to Stripe** link for an already-bound customer.
+The ordinary link preserves the existing narrow global OAuth form-action policy;
+the billing route never adds Stripe to every page's form allowlist. Native
+no-referrer forms with `Origin:null` require same-origin Fetch Metadata.
+Browser-supplied customer IDs are never used.
 
 ## Operator setup — not performed automatically
 
@@ -130,3 +136,44 @@ Primary sources checked October 7, 2026:
 - https://docs.stripe.com/billing/subscriptions/webhooks
 - https://docs.stripe.com/api/subscriptions/object?api-version=2025-06-30.basil
 - https://developers.openai.com/siwc/token-sharing-open-source
+
+
+## Observed checkpoint — October 7, 2026
+
+GitHub Actions run [37704552037](https://github.com/shlbi/graft/actions/runs/37704552037)
+completed successfully at `6ead5e37a58ccd082fc42de40e1a45765a2808d0`.
+The job ran on Ubuntu 24.04.5, Node 24.21.0, npm 11.19.0, PostgreSQL 16.15
+and Next.js 16.3.6. Its observed gates were:
+
+| Gate | Observed result |
+|---|---|
+| Billing, browser handlers, production wiring and real PostgreSQL | 42 passed, zero failures/skips |
+| Existing draft and repair regressions | 142 passed, zero failures/skips |
+| Existing authentication regressions | 161 passed, zero failures/skips |
+| Next production build, billing disabled | Passed |
+| Legacy frontend suite | 23 passed, 7 failed on both untouched main and this branch |
+
+The frontend result is **not a full frontend pass**. CI compared the original
+four test files on separately extracted main `78726eb75fb8e5aa5ac2b9f50a5aef95c372d804`
+and this branch with the same Node runtime. Every relevant legacy input was
+byte-identical, and both runs produced the same seven failure names and counts.
+The existing failures include old branding hashes, directory enumeration, arrow
+presentation expectations and a syntax error already present in presentation.test.mjs.
+The old assertions were not edited to make this billing change pass.
+
+The first billing run exposed a broadened global form-action policy; the corrected
+implementation restores the exact original policy and uses the checked portal
+continuation link described above. The second run exposed the pre-existing frontend
+failures; the third provides the explicit baseline comparison and completed build.
+
+All Stripe API responses in these tests are controlled doubles. Cryptographic
+signature checks and PostgreSQL migration/ownership/concurrency checks execute real
+local code and a disposable database, respectively. **No real Stripe checkout,
+test-mode payment, webhook delivery or customer portal session was exercised.**
+No production migration, credential, billing flag or Stripe setting was changed.
+
+The structured observed-log summary is `docs/verification/stripe-billing.json`.
+The current continuation point is `.nightshift/BILLING-HANDOFF.json`; it supersedes
+the older native-fixture next steps for this billing task, without rewriting their
+historical acceptance records. Configure and verify Stripe in test mode before
+activating live payment collection. The ChatGPT-funded provider remains unimplemented.

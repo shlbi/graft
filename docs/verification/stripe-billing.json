@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "recordType": "observed-ci-log-summary",
+  "dateUTC": "2026-10-07",
+  "repository": "shlbi/graft",
+  "scope": "disabled-by-default Stripe Payment Link billing foundation",
+  "baselineCommit": "78726eb75fb8e5aa5ac2b9f50a5aef95c372d804",
+  "testedCommit": "6ead5e37a58ccd082fc42de40e1a45765a2808d0",
+  "provenance": "Summary transcribed from the observed full GitHub job logs and final workflow API status, not a copy of an independently signed result. Stripe API calls use doubles; PostgreSQL and Node signature checks are real. Full outputs are retained in the workflow logs.",
+  "ci": {
+    "runId": 37704552037,
+    "jobId": 113075696410,
+    "runNumber": 3,
+    "url": "https://github.com/shlbi/graft/actions/runs/37704552037",
+    "status": "completed",
+    "conclusion": "success",
+    "startedAt": "2026-10-07T23:50:54Z",
+    "updatedAt": "2026-10-07T23:52:18Z"
+  },
+  "runtime": {
+    "os": "Ubuntu 24.04.5",
+    "node": "24.21.0",
+    "npm": "11.19.0",
+    "next": "16.3.6",
+    "postgres": "16.15",
+    "postgresImage": "postgres:16",
+    "postgresImageDigest": "sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d"
+  },
+  "regressionSuites": [
+    {
+      "command": "node --experimental-vm-modules --test remote/test/billing*.test.mjs remote/test/draft-service-wiring.test.mjs",
+      "passed": 42,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run test:drafts",
+      "passed": 142,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "npm run test:auth",
+      "passed": 161,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "countingNote": "Counts describe each command, not unique tests across commands; draft-service-wiring.test.mjs executes in two commands.",
+  "postgresAcceptance": [
+    "Migration applies twice without changing ownership.",
+    "Concurrent checkout redirects for one owner reuse the same opaque reference.",
+    "Replayed checkout binding is idempotent.",
+    "Different users and live/test modes remain isolated.",
+    "Two owners racing for one subscription yield one success and one rejected claim.",
+    "Previously issued references remain reconcilable after their reuse window.",
+    "Local account deletion cascades local mappings, not the external Stripe subscription."
+  ],
+  "build": {
+    "command": "npm run build",
+    "status": "passed",
+    "billingEnabled": false,
+    "productionCredentialsProvided": false,
+    "routes": [
+      "/pricing",
+      "/billing",
+      "/billing/checkout",
+      "/billing/portal",
+      "/billing/style.css",
+      "/api/billing/stripe"
+    ]
+  },
+  "legacyFrontend": {
+    "classification": "unchanged_baseline_failures",
+    "baselineCommit": "78726eb75fb8e5aa5ac2b9f50a5aef95c372d804",
+    "verifiedUnchangedInputs": [
+      "web/",
+      "scripts/build-site.mjs",
+      "next.config.mjs",
+      "vercel.json"
+    ],
+    "separateBaselineExtraction": true,
+    "sameRuntime": true,
+    "bothResults": {
+      "exitCode": 1,
+      "tests": 30,
+      "passed": 23,
+      "failed": 7,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "failureNames": [
+      "all non-branding HTML is byte-for-byte preserved from the checked remote base",
+      "build copies the exact allowlisted assets and omits nested secrets (explicit build fixture)",
+      "htmlFallback response exposes unavailable-backend state without enabling actions",
+      "malformed response exposes unavailable-backend state without enabling actions",
+      "offline response exposes unavailable-backend state without enabling actions",
+      "server changes only the public asset map and MIME handling, preserving authentication and job code",
+      "web/connected/test/presentation.test.mjs"
+    ],
+    "fullFrontendPass": false,
+    "legacyAssertionsChanged": false
+  },
+  "priorRuns": [
+    {
+      "runId": 37703583728,
+      "jobId": 113072564237,
+      "commit": "1185af3a2cf4d5c08a7815e68e7698e5962ff6dd",
+      "conclusion": "failure",
+      "reason": "Existing authentication test rejected the broadened form-action allowlist. Corrected by restoring original policy and changing portal handoff, not weakening the test."
+    },
+    {
+      "runId": 37704171924,
+      "jobId": 113074469152,
+      "commit": "64e345410d8a9666e13886d8b10430db24ff2bd0",
+      "conclusion": "failure",
+      "reason": "Billing/draft/auth passed, followed by seven pre-existing frontend failures. The final run provides independent baseline comparison; those failures remain explicitly unresolved."
+    }
+  ],
+  "localValidation": {
+    "node": "22.16.0",
+    "passed": 41,
+    "failed": 0,
+    "skipped": 1,
+    "skipReason": "No disposable PostgreSQL configured locally. CI executed the real database test.",
+    "javascriptSyntax": "passed",
+    "workflowYamlAndEmbeddedPython": "parsed"
+  },
+  "rollout": {
+    "defaultBillingEnabled": false,
+    "livePaymentLink": "https://buy.stripe.com/5kQ28kdMW15M6mld42cfK00",
+    "actualStripePriceVerified": false,
+    "realStripeTestModeAcceptance": "not_run",
+    "realPayment": "not_run",
+    "liveWebhookDelivery": "not_run",
+    "livePortal": "not_run",
+    "productionMigration": "not_run",
+    "productionSecretsChanged": false,
+    "productionBillingFlagChanged": false,
+    "chatgptProvider": "not_implemented"
+  },
+  "limitations": [
+    "Billing must not be activated before secret/price/link configuration, migration and test-mode acceptance.",
+    "Frontend failures remain unresolved; the successful checkpoint is not a full-suite pass.",
+    "A successful Next/Vercel build is not payment activation or end-to-end Stripe acceptance.",
+    "Reusable Payment Links cannot eliminate concurrent duplicate purchases; unlinked references and multiple customer IDs need support reconciliation.",
+    "Refund/dispute revocation and canceling an external subscription upon account deletion are not automatic.",
+    "The hosted ChatGPT-plan adapter and required onboarding are separate unfinished tasks."
+  ]
+}
