@@ -1,0 +1,51 @@
+{
+  "project": "Repot",
+  "repository": "shlbi/graft",
+  "dateUTC": "2026-10-07",
+  "phase": "stripe-billing-code-verified-rollout-disabled",
+  "request": "Use the owner-supplied Stripe Payment Link for REPOT Pro at $15/month, opening checkout separately.",
+  "supersedes": "This is the current billing-task continuation point. Older .nightshift/STATE.json native fixture handoffs remain historical and unchanged.",
+  "baselineCommit": "78726eb75fb8e5aa5ac2b9f50a5aef95c372d804",
+  "testedCommit": "6ead5e37a58ccd082fc42de40e1a45765a2808d0",
+  "branch": "repot/stripe-payment-link-20261007",
+  "pullRequest": 4,
+  "paymentLink": "https://buy.stripe.com/5kQ28kdMW15M6mld42cfK00",
+  "implemented": [
+    "Pricing and account billing pages plus separate-tab authenticated Payment Link checkout.",
+    "Exact link/price validation and opaque GitHub-account-bound checkout attribution.",
+    "Signed raw-body Stripe webhook handling and idempotent owner-bound subscription storage.",
+    "Current active subscription and paid invoice checked before each remote generation/repair.",
+    "Checked private Stripe portal handoff while preserving the original OAuth CSP.",
+    "Explicit additive migration and documented disabled-by-default rollout."
+  ],
+  "observed": {
+    "workflowRunId": 37704552037,
+    "jobId": 113075696410,
+    "conclusion": "success",
+    "billingAndPostgres": "42 passed",
+    "drafts": "142 passed",
+    "authentication": "161 passed",
+    "build": "passed with billing disabled",
+    "frontend": "23 passed and 7 unchanged baseline failures, not a full frontend pass"
+  },
+  "documentation": "docs/BILLING.md",
+  "evidence": "docs/verification/stripe-billing.json",
+  "publication": "The recorded executable/workflow commit passed the bounded CI checkpoint. The final documentation commit does not change executable bytes. PR 4 and current main determine merge attachment; check Vercel separately.",
+  "activation": "Not performed. No production credentials, database migration, billing flag, Stripe account mutation, real charge or Stripe test-mode end-to-end check.",
+  "next": [
+    "Configure Stripe server-only secrets plus exact plink_ and price_ IDs through secure deployment configuration, never chat or git.",
+    "Choose and disclose the sustainable daily AI attempt allowance.",
+    "Apply the additive migration to the correct database and configure webhook plus cancellation portal.",
+    "Complete real Stripe test-mode checkout, account activation, delayed payment, replay, renewal, cancellation, portal and remote submission tests before live activation.",
+    "Implement the separately approved ChatGPT-plan execution path; do not show the disabled placeholder as functional.",
+    "Repair the seven pre-existing frontend failures in a separate focused change."
+  ],
+  "limitations": [
+    "Billing must not be activated before secret/price/link configuration, migration and test-mode acceptance.",
+    "Frontend failures remain unresolved; the successful checkpoint is not a full-suite pass.",
+    "A successful Next/Vercel build is not payment activation or end-to-end Stripe acceptance.",
+    "Reusable Payment Links cannot eliminate concurrent duplicate purchases; unlinked references and multiple customer IDs need support reconciliation.",
+    "Refund/dispute revocation and canceling an external subscription upon account deletion are not automatic.",
+    "The hosted ChatGPT-plan adapter and required onboarding are separate unfinished tasks."
+  ]
+}

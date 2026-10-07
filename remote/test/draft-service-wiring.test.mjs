@@ -1,19 +1,21 @@
-/** @file Test production repair-feedback wiring with closed dependency doubles; no services or credentials. */
+/** Production wiring with closed dependency doubles; no services or credentials. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
+import {withBillingGate} from '../billing.mjs';
 
-test('production service forwards saved feedback and original snapshots to the shared builder',async()=>{
-  let built,checked;
+test('production service forwards saved feedback and checks billing before submission',async()=>{
+  let built,checked; const calls=[];
   const deps={
     './db.mjs':{db:()=>({})},'./crypto.mjs':{seal:()=>{},open:()=>{}},
     './env.mjs':{env:()=> 'TEST_ONLY_KEY',intEnv:(_name,defaultValue)=>defaultValue},
     './github.mjs':{githubTokenForUser:()=>{throw Error('Unexpected network');},snapshotRepository:()=>{}},
     '../web/lib/core.mjs':{analyze:()=>{}},'../web/lib/core-base.mjs':{featureText:v=>v},
     '../web/lib/ai.mjs':{buildProposalRequest:args=>{built=args;return args;},reviewFromAIResponse:(_response,args)=>{checked=args;return args;}},
-    './draft-job-store.mjs':{createDraftJobStore:()=>({})},'./background-ai.mjs':{createBackgroundAI:()=>({})},
-    './draft-jobs.mjs':{createDraftJobs:options=>options}
+    './draft-job-store.mjs':{createDraftJobStore:()=>({beginSubmission:async claim=>{calls.push(['submission',claim]);return claim;}})},'./background-ai.mjs':{createBackgroundAI:()=>({})},
+    './draft-jobs.mjs':{createDraftJobs:options=>options},
+    './billing.mjs':{withBillingGate},'./billing-service.mjs':{authorizePaidDraft:async uid=>{calls.push(['billing',uid]);}}
   };
   const context=vm.createContext({}),mod=new vm.SourceTextModule(await readFile(new URL('../draft-service.mjs',import.meta.url),'utf8'),{context});
   await mod.link(spec=>{assert.ok(Object.hasOwn(deps,spec));const values=deps[spec];return new vm.SyntheticModule(Object.keys(values),function(){for(const[k,v]of Object.entries(values))this.setExport(k,v);},{context});});
@@ -22,4 +24,7 @@ test('production service forwards saved feedback and original snapshots to the s
   service.buildRequest(value);service.reviewResponse({},value);
   assert.equal(built.repair,value.repair);assert.equal(built.source,value.source.snapshot);assert.equal(built.context,value.context);
   assert.equal(checked.destination,value.destination.snapshot);assert.equal(checked.context,value.context);
+  const claimed={user_id:'verified-owner',id:'job',charged:0};
+  assert.equal(await service.store.beginSubmission(claimed),claimed);
+  assert.deepEqual(calls,[['billing','verified-owner'],['submission',claimed]]);
 });
