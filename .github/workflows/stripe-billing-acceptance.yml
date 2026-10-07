@@ -1,0 +1,52 @@
+name: Stripe billing acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [repot/stripe-payment-link-20261007]
+permissions:
+  contents: read
+jobs:
+  billing:
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: repot_test
+          POSTGRES_PASSWORD: fixture_only_password
+          POSTGRES_DB: repot_billing_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U repot_test -d repot_billing_test"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install dependencies without lifecycle scripts
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts --no-audit --no-fund
+          else
+            npm install --ignore-scripts --no-audit --no-fund
+          fi
+      - name: Billing logic, browser routes and real PostgreSQL ownership tests
+        env:
+          TEST_BILLING_DATABASE_URL: postgresql://repot_test:fixture_only_password@127.0.0.1:5432/repot_billing_test
+        run: node --experimental-vm-modules --test remote/test/billing*.test.mjs remote/test/draft-service-wiring.test.mjs
+      - name: Retained draft, repair and authentication regressions
+        run: |
+          npm run test:drafts
+          npm run test:auth
+          npm run test:frontend
+      - name: Production build with billing inactive and no production credentials
+        env:
+          REPOT_BILLING_ENABLED: 'false'
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npm run build
