@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "dateUTC": "2026-10-08",
+  "recordType": "observed-connector-and-ci-summary",
+  "repository": "shlbi/graft",
+  "baselineCommit": "ac33c802f4d380f3efb7d2654feb6494656e8133",
+  "testedCommit": "0bcba322506bd4298774b6b703d68f950937aff6",
+  "provenance": "Summary of actual connected Stripe configuration reads/writes and observed GitHub CI output, not raw API responses or a payment acceptance report. Credentials are intentionally omitted.",
+  "stripe": {
+    "accountName": "Getrepot",
+    "livemode": true,
+    "paymentLink": "https://buy.stripe.com/5kQ28kdMW15M6mld42cfK00",
+    "linkId": "plink_1UO45L6SP0lvEsfmU0B4F8ng",
+    "priceId": "price_1UO43R6SP0lvEsfm4EilHFlL",
+    "productId": "prod_VOrnQgI48rcXPk",
+    "price": {"currency": "usd", "unitAmount": 1500, "interval": "month", "intervalCount": 1, "usageType": "licensed", "quantity": 1},
+    "linkActive": true,
+    "priceActive": true,
+    "managedPayments": "already enabled; unchanged",
+    "automaticTax": "already enabled; unchanged",
+    "taxBehavior": "unspecified; base price is not a tax-inclusive guarantee",
+    "existingProductPriceLinkMutated": false,
+    "portal": {
+      "id": "bpc_1UOLsP6SP0lvEsfmIH2Vvu9I",
+      "createdThisSession": true,
+      "readBackConfirmed": true,
+      "active": true,
+      "cancelMode": "at_period_end",
+      "prorationBehavior": "none",
+      "invoiceHistory": true,
+      "paymentMethodUpdates": true,
+      "planChanges": false,
+      "publicLogin": false,
+      "returnUrl": "https://getrepot.com/billing"
+    },
+    "webhook": {
+      "id": "we_1UOLu56SP0lvEsfmZzowySad",
+      "createdThisSession": true,
+      "disabledImmediatelyAfterCreation": true,
+      "status": "disabled",
+      "url": "https://getrepot.com/api/billing/stripe",
+      "apiVersion": "2025-06-30.basil",
+      "events": ["checkout.session.completed", "checkout.session.async_payment_succeeded"],
+      "reasonDisabled": "Receiver credentials, production database access and sandbox acceptance are not established."
+    }
+  },
+  "ci": {
+    "runId": 37824849349,
+    "jobId": 113474920130,
+    "url": "https://github.com/shlbi/graft/actions/runs/37824849349",
+    "status": "completed",
+    "conclusion": "success",
+    "createdAt": "2026-10-08T18:30:44Z",
+    "updatedAt": "2026-10-08T18:32:08Z",
+    "runtime": {"os": "Ubuntu 24.04.5", "node": "24.21.0", "npm": "11.19.0", "postgres": "16.15", "next": "16.3.6"},
+    "commands": [
+      {"command": "node --experimental-vm-modules --test remote/test/billing*.test.mjs remote/test/draft-service-wiring.test.mjs", "passed": 67, "failed": 0, "skipped": 0},
+      {"command": "npm run test:drafts", "passed": 142, "failed": 0, "skipped": 0},
+      {"command": "npm run test:auth", "passed": 161, "failed": 0, "skipped": 0},
+      {"command": "npm run build", "status": "passed", "billingEnabled": false}
+    ],
+    "frontend": {
+      "classification": "unchanged_baseline_failures",
+      "baseline": "78726eb75fb8e5aa5ac2b9f50a5aef95c372d804",
+      "passed": 23,
+      "failed": 7,
+      "skipped": 0,
+      "inputTreesAndFailureNamesMatched": true,
+      "fullFrontendPass": false
+    },
+    "scope": "Real disposable PostgreSQL; Stripe/provider behavior is doubled in CI. Counts are per command, not unique tests across commands."
+  },
+  "local": {"node": "22.16.0", "newTestsPassed": 25, "failed": 0, "skipped": 0, "javascriptSyntaxChecks": 5, "workflowYamlAndEmbeddedPython": "passed"},
+  "deploymentBlocker": {
+    "availableTeam": "alshalabis384-4628",
+    "projectLists": "empty with and without REPOT search",
+    "repotDeploymentLookup": "not_found",
+    "repotEnvironmentLookup": "not_found",
+    "gitDeploymentContext": "no linked projects or origin connections",
+    "interpretation": "The connected Vercel scope cannot access REPOT. This does not establish deletion of the project or absence of existing secrets."
+  },
+  "verification": {
+    "actualStripePlan": "verified",
+    "actualPortalConfiguration": "created_and_read_back",
+    "actualWebhookConfiguration": "created_then_disabled",
+    "deploymentSecrets": "unavailable_to_inspect_or_install",
+    "productionDatabaseMigration": "not_run",
+    "operatorPreflightAgainstDeployment": "not_run",
+    "realSandboxCheckout": "not_run",
+    "signedDelivery": "not_run",
+    "renewalCancellationPortalEndToEnd": "not_run",
+    "livePayment": "not_run",
+    "liveBillingActivation": "not_performed",
+    "chatgptFundedExecution": "not_implemented"
+  },
+  "limitations": [
+    "Only the live Stripe account is authorized here; sandbox access is a separate prerequisite.",
+    "Production keys may already exist but their presence is unknown through the inaccessible Vercel project.",
+    "The required AI attempt allowance has not been chosen or changed in production.",
+    "No live charge, refund, customer checkout, domain change, production migration or deployment-environment mutation was performed.",
+    "The setup checker verifies configuration only; it does not authenticate delivery or establish correct fulfillment.",
+    "Duplicate-purchase reconciliation, account-deletion cancellation and refund/dispute revocation remain documented support/implementation boundaries."
+  ]
+}
