@@ -2,7 +2,7 @@ name: Stripe billing acceptance
 on:
   workflow_dispatch:
   push:
-    branches: [repot/stripe-payment-link-20261007]
+    branches: [repot/stripe-payment-link-20261007, repot/stripe-account-setup-20261008]
 permissions:
   contents: read
 jobs:
