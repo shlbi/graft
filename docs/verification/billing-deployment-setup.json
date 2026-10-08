@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "recordType": "observed-operator-setup-summary",
+  "dateUTC": "2026-10-08",
+  "repository": "shlbi/graft",
+  "baselineCommit": "83adcc14b31e662edd315a8b3e5651b63c68d325",
+  "status": "deployment-configured-credentials-and-sandbox-pending",
+  "provenance": "Summary of direct Vercel project/env metadata, Neon transaction/catalog results, and Stripe account/webhook reads. Not a raw API export or end-to-end payment report.",
+  "vercel": {
+    "projectId": "prj_NEqCLZyylACfEVRdR9zLW6gNoFAi",
+    "projectName": "repot",
+    "teamId": "team_6B2mQh5yOrCrMmOjtnVBEPvy",
+    "repositoryAndProductionCommitVerified": true,
+    "existingDomains": [
+      "getrepot.com",
+      "mcp.getrepot.com"
+    ],
+    "createdProductionConfiguration": {
+      "REPOT_BILLING_ENABLED": "false",
+      "STRIPE_PAYMENT_LINK_ID": "plink_1UO45L6SP0lvEsfmU0B4F8ng",
+      "STRIPE_PRICE_ID": "price_1UO43R6SP0lvEsfm4EilHFlL",
+      "STRIPE_PORTAL_CONFIGURATION_ID": "bpc_1UOLsP6SP0lvEsfmIH2Vvu9I",
+      "STRIPE_WEBHOOK_ENDPOINT_ID": "we_1UOLu56SP0lvEsfmZzowySad"
+    },
+    "configurationReadBack": "matched; production-only; no failed entries",
+    "secretInspection": "Metadata only; no existing secret was decrypted.",
+    "missingCredentialNames": [
+      "STRIPE_SECRET_KEY",
+      "STRIPE_WEBHOOK_SECRET"
+    ],
+    "webhookSecretWrite": "blocked_by_tool_safety_check; not installed; no alternate transport attempted",
+    "allowance": "REPOT_DAILY_DRAFT_LIMIT absent from observed project configuration; no business allowance selected",
+    "otherCredentialsChanged": false
+  },
+  "database": {
+    "provider": "Neon",
+    "projectId": "sparkling-mode-54111249",
+    "branchId": "br-tiny-frog-b5e89hs4",
+    "branchName": "production",
+    "databaseName": "neondb",
+    "migrationSource": "docs/migrations/002-billing.sql",
+    "execution": "The existing CREATE TABLE/INDEX statements were applied using one Neon transaction, not the CLI. Added bounded local lock/statement timeouts and guards for the existing auth and draft schema.",
+    "tablesVerified": [
+      "repot_billing_checkout_refs",
+      "repot_billing_subscriptions"
+    ],
+    "catalogChecks": [
+      "both primary keys",
+      "session_id unique constraint",
+      "reference-format check",
+      "both user foreign keys with ON DELETE CASCADE",
+      "both owner indexes",
+      "not-null constraints"
+    ],
+    "customerRowsReadOrModified": false,
+    "existingTablesDroppedOrAltered": false,
+    "limitation": "Catalog verification on the named Neon production branch, not a fresh request from the deployed application. The sensitive Vercel DATABASE_URL was not decrypted."
+  },
+  "stripe": {
+    "webhookEndpointId": "we_1UOLu56SP0lvEsfmZzowySad",
+    "lastObservedWebhookStatus": "disabled",
+    "authorizedModesObserved": [
+      "live"
+    ],
+    "resourcesChangedThisContinuation": false,
+    "livePaymentsCreated": false
+  },
+  "verification": {
+    "nonSecretEnvironmentReadBack": "passed",
+    "databaseMigrationAndCatalog": "passed_on_named_branch",
+    "deployedApplicationDatabaseConnectivity": "not_run",
+    "signedWebhookDelivery": "not_run",
+    "stripeSandboxCheckout": "not_run",
+    "renewalCancellationPortalEndToEnd": "not_run",
+    "liveBillingActivation": "not_performed",
+    "livePageSmokeCheck": "not_run; Vercel fetch helper returned 403 at deployment-alias access, not an application response",
+    "newApplicationRegressionRun": "not_run; this follow-up changes documentation/handoff only"
+  },
+  "remaining": [
+    "Enter a least-privilege runtime Stripe API key and the matching endpoint signing secret directly in Vercel Production secret settings, not in chat or source.",
+    "Choose/disclose the included model-attempt allowance without changing the approved $15/month base price.",
+    "Authorize an isolated Stripe sandbox and finish checkout, signed delivery, owner binding, replay, renewal, cancellation, portal and paid/unpaid submission acceptance.",
+    "Check the deployed application against its configured database; then enable the appropriate webhook and billing flag only after acceptance.",
+    "Keep the separate ChatGPT-funded provider disabled until its implementation and hosted onboarding are complete."
+  ]
+}

@@ -2,47 +2,53 @@
   "project": "Repot",
   "repository": "shlbi/graft",
   "dateUTC": "2026-10-08",
-  "phase": "stripe-resources-configured-code-tested-activation-blocked",
-  "request": "Owner connected Stripe MCP and requested completing billing, committing and pushing to GitHub.",
-  "previousHandoff": {"commit": "ac33c802f4d380f3efb7d2654feb6494656e8133", "path": ".nightshift/BILLING-HANDOFF.json", "evidence": "docs/verification/stripe-billing.json"},
-  "supersedes": "Use this file for the current billing continuation. Native handoffs in STATE.json remain separate historical work.",
-  "testedCommit": "0bcba322506bd4298774b6b703d68f950937aff6",
-  "branch": "repot/stripe-account-setup-20261008",
-  "pullRequest": 5,
-  "actualStripeWork": [
-    "Verified the existing exact active Payment Link and sole quantity-one licensed USD1500/month price through the connected Getrepot live account.",
-    "Preserved existing Managed Payments, automatic tax, product/price/link and after-completion settings.",
-    "Created and read back dedicated portal bpc_1UOLsP6SP0lvEsfmIH2Vvu9I with invoice/payment updates and period-end cancellation.",
-    "Created webhook we_1UOLu56SP0lvEsfmZzowySad for the two checkout events, then immediately disabled it until the receiver is configured."
+  "phase": "deployment-configured-credentials-and-sandbox-pending",
+  "request": "User restored Vercel access to continue the authorized Stripe setup and GitHub commit/push.",
+  "previousHandoff": {
+    "commit": "83adcc14b31e662edd315a8b3e5651b63c68d325",
+    "path": ".nightshift/BILLING-HANDOFF.json",
+    "evidence": "docs/verification/stripe-account-setup.json"
+  },
+  "supersedes": "Use this handoff for current billing operations. Prior implementation/CI records remain in history and docs/verification.",
+  "documentation": "docs/BILLING-DEPLOYMENT.md",
+  "implementationDocumentation": "docs/BILLING.md",
+  "evidence": "docs/verification/billing-deployment-setup.json",
+  "completed": [
+    "Resolved the existing REPOT Vercel project, production deployment, repository and domains.",
+    "Saved and read back the four verified Stripe resource IDs plus an explicit false billing flag in Production only.",
+    "Applied the existing additive billing schema on the identified Neon production branch; independently checked constraints and indexes.",
+    "Left existing credentials, domains, application code and Stripe delivery state unchanged."
   ],
-  "code": [
-    "Non-secret verified live defaults in remote/billing-plan.mjs; sandbox resource IDs never inherit live defaults.",
-    "Authenticated portal sessions explicitly use the configured portal rather than an account-wide default.",
-    "Read-only four-GET setup checker and CLI with safe output; configuration success never becomes payment/delivery/database acceptance.",
-    "Shared checkout-plan validator and 25 added regression checks; prior paywall, quotas, repairs and authentication remain intact."
-  ],
-  "observedCI": {"runId": 37824849349, "jobId": 113474920130, "conclusion": "success", "billingPostgresWiring": "67 passed", "drafts": "142 passed", "authentication": "161 passed", "build": "passed with billing disabled", "frontend": "23 passed / 7 unchanged baseline failures; not a full pass"},
-  "documentation": "docs/BILLING.md",
-  "evidence": "docs/verification/stripe-account-setup.json",
-  "publication": "Executable/workflow files passed the recorded CI. Documentation-only follow-up does not change tested executable bytes; PR 5 and main establish merge attachment. No runtime activation is claimed.",
-  "activation": "Not performed. Vercel project access is unavailable; the staged Stripe webhook is disabled; real sandbox acceptance is not run.",
-  "blockers": [
-    "The sole available Vercel team alshalabis384-4628 lists no projects; REPOT deployment/env queries return not_found; git deployment context lists no linked projects.",
-    "Production API/signing secret presence is unknown and cannot be securely changed through this connection.",
-    "Only a live Stripe account is authorized; no sandbox/test-mode account is available here.",
-    "The actual production database and sustainable disclosed AI attempt allowance still need verification before activation."
-  ],
+  "vercel": {
+    "projectId": "prj_NEqCLZyylACfEVRdR9zLW6gNoFAi",
+    "teamId": "team_6B2mQh5yOrCrMmOjtnVBEPvy"
+  },
+  "database": {
+    "projectId": "sparkling-mode-54111249",
+    "branchId": "br-tiny-frog-b5e89hs4",
+    "databaseName": "neondb",
+    "migration": "applied and catalog-verified; application-side smoke check still pending"
+  },
+  "blocked": {
+    "STRIPE_SECRET_KEY": "not present in observed Vercel project env metadata; connected Stripe MCP does not supply the runtime key",
+    "STRIPE_WEBHOOK_SECRET": "not installed; connector credential write was blocked",
+    "sandbox": "only a live Stripe account is authorized",
+    "allowance": "not selected or installed"
+  },
+  "billingEnabled": false,
+  "stripeWebhookEnabled": false,
+  "chatgptProvider": "not implemented; remains disabled",
   "next": [
-    "Restore access to the existing REPOT Vercel project, not a replacement project; verify team, repository, production branch and database.",
-    "Securely install or verify the runtime Stripe key and matching webhook secret; never put credentials in chat, Git, docs or logs.",
-    "Authorize a Stripe sandbox and use separate test credentials/resources/deployment/database for real checkout, signed webhook, replay, renewal, cancellation, portal and submission acceptance.",
-    "Apply the existing additive migration to the verified intended database; disclose an explicit allowance.",
-    "Only after setup and end-to-end acceptance, enable the staged live webhook and REPOT_BILLING_ENABLED.",
-    "Keep ChatGPT funding disabled until its separate adapter and hosted approval work is complete."
+    "Enter a least-privilege runtime Stripe API key and the matching endpoint signing secret directly in Vercel Production secret settings, not in chat or source.",
+    "Choose/disclose the included model-attempt allowance without changing the approved $15/month base price.",
+    "Authorize an isolated Stripe sandbox and finish checkout, signed delivery, owner binding, replay, renewal, cancellation, portal and paid/unpaid submission acceptance.",
+    "Check the deployed application against its configured database; then enable the appropriate webhook and billing flag only after acceptance.",
+    "Keep the separate ChatGPT-funded provider disabled until its implementation and hosted onboarding are complete."
   ],
-  "limitations": [
-    "Successful configuration reads, CI and Git/Vercel builds are not proof of live payment fulfillment.",
-    "Seven legacy frontend failures remain; no legacy assertions were weakened.",
-    "Reusable-link duplicate purchases, refund/dispute access revocation and subscription cancellation upon account deletion remain documented support/implementation boundaries."
+  "limits": [
+    "Database catalog and configuration checks do not establish a successful payment or deployed-app connectivity.",
+    "No live charge, paid AI transfer, renewal, cancellation, portal checkout, or Stripe sandbox acceptance was performed.",
+    "Previous 67 billing, 142 draft and 161 auth results belong to the prior CI checkpoint, not a new execution in this continuation.",
+    "Seven earlier frontend failures remain; duplicate purchases, refund/dispute revocation and deletion-driven Stripe cancellation remain documented boundaries."
   ]
 }
