@@ -1,6 +1,7 @@
 /** Stripe Payment Link billing. No API key, checkout email, or card data is exposed to clients. */
 import {createHmac, timingSafeEqual} from 'node:crypto';
-export const PAYMENT_LINK = 'https://buy.stripe.com/5kQ28kdMW15M6mld42cfK00';
+import {LIVE_STRIPE, BILLING_RETURN_URL} from './billing-plan.mjs';
+export const PAYMENT_LINK = LIVE_STRIPE.paymentLink;
 export const STRIPE_VERSION = '2025-06-30.basil';
 const messages = {
   billing_unavailable: 'Billing setup is not complete or could not be verified. No new payment was started.',
@@ -30,8 +31,15 @@ export function billingConfig(env = process.env) {
   // Requiring an explicit allowance avoids silently selling the alpha's default quota.
   const allowance = Number(env.REPOT_DAILY_DRAFT_LIMIT);
   if (!Number.isInteger(allowance) || allowance < 1 || allowance > 1000) throw new BillingError();
+  // Never default sandbox requests to resources from the real merchant account.
+  const defaults = live ? LIVE_STRIPE : {};
+  const portalConfigId = env.STRIPE_PORTAL_CONFIGURATION_ID ?? defaults.portalConfigId;
+  const webhookEndpointId = env.STRIPE_WEBHOOK_ENDPOINT_ID ?? defaults.webhookEndpointId;
   return {key, secret: env.STRIPE_WEBHOOK_SECRET, link, live, allowance,
-    linkId: id(env.STRIPE_PAYMENT_LINK_ID, 'plink'), priceId: id(env.STRIPE_PRICE_ID, 'price')};
+    linkId: id(env.STRIPE_PAYMENT_LINK_ID ?? defaults.linkId, 'plink'),
+    priceId: id(env.STRIPE_PRICE_ID ?? defaults.priceId, 'price'),
+    portalConfigId: portalConfigId === undefined ? null : id(portalConfigId, 'bpc'),
+    webhookEndpointId: webhookEndpointId === undefined ? null : id(webhookEndpointId, 'we')};
 }
 export async function boundedBody(response, max = 262144) {
   if (!response.body) throw new BillingError();
@@ -69,6 +77,13 @@ export function validItems(items, config) {
   return items?.has_more === false && Array.isArray(items.data) && items.data.length === 1 &&
     items.data[0].quantity === 1 && validPrice(items.data[0].price, config);
 }
+/** Shared by checkout and the read-only operator setup check. */
+export function validPaymentLink(link, items, config) {
+  return Boolean(link?.id === config.linkId && link.url === config.link && link.active === true &&
+    link.livemode === config.live && validItems(items, config) &&
+    !items.data[0].adjustable_quantity?.enabled && items.data[0].price.active === true &&
+    !link.subscription_data?.trial_period_days && !link.subscription_data?.trial_end && !link.optional_items?.length);
+}
 export function subscriptionAccess(sub, binding, config, now = Date.now()) {
   if (sub?.id !== binding.subscription_id || sub.customer !== binding.customer_id || sub.livemode !== config.live)
     throw new BillingError();
@@ -97,7 +112,11 @@ export function createStripeClient(config, fetchImpl = fetch) {
     items: () => call('payment_links/' + id(config.linkId, 'plink') + '/line_items', [['limit','2']]),
     session: sessionId => call('checkout/sessions/' + id(sessionId, 'cs'), [['expand[]','line_items.data.price']]),
     subscription: subscriptionId => call('subscriptions/' + id(subscriptionId, 'sub'), [['expand[]','latest_invoice']]),
-    portal: customerId => call('billing_portal/sessions', {customer: id(customerId, 'cus'), return_url: 'https://getrepot.com/billing'}, 'POST'),
+    portal: customerId => call('billing_portal/sessions', {customer: id(customerId, 'cus'), return_url: BILLING_RETURN_URL,
+      ...(config.portalConfigId ? {configuration: id(config.portalConfigId, 'bpc')} : {})}, 'POST'),
+    // Operator-only reads. These are not called by ordinary draft submissions.
+    portalConfiguration: () => call('billing_portal/configurations/' + id(config.portalConfigId, 'bpc')),
+    webhookEndpoint: () => call('webhook_endpoints/' + id(config.webhookEndpointId, 'we')),
   };
 }
 /** Webhooks bind ownership only. Access always reads current Stripe subscription/invoice state, avoiding stale-event grants. */
@@ -113,10 +132,7 @@ export function createBillingService({config, store, stripe = createStripeClient
   async function checkout(userId) {
     if (!(await status(userId)).canCheckout) throw new BillingError('subscription_exists');
     const [link, items] = await Promise.all([stripe.link(), stripe.items()]);
-    if (link.id !== config.linkId || link.url !== config.link || link.active !== true || link.livemode !== config.live ||
-        !validItems(items, config) || items.data[0].adjustable_quantity?.enabled || items.data[0].price.active !== true ||
-        link.subscription_data?.trial_period_days || link.subscription_data?.trial_end || link.optional_items?.length)
-      throw new BillingError();
+    if (!validPaymentLink(link, items, config)) throw new BillingError();
     const reference = await store.reference(userId, config.live);
     if (!/^repot_[A-Za-z0-9_-]{32}$/.test(reference)) throw new BillingError();
     const url = new URL(config.link); url.searchParams.set('client_reference_id', reference);
