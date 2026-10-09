@@ -1,54 +1,65 @@
 {
   "project": "Repot",
   "repository": "shlbi/graft",
-  "dateUTC": "2026-10-08",
-  "phase": "deployment-configured-credentials-and-sandbox-pending",
-  "request": "User restored Vercel access to continue the authorized Stripe setup and GitHub commit/push.",
+  "dateUTC": "2026-10-09",
+  "phase": "test-mode-authorized-api-observations-recorded-runtime-e2e-pending",
   "previousHandoff": {
-    "commit": "83adcc14b31e662edd315a8b3e5651b63c68d325",
-    "path": ".nightshift/BILLING-HANDOFF.json",
-    "evidence": "docs/verification/stripe-account-setup.json"
+    "commit": "3dc45e5b29b8a8ead992e4395433b1b58f6dbe82",
+    "path": ".nightshift/BILLING-HANDOFF.json"
   },
-  "supersedes": "Use this handoff for current billing operations. Prior implementation/CI records remain in history and docs/verification.",
-  "documentation": "docs/BILLING-DEPLOYMENT.md",
-  "implementationDocumentation": "docs/BILLING.md",
-  "evidence": "docs/verification/billing-deployment-setup.json",
+  "supersedes": "Test-mode authorization and Production secret-variable presence are resolved. Earlier database/CI records remain historical; this checkpoint does not establish hosted payment fulfillment.",
+  "documentation": "docs/BILLING-TESTMODE.md",
+  "evidence": "docs/verification/stripe-testmode-snapshots.json",
   "completed": [
-    "Resolved the existing REPOT Vercel project, production deployment, repository and domains.",
-    "Saved and read back the four verified Stripe resource IDs plus an explicit false billing flag in Production only.",
-    "Applied the existing additive billing schema on the identified Neon production branch; independently checked constraints and indexes.",
-    "Left existing credentials, domains, application code and Stripe delivery state unchanged."
+    "Stripe test-mode API authorization verified; do not repeat the authorization loop.",
+    "Actual synthetic initial paid and deliberately failed invoices observed.",
+    "Actual scheduling of period-end cancellation and immediate cancellation observed.",
+    "Both test subscriptions terminated; synthetic customers/product/price and expiring unadvanced clock retained.",
+    "Production Stripe variable presence checked without reading values; no Production mutation."
   ],
-  "vercel": {
+  "production": {
     "projectId": "prj_NEqCLZyylACfEVRdR9zLW6gNoFAi",
-    "teamId": "team_6B2mQh5yOrCrMmOjtnVBEPvy"
+    "teamId": "team_6B2mQh5yOrCrMmOjtnVBEPvy",
+    "credentialVariables": "Both present as Sensitive Production values; runtime permissions/signing match not established.",
+    "billingEnabled": false,
+    "dailyAllowance": "not_selected",
+    "liveWebhook": "last verified disabled; not changed by this checkpoint",
+    "chatgptProvider": "unimplemented and disabled"
   },
   "database": {
     "projectId": "sparkling-mode-54111249",
     "branchId": "br-tiny-frog-b5e89hs4",
     "databaseName": "neondb",
-    "migration": "applied and catalog-verified; application-side smoke check still pending"
+    "migration": "Previously applied/catalog-verified; application-side payment/owner-binding test remains pending."
   },
-  "blocked": {
-    "STRIPE_SECRET_KEY": "not present in observed Vercel project env metadata; connected Stripe MCP does not supply the runtime key",
-    "STRIPE_WEBHOOK_SECRET": "not installed; connector credential write was blocked",
-    "sandbox": "only a live Stripe account is authorized",
-    "allowance": "not selected or installed"
+  "ci": {
+    "testedCommit": "4bdae16020fd913761eaefe9c7f8956249cd3f19",
+    "runId": 37872960403,
+    "status": "completed",
+    "conclusion": "success",
+    "jobId": 113634944487,
+    "billingPassed": 85,
+    "newObservedReplayPassed": 18,
+    "draftsPassed": 142,
+    "authenticationPassed": 161,
+    "failed": 0,
+    "skipped": 0,
+    "build": "passed with billing disabled",
+    "frontend": "23 passed / 7 unchanged baseline failures, not a full frontend pass"
   },
-  "billingEnabled": false,
-  "stripeWebhookEnabled": false,
-  "chatgptProvider": "not implemented; remains disabled",
   "next": [
-    "Enter a least-privilege runtime Stripe API key and the matching endpoint signing secret directly in Vercel Production secret settings, not in chat or source.",
-    "Choose/disclose the included model-attempt allowance without changing the approved $15/month base price.",
-    "Authorize an isolated Stripe sandbox and finish checkout, signed delivery, owner binding, replay, renewal, cancellation, portal and paid/unpaid submission acceptance.",
-    "Check the deployed application against its configured database; then enable the appropriate webhook and billing flag only after acceptance.",
-    "Keep the separate ChatGPT-funded provider disabled until its implementation and hosted onboarding are complete."
+    "Configure an isolated test deployment/runtime with test-only Stripe credentials and endpoint plus separate database; keep Production secrets and protections unchanged.",
+    "Exercise the normal authenticated browser Payment Link and real signed webhook flow, including owner binding/replay, then delayed payment/recovery/renewal/portal cancellation.",
+    "Verify actual Production key permissions and endpoint signature match without exporting secrets.",
+    "Select and disclose the paid-tier AI-attempt allowance before enabling live billing."
   ],
   "limits": [
-    "Database catalog and configuration checks do not establish a successful payment or deployed-app connectivity.",
-    "No live charge, paid AI transfer, renewal, cancellation, portal checkout, or Stripe sandbox acceptance was performed.",
-    "Previous 67 billing, 142 draft and 161 auth results belong to the prior CI checkpoint, not a new execution in this continuation.",
-    "Seven earlier frontend failures remain; duplicate purchases, refund/dispute revocation and deletion-driven Stripe cancellation remain documented boundaries."
-  ]
+    "API-created subscriptions are not hosted Checkout Sessions or deployed REPOT account activation.",
+    "Clock was not advanced; renewal, recovery and natural period-end cancellation not run.",
+    "Replay fixtures are selected observed fields; harness time/bindings/provider injection are explicit doubles, not new Stripe calls.",
+    "API fixtures omit tax/Managed Payments and do not prove the app's different pinned request version.",
+    "No live charge, refund, paid AI, production customer-row write or launch activation.",
+    "Seven old frontend failures and existing refund/dispute/duplicate/account-deletion boundaries remain."
+  ],
+  "publication": "The replay test/evidence commit passed the recorded hosted job. Follow-up documentation does not change tested executable bytes. PR 6 and main establish merge attachment; Vercel deployment is a separate check."
 }
