@@ -1,0 +1,82 @@
+name: Live billing smoke
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/billing-live-smoke.yml']
+permissions: {}
+jobs:
+  public-routes:
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Check public billing routes without credentials or a purchase
+        shell: bash
+        run: |
+          python3 - <<'PYSMOKE'
+          import json
+          from html.parser import HTMLParser
+          from urllib.request import Request, build_opener, HTTPRedirectHandler, ProxyHandler
+          from urllib.error import HTTPError, URLError
+          
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+          
+          class Links(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.links = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'a':
+                      self.links.append(dict(attrs))
+          
+          opener = build_opener(ProxyHandler({}), NoRedirect())
+          def request(path, data=None):
+              req = Request('https://getrepot.com' + path, data=data,
+                            headers={'User-Agent': 'REPOT-live-billing-smoke/1.0',
+                                     'Content-Type': 'application/json'})
+              try:
+                  response = opener.open(req, timeout=15)
+              except HTTPError as error:
+                  response = error
+              with response:
+                  body = response.read(65537)
+                  if len(body) > 65536:
+                      raise ValueError('response exceeded budget')
+                  return response.status, response.headers, body
+          
+          def require(ok, name):
+              print(json.dumps({'check': name, 'passed': bool(ok)}), flush=True)
+              if not ok:
+                  raise ValueError('smoke check did not pass')
+          
+          try:
+              status, headers, body = request('/pricing')
+              text = body.decode('utf-8')
+              links = Links()
+              links.feed(text)
+              require(status == 200 and any(
+                  a.get('href') == '/billing/checkout' and a.get('target') == '_blank'
+                  and {'noopener', 'noreferrer'} <= set(a.get('rel', '').split())
+                  for a in links.links), 'pricing_has_enabled_separate_tab_checkout')
+              require('Up to 20 AI attempts per UTC day.' in text and 'Pay $15/month' in text,
+                      'pricing_discloses_monthly_price_and_daily_attempt_allowance')
+              status, headers, body = request('/billing/checkout')
+              require(status == 303 and headers.get('Location') in (
+                  '/sign-in?next=%2Fbilling%2Fcheckout',
+                  'https://getrepot.com/sign-in?next=%2Fbilling%2Fcheckout'),
+                  'unauthenticated_checkout_requires_sign_in')
+              # No event ID, session ID, signature, customer, card or authorization is supplied.
+              # The existing receiver rejects this BEFORE Stripe/database service access.
+              status, headers, body = request('/api/billing/stripe', b'{}')
+              require(status == 400 and json.loads(body).get('error') == 'invalid_webhook',
+                      'live_webhook_rejects_unsigned_request')
+              print(json.dumps({'scope': 'public_billing_routes_only', 'status': 'passed',
+                                'purchase': 'not_performed', 'signed_delivery': 'not_tested'}))
+          except (URLError, ValueError, OSError, UnicodeError):
+              print(json.dumps({'scope': 'public_billing_routes_only', 'status': 'failed',
+                                'purchase': 'not_performed'}))
+              raise SystemExit(1)
+          PYSMOKE

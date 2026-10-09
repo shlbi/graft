@@ -2,64 +2,67 @@
   "project": "Repot",
   "repository": "shlbi/graft",
   "dateUTC": "2026-10-09",
-  "phase": "test-mode-authorized-api-observations-recorded-runtime-e2e-pending",
+  "phase": "live-billing-enabled-owner-request",
+  "authorization": "Owner explicitly instructed: THEN ENABLE LIVE BILLING!! after being told which end-to-end tests remained. Activate the existing $15/month offering; no purchase or charge is authorized or performed by this operation.",
   "previousHandoff": {
-    "commit": "3dc45e5b29b8a8ead992e4395433b1b58f6dbe82",
+    "commit": "096b7c77a98001760c032a97fbe5c472527e793e",
     "path": ".nightshift/BILLING-HANDOFF.json"
   },
-  "supersedes": "Test-mode authorization and Production secret-variable presence are resolved. Earlier database/CI records remain historical; this checkpoint does not establish hosted payment fulfillment.",
-  "documentation": "docs/BILLING-TESTMODE.md",
-  "evidence": "docs/verification/stripe-testmode-snapshots.json",
+  "supersedes": "Live activation is now performed. Older records describing disabled checkout/webhook and an unset allowance are historical, not current rollout instructions. Remaining verification gaps are not represented as passes.",
   "completed": [
-    "Stripe test-mode API authorization verified; do not repeat the authorization loop.",
-    "Actual synthetic initial paid and deliberately failed invoices observed.",
-    "Actual scheduling of period-end cancellation and immediate cancellation observed.",
-    "Both test subscriptions terminated; synthetic customers/product/price and expiring unadvanced clock retained.",
-    "Production Stripe variable presence checked without reading values; no Production mutation."
+    "Resolved the same existing REPOT Vercel project by its exact ID and confirmed its owner and production domains.",
+    "Confirmed both Stripe credential variables exist as Sensitive Production entries without reading or changing their values.",
+    "Set REPOT_DAILY_DRAFT_LIMIT=20, retaining the existing draft-service default and using the existing dynamic pricing disclosure. Repairs count toward this allowance.",
+    "Changed REPOT_BILLING_ENABLED from false to true in Production.",
+    "Created a fresh Production deployment from current main using the updated environment, and observed READY with getrepot.com and mcp.getrepot.com aliases assigned.",
+    "Enabled the existing live Stripe webhook without changing its URL, event types, API version, or signing secret.",
+    "Added a credential-free public-route smoke workflow. No customer session, payment method, checkout purchase, or AI generation is used."
   ],
   "production": {
     "projectId": "prj_NEqCLZyylACfEVRdR9zLW6gNoFAi",
     "teamId": "team_6B2mQh5yOrCrMmOjtnVBEPvy",
-    "credentialVariables": "Both present as Sensitive Production values; runtime permissions/signing match not established.",
-    "billingEnabled": false,
-    "dailyAllowance": "not_selected",
-    "liveWebhook": "last verified disabled; not changed by this checkpoint",
+    "billingEnabled": true,
+    "dailyAllowance": 20,
+    "allowanceUnit": "model attempts per authenticated user per UTC day, including repairs",
+    "allowanceBasis": "Retained the existing remote/draft-service.mjs fallback during the explicit launch request, not a claim of measured unit economics.",
+    "priceUSDPerMonth": 15,
+    "paymentLinkId": "plink_1UO45L6SP0lvEsfmU0B4F8ng",
+    "priceId": "price_1UO43R6SP0lvEsfm4EilHFlL",
+    "portalConfigId": "bpc_1UOLsP6SP0lvEsfmIH2Vvu9I",
+    "webhookEndpointId": "we_1UOLu56SP0lvEsfmZzowySad",
+    "liveWebhook": "enabled; observed from the successful Stripe update response",
+    "activationDeploymentId": "dpl_DY9xkhCMvE6SbpYDRh3B7EcRkhYC",
+    "activationSourceCommit": "096b7c77a98001760c032a97fbe5c472527e793e",
+    "activationDeploymentState": "READY; production custom domains assigned; no aliasError",
+    "credentialVariables": "Present as Sensitive Production values; secrets were neither retrieved nor modified.",
     "chatgptProvider": "unimplemented and disabled"
   },
   "database": {
     "projectId": "sparkling-mode-54111249",
     "branchId": "br-tiny-frog-b5e89hs4",
     "databaseName": "neondb",
-    "migration": "Previously applied/catalog-verified; application-side payment/owner-binding test remains pending."
+    "migration": "Previously applied and catalog-verified. No schema or customer rows changed during activation."
   },
-  "ci": {
+  "historicalCI": {
     "testedCommit": "4bdae16020fd913761eaefe9c7f8956249cd3f19",
     "runId": 37872960403,
-    "status": "completed",
-    "conclusion": "success",
-    "jobId": 113634944487,
     "billingPassed": 85,
-    "newObservedReplayPassed": 18,
     "draftsPassed": 142,
     "authenticationPassed": 161,
-    "failed": 0,
-    "skipped": 0,
-    "build": "passed with billing disabled",
-    "frontend": "23 passed / 7 unchanged baseline failures, not a full frontend pass"
+    "frontend": "23 passed / 7 unchanged baseline failures; not a full frontend pass",
+    "scope": "Historical tests and inactive-billing build, not this production activation."
   },
-  "next": [
-    "Configure an isolated test deployment/runtime with test-only Stripe credentials and endpoint plus separate database; keep Production secrets and protections unchanged.",
-    "Exercise the normal authenticated browser Payment Link and real signed webhook flow, including owner binding/replay, then delayed payment/recovery/renewal/portal cancellation.",
-    "Verify actual Production key permissions and endpoint signature match without exporting secrets.",
-    "Select and disclose the paid-tier AI-attempt allowance before enabling live billing."
+  "publicSmoke": {
+    "workflow": ".github/workflows/billing-live-smoke.yml",
+    "scope": "Enabled pricing link and disclosed allowance; unauthenticated checkout requires sign-in; unsigned webhook is rejected before Stripe/database access.",
+    "result": "Consult the workflow run associated with this commit; no result is assumed in this handoff.",
+    "excluded": "No signed delivery, authenticated paid checkout, subscription fulfillment, or customer purchase."
+  },
+  "followUpVerification": [
+    "Verify the actual authenticated Payment Link checkout and signed notification account binding without describing a pricing-page or build result as complete payment acceptance.",
+    "Complete renewal, recovery, portal and natural cancellation testing in the authorized test environment.",
+    "Keep existing price/owner/mode validation, webhook signatures and per-submission entitlement checks intact. No bypass was introduced.",
+    "The ChatGPT-funded adapter and existing refund/dispute/duplicate/account-deletion support boundaries remain separate work."
   ],
-  "limits": [
-    "API-created subscriptions are not hosted Checkout Sessions or deployed REPOT account activation.",
-    "Clock was not advanced; renewal, recovery and natural period-end cancellation not run.",
-    "Replay fixtures are selected observed fields; harness time/bindings/provider injection are explicit doubles, not new Stripe calls.",
-    "API fixtures omit tax/Managed Payments and do not prove the app's different pinned request version.",
-    "No live charge, refund, paid AI, production customer-row write or launch activation.",
-    "Seven old frontend failures and existing refund/dispute/duplicate/account-deletion boundaries remain."
-  ],
-  "publication": "The replay test/evidence commit passed the recorded hosted job. Follow-up documentation does not change tested executable bytes. PR 6 and main establish merge attachment; Vercel deployment is a separate check."
+  "publication": "This handoff and a public smoke workflow are committed after observing the activation deployment READY. Application source, payment price, tax settings, credentials and migrations remain unchanged. The Git push may create a further production deployment with the same enabled settings."
 }
