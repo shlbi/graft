@@ -1,0 +1,389 @@
+{
+  "schemaVersion": 1,
+  "recordType": "observed-stripe-testmode-projections",
+  "observationDateUTC": "2026-10-09",
+  "localSessionDate": "2026-10-08 America/New_York",
+  "provenance": "Selected fields transcribed from actual Stripe connector responses for synthetic test-mode API calls. These are compact projections, not raw response copies, browser checkout evidence, or fresh Stripe calls when replayed by CI.",
+  "repository": "shlbi/graft",
+  "baselineCommit": "3dc45e5b29b8a8ead992e4395433b1b58f6dbe82",
+  "account": "acct_1SYg5h6SP0lvEsfm",
+  "livemode": false,
+  "connectorSchemaVersion": "2026-09-30.preview",
+  "productionRequestVersion": "2025-06-30.basil",
+  "sameApiVersionAcceptance": "not_run",
+  "resources": {
+    "productId": "prod_VPHaCZs2eLRPEb",
+    "priceId": "price_1UOT196SP0lvEsfmrH1gLyhv",
+    "clockId": "clock_1UOT0r6SP0lvEsfmGVdOmhnr",
+    "clockCreatedUTC": "2026-10-09T01:54:21+00:00",
+    "clockDeletesAfterUTC": "2026-11-08T01:54:21+00:00"
+  },
+  "testClock": {
+    "frozenTime": 1791460800,
+    "advanced": false
+  },
+  "config": {
+    "priceId": "price_1UOT196SP0lvEsfmrH1gLyhv",
+    "live": false
+  },
+  "cases": [
+    {
+      "name": "paid_initial",
+      "operation": "PostSubscriptions",
+      "expectedAccessAtFrozenTime": true,
+      "subscription": {
+        "id": "sub_1UOT1p6SP0lvEsfm9W0ZHQaO",
+        "object": "subscription",
+        "customer": "cus_VPHa82yhwdtWic",
+        "livemode": false,
+        "status": "active",
+        "pause_collection": null,
+        "cancel_at_period_end": false,
+        "cancel_at": null,
+        "canceled_at": null,
+        "ended_at": null,
+        "test_clock": "clock_1UOT0r6SP0lvEsfmGVdOmhnr",
+        "automatic_tax": {
+          "enabled": false
+        },
+        "managed_payments": {
+          "enabled": false
+        },
+        "billing_mode": {
+          "type": "flexible"
+        },
+        "items": {
+          "data": [
+            {
+              "id": "si_VPHbXnkHhsUOqw",
+              "quantity": 1,
+              "current_period_start": 1791460800,
+              "current_period_end": 1794139200,
+              "price": {
+                "id": "price_1UOT196SP0lvEsfmrH1gLyhv",
+                "active": true,
+                "billing_scheme": "per_unit",
+                "currency": "usd",
+                "livemode": false,
+                "product": "prod_VPHaCZs2eLRPEb",
+                "recurring": {
+                  "interval": "month",
+                  "interval_count": 1,
+                  "usage_type": "licensed"
+                },
+                "transform_quantity": null,
+                "type": "recurring",
+                "unit_amount": 1500
+              }
+            }
+          ],
+          "has_more": false
+        },
+        "latest_invoice": {
+          "id": "in_1UOT1p6SP0lvEsfmfdCd9shr",
+          "livemode": false,
+          "customer": "cus_VPHa82yhwdtWic",
+          "status": "paid",
+          "amount_due": 1500,
+          "amount_paid": 1500,
+          "amount_remaining": 0,
+          "currency": "usd",
+          "attempted": true,
+          "attempt_count": 1,
+          "billing_reason": "subscription_create"
+        }
+      }
+    },
+    {
+      "name": "declined_initial",
+      "operation": "PostSubscriptions",
+      "expectedAccessAtFrozenTime": false,
+      "subscription": {
+        "id": "sub_1UOT226SP0lvEsfmAb5BmCTO",
+        "object": "subscription",
+        "customer": "cus_VPHagaqUp7muN7",
+        "livemode": false,
+        "status": "incomplete",
+        "pause_collection": null,
+        "cancel_at_period_end": false,
+        "cancel_at": null,
+        "canceled_at": null,
+        "ended_at": null,
+        "test_clock": "clock_1UOT0r6SP0lvEsfmGVdOmhnr",
+        "automatic_tax": {
+          "enabled": false
+        },
+        "managed_payments": {
+          "enabled": false
+        },
+        "billing_mode": {
+          "type": "flexible"
+        },
+        "items": {
+          "data": [
+            {
+              "id": "si_VPHbGoQDS51z9o",
+              "quantity": 1,
+              "current_period_start": 1791460800,
+              "current_period_end": 1794139200,
+              "price": {
+                "id": "price_1UOT196SP0lvEsfmrH1gLyhv",
+                "active": true,
+                "billing_scheme": "per_unit",
+                "currency": "usd",
+                "livemode": false,
+                "product": "prod_VPHaCZs2eLRPEb",
+                "recurring": {
+                  "interval": "month",
+                  "interval_count": 1,
+                  "usage_type": "licensed"
+                },
+                "transform_quantity": null,
+                "type": "recurring",
+                "unit_amount": 1500
+              }
+            }
+          ],
+          "has_more": false
+        },
+        "latest_invoice": {
+          "id": "in_1UOT226SP0lvEsfmh2VPgrV5",
+          "livemode": false,
+          "customer": "cus_VPHagaqUp7muN7",
+          "status": "open",
+          "amount_due": 1500,
+          "amount_paid": 0,
+          "amount_remaining": 1500,
+          "currency": "usd",
+          "attempted": true,
+          "attempt_count": 1,
+          "billing_reason": "subscription_create"
+        }
+      }
+    },
+    {
+      "name": "cancellation_scheduled",
+      "operation": "PostSubscriptionsSubscriptionExposedId",
+      "expectedAccessAtFrozenTime": true,
+      "subscription": {
+        "id": "sub_1UOT1p6SP0lvEsfm9W0ZHQaO",
+        "object": "subscription",
+        "customer": "cus_VPHa82yhwdtWic",
+        "livemode": false,
+        "status": "active",
+        "pause_collection": null,
+        "cancel_at_period_end": true,
+        "cancel_at": 1794139200,
+        "canceled_at": 1791460800,
+        "ended_at": null,
+        "test_clock": "clock_1UOT0r6SP0lvEsfmGVdOmhnr",
+        "automatic_tax": {
+          "enabled": false
+        },
+        "managed_payments": {
+          "enabled": false
+        },
+        "billing_mode": {
+          "type": "flexible"
+        },
+        "items": {
+          "data": [
+            {
+              "id": "si_VPHbXnkHhsUOqw",
+              "quantity": 1,
+              "current_period_start": 1791460800,
+              "current_period_end": 1794139200,
+              "price": {
+                "id": "price_1UOT196SP0lvEsfmrH1gLyhv",
+                "active": true,
+                "billing_scheme": "per_unit",
+                "currency": "usd",
+                "livemode": false,
+                "product": "prod_VPHaCZs2eLRPEb",
+                "recurring": {
+                  "interval": "month",
+                  "interval_count": 1,
+                  "usage_type": "licensed"
+                },
+                "transform_quantity": null,
+                "type": "recurring",
+                "unit_amount": 1500
+              }
+            }
+          ],
+          "has_more": false
+        },
+        "latest_invoice": {
+          "id": "in_1UOT1p6SP0lvEsfmfdCd9shr",
+          "livemode": false,
+          "customer": "cus_VPHa82yhwdtWic",
+          "status": "paid",
+          "amount_due": 1500,
+          "amount_paid": 1500,
+          "amount_remaining": 0,
+          "currency": "usd",
+          "attempted": true,
+          "attempt_count": 1,
+          "billing_reason": "subscription_create"
+        }
+      }
+    },
+    {
+      "name": "paid_cancelled",
+      "operation": "DeleteSubscriptionsSubscriptionExposedId",
+      "expectedAccessAtFrozenTime": false,
+      "subscription": {
+        "id": "sub_1UOT1p6SP0lvEsfm9W0ZHQaO",
+        "object": "subscription",
+        "customer": "cus_VPHa82yhwdtWic",
+        "livemode": false,
+        "status": "canceled",
+        "pause_collection": null,
+        "cancel_at_period_end": false,
+        "cancel_at": null,
+        "canceled_at": 1791460800,
+        "ended_at": 1791460800,
+        "test_clock": "clock_1UOT0r6SP0lvEsfmGVdOmhnr",
+        "automatic_tax": {
+          "enabled": false
+        },
+        "managed_payments": {
+          "enabled": false
+        },
+        "billing_mode": {
+          "type": "flexible"
+        },
+        "items": {
+          "data": [
+            {
+              "id": "si_VPHbXnkHhsUOqw",
+              "quantity": 1,
+              "current_period_start": 1791460800,
+              "current_period_end": 1794139200,
+              "price": {
+                "id": "price_1UOT196SP0lvEsfmrH1gLyhv",
+                "active": true,
+                "billing_scheme": "per_unit",
+                "currency": "usd",
+                "livemode": false,
+                "product": "prod_VPHaCZs2eLRPEb",
+                "recurring": {
+                  "interval": "month",
+                  "interval_count": 1,
+                  "usage_type": "licensed"
+                },
+                "transform_quantity": null,
+                "type": "recurring",
+                "unit_amount": 1500
+              }
+            }
+          ],
+          "has_more": false
+        },
+        "latest_invoice": {
+          "id": "in_1UOT1p6SP0lvEsfmfdCd9shr",
+          "livemode": false,
+          "customer": "cus_VPHa82yhwdtWic",
+          "status": "paid",
+          "amount_due": 1500,
+          "amount_paid": 1500,
+          "amount_remaining": 0,
+          "currency": "usd",
+          "attempted": true,
+          "attempt_count": 1,
+          "billing_reason": "subscription_create"
+        }
+      }
+    },
+    {
+      "name": "declined_cleanup",
+      "operation": "DeleteSubscriptionsSubscriptionExposedId",
+      "expectedAccessAtFrozenTime": false,
+      "subscription": {
+        "id": "sub_1UOT226SP0lvEsfmAb5BmCTO",
+        "object": "subscription",
+        "customer": "cus_VPHagaqUp7muN7",
+        "livemode": false,
+        "status": "incomplete_expired",
+        "pause_collection": null,
+        "cancel_at_period_end": false,
+        "cancel_at": null,
+        "canceled_at": 1791460800,
+        "ended_at": 1791460800,
+        "test_clock": "clock_1UOT0r6SP0lvEsfmGVdOmhnr",
+        "automatic_tax": {
+          "enabled": false
+        },
+        "managed_payments": {
+          "enabled": false
+        },
+        "billing_mode": {
+          "type": "flexible"
+        },
+        "items": {
+          "data": [
+            {
+              "id": "si_VPHbGoQDS51z9o",
+              "quantity": 1,
+              "current_period_start": 1791460800,
+              "current_period_end": 1794139200,
+              "price": {
+                "id": "price_1UOT196SP0lvEsfmrH1gLyhv",
+                "active": true,
+                "billing_scheme": "per_unit",
+                "currency": "usd",
+                "livemode": false,
+                "product": "prod_VPHaCZs2eLRPEb",
+                "recurring": {
+                  "interval": "month",
+                  "interval_count": 1,
+                  "usage_type": "licensed"
+                },
+                "transform_quantity": null,
+                "type": "recurring",
+                "unit_amount": 1500
+              }
+            }
+          ],
+          "has_more": false
+        },
+        "latest_invoice": "in_1UOT226SP0lvEsfmh2VPgrV5"
+      }
+    }
+  ],
+  "cleanup": {
+    "paidSubscription": "canceled",
+    "declinedSubscription": "incomplete_expired",
+    "customerRowsDeleted": false,
+    "clockDeleted": false,
+    "productArchived": false,
+    "priceArchived": false,
+    "note": "Both test subscriptions were terminated. Synthetic customers, the expiring clock, and the tagged test product/price remain for inspection. No real customer or production database row was changed."
+  },
+  "observed": {
+    "initialPaidInvoice": true,
+    "initialFailedPayment": true,
+    "scheduledCancellationPreservesActiveState": true,
+    "immediateCancellation": true
+  },
+  "notRun": [
+    "hosted-payment-link-browser-checkout",
+    "deployed-signed-webhook-delivery",
+    "repot-account-ownership-binding-end-to-end",
+    "renewal",
+    "failed-payment-recovery",
+    "natural-period-end-cancellation",
+    "delayed-payment",
+    "customer-portal-browser-interaction",
+    "production-api-key-permission-check",
+    "production-signing-secret-match",
+    "managed-payments-and-tax-path",
+    "paid-ai-submission"
+  ],
+  "production": {
+    "billingActivation": "not_performed",
+    "liveMutationsThisSession": false,
+    "secrets": "Production variable names/type presence verified without decryption; this is not credential validation.",
+    "dailyAllowance": "not_selected"
+  }
+}
